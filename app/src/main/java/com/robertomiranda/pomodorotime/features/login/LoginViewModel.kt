@@ -1,4 +1,4 @@
-package com.robertomiranda.pomodorotime
+package com.robertomiranda.pomodorotime.features.login
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
@@ -7,13 +7,15 @@ import com.robertomiranda.data.ApiUser
 import com.robertomiranda.data.ErrorResponse
 import com.robertomiranda.data.ResultWrapper
 import com.robertomiranda.data.login.repository.RemoteLoginRepository
+import com.robertomiranda.pomodorotime.LoginScreenState
+import com.robertomiranda.pomodorotime.commons.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginViewModel @ViewModelInject constructor(
     private val repository: RemoteLoginRepository,
     @Assisted private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _screenState: MutableLiveData<@LoginScreenState Int> =
         MutableLiveData(LoginScreenState.INITIAL)
@@ -33,7 +35,8 @@ class LoginViewModel @ViewModelInject constructor(
 
     fun startSignUp() {
 
-        _screenState.value = LoginScreenState.LOADING
+        _screenState.value =
+            LoginScreenState.LOADING
 
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.singUp(_emailLiveData.value!!, _passwordLiveData.value!!)
