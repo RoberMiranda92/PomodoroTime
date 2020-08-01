@@ -3,18 +3,17 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
 
     defaultConfig {
-        applicationId "com.robertomiranda.pomodorotime"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.pomodorotime"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode versions.code
+        versionName versions.name
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,12 +39,15 @@ android {
     dataBinding {
         enabled = true
     }
+
+    dynamicFeatures = [
+            ':login',
+    ]
 }
 
 dependencies {
+    implementation project(':core')
 
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    api project(":data")
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin_version"
 
     testImplementation libraries.jUnit
@@ -78,3 +80,4 @@ dependencies {
 
     implementation libraries.materialComponents
 }
+apply plugin: 'com.google.gms.google-services'

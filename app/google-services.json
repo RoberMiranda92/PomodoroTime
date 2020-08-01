@@ -8,55 +8,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:684382991085:android:428d61862f1e397677d2e4",
+        "mobilesdk_app_id": "1:684382991085:android:a80f8dd7592a7f8677d2e4",
         "android_client_info": {
-          "package_name": "com.robertomiranda.data"
+          "package_name": "com.pomodorotime"
         }
       },
       "oauth_client": [
         {
-          "client_id": "684382991085-k4gks04d5cmtfpivga64r9tkr9g2ce0c.apps.googleusercontent.com",
+          "client_id": "684382991085-k0p82er4c9ciccjv9pl8t9vun0gc3ssr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.robertomiranda.data",
-            "certificate_hash": "563f02b796d15a0c480c65950b10013e7f6b5427"
-          }
-        },
-        {
-          "client_id": "684382991085-b8sthnnmarcdv0q10am8pchhi01td7jt.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAGZPEzbxViSwv9jMd_9spZD_f8A-y8J_o"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "684382991085-b8sthnnmarcdv0q10am8pchhi01td7jt.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:684382991085:android:db0b5543ce99988377d2e4",
-        "android_client_info": {
-          "package_name": "com.robertomiranda.pomodorotime"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "684382991085-09rhad6uotvoknoa2ccfg0mlg4efd33m.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.robertomiranda.pomodorotime",
-            "certificate_hash": "563f02b796d15a0c480c65950b10013e7f6b5427"
+            "package_name": "com.pomodorotime",
+            "certificate_hash": "40c21a3b7597aac7e81a1a68b619f27328f88267"
           }
         },
         {

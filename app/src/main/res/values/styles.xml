@@ -13,6 +13,7 @@
         <item name="colorOnBackground">#555555</item>
         <item name="colorSurface">#ffffff</item>
         <item name="colorOnSurface">#555555</item>
+        <item name="colorAccent">#f05b56</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
