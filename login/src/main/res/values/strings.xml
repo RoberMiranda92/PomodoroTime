@@ -1,0 +1,10 @@
+<resources>
+    <string name="title_login">Login</string>
+    <string name="login_sign_in">Sign in</string>
+    <string name="login_sign_up">Sign up</string>
+    <string name="login_create_an_account">Create an account</string>
+    <string name="login_sign_in_instead">Sign in instead</string>
+    <string name="login_confirm_password_hint">Confirm Password</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_email_hint">Email</string>
+</resources>
