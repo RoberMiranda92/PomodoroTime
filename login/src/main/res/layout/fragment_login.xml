@@ -36,7 +36,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Email">
+                    android:id="@+id/til_email"
+                    android:hint="@string/login_email_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tx_email"
@@ -49,7 +50,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Password">
+                    android:id="@+id/til_password"
+                    android:hint="@string/login_password_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tx_password"
@@ -59,10 +61,10 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
                     android:id="@+id/il_confirm_password"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Confirm Password"
+                    android:hint="@string/login_confirm_password_hint"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -79,15 +81,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Sign in" />
+                    android:text="@string/login_sign_in" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_secondary"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:id="@+id/btn_secondary"
-                    android:text="Create an account"
+                    android:text="@string/login_create_an_account"
                     android:textAllCaps="false" />
             </LinearLayout>
 
@@ -98,6 +100,9 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 tools:visibility="visible" />
+
         </com.google.android.material.card.MaterialCardView>
+
     </androidx.core.widget.NestedScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

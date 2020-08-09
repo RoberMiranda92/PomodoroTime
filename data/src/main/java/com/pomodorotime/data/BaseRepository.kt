@@ -1,10 +1,11 @@
 package com.pomodorotime.data
 
-import com.pomodorotimemiranda.data.ErrorResponse
-import com.pomodorotimemiranda.data.ResultWrapper
+import androidx.annotation.CallSuper
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import java.io.IOException
+import okio.IOException
+import retrofit2.HttpException
 
 open class BaseRepository {
 
@@ -24,30 +25,35 @@ open class BaseRepository {
                 apiCall.invoke()
             )
         } catch (throwable: Throwable) {
-            when (throwable) {
-                is IOException -> ResultWrapper.NetworkError
-//                is HttpException -> {
-//                    val code = throwable.code()
-//                    val errorResponse = convertErrorBody(throwable)
-//                    ResultWrapper.GenericError(code, errorResponse)
-//                }
-                else -> {
-                    ResultWrapper.GenericError(
-                        null,
-                        ErrorResponse(message = throwable.message ?: "")
-                    )
-                }
+            manageException(throwable)
+        }
+    }
+
+    @CallSuper
+   open protected fun <T> manageException(throwable: Throwable): ResultWrapper<T> {
+        return when (throwable) {
+            is IOException -> ResultWrapper.NetworkError
+            is HttpException -> {
+                val code = throwable.code()
+                val errorResponse = convertErrorBody(throwable)
+                ResultWrapper.GenericError(code, errorResponse)
+            }
+            else -> {
+                ResultWrapper.GenericError(
+                    null,
+                    ErrorResponse(message = throwable.message ?: "")
+                )
             }
         }
     }
 
-//    private fun convertErrorBody(throwable: HttpException): ErrorResponse? {
-//        return try {
-//            val string = throwable.response()?.errorBody()?.string()
-//            return Gson().fromJson(string, ErrorResponse::class.java)
-//
-//        } catch (exception: Exception) {
-//            null
-//        }
-//    }
+    private fun convertErrorBody(throwable: HttpException): ErrorResponse {
+        return try {
+            val string = throwable.response()?.errorBody()?.string()
+            return Gson().fromJson(string, ErrorResponse::class.java)
+
+        } catch (exception: Exception) {
+            ErrorResponse(message = throwable.message ?: "")
+        }
+    }
 }

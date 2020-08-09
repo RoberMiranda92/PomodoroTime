@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -30,7 +30,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     viewBinding {
@@ -39,13 +39,10 @@ android {
     dataBinding {
         enabled = true
     }
-
-    dynamicFeatures = [
-            ':login',
-    ]
 }
 
 dependencies {
+    implementation project(':login')
     implementation project(':core')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin_version"
@@ -68,11 +65,10 @@ dependencies {
     implementation libraries.androidXConstraintLayout
     implementation libraries.androidXSwipeToRefresh
 
-    //Hilt
-    implementation libraries.dagger_hilt
-    kapt libraries.dagger_hilt_apt
-    implementation libraries.androidX_hilt
-    kapt libraries.androidX_hilt_apt
+    //Koin
+    implementation "org.koin:koin-androidx-scope:2.1.5"
+    implementation "org.koin:koin-androidx-viewmodel:2.1.5"
+    implementation "org.koin:koin-androidx-ext:2.1.5"
 
     // Navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'

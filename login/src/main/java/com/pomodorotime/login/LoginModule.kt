@@ -1,19 +1,15 @@
 package com.pomodorotime.login
 
+
 import com.pomodorotime.data.login.repository.LoginRepository
-import com.pomodorotime.data.login.repository.RemoteLoginRepository
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityRetainedComponent
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
-@Module
-@InstallIn(ActivityRetainedComponent::class)
-object LoginModule {
+val loginModule = module {
 
-    @Provides
-    fun providesLoginRepository(
-    ): RemoteLoginRepository {
-        return LoginRepository.getNewInstance()
+    viewModel {
+        LoginViewModel(get())
     }
+
+    single { LoginRepository.getNewInstance() }
 }
