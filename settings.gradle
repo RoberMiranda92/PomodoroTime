@@ -1,3 +1,5 @@
+include ':timer'
+include ':task'
 include ':login'
 include ':app'
 include ':core'

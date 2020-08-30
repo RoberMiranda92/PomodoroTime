@@ -1,0 +1,187 @@
+package com.pomodorotime.task.taskList
+
+import android.view.ActionMode
+import android.view.LayoutInflater
+import android.view.MenuItem
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.BaseMultiSelectorAdapter
+import com.pomodorotime.core.observeEvent
+import com.pomodorotime.core.showSnackBarError
+import com.pomodorotime.task.R
+import com.pomodorotime.task.TaskNavigator
+import com.pomodorotime.task.databinding.FragmentTaskListBinding
+import com.pomodorotime.task.taskList.list.TaskListAdapter
+import com.pomodorotime.task.taskList.list.TaskListEvent
+import com.pomodorotime.task.taskList.list.TaskListItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
+@ExperimentalCoroutinesApi
+class TaskListFragment :
+    BaseFragment<TaskListEvent, TaskListScreenState, TaskViewModel, FragmentTaskListBinding>(),
+    BaseMultiSelectorAdapter.OnItemClick<TaskListItem> {
+
+    private val navigator: TaskNavigator by inject()
+    override val viewModel: TaskViewModel by viewModel()
+    private var actionMode: ActionMode? = null
+    private val taskListAdapter: TaskListAdapter by lazy {
+        TaskListAdapter(this)
+    }
+
+    override fun createBinding(inflater: LayoutInflater) = FragmentTaskListBinding.inflate(inflater)
+
+    override fun initViews() {
+        configureAddButton()
+        configureList()
+        configureStatusView()
+        viewModel.postEvent(TaskListEvent.Load)
+    }
+
+    override fun observeViewModelChanges() {
+
+        viewModel.screenState.observeEvent(this) {
+            when (it) {
+                TaskListScreenState.Loading -> {
+                    showLoading()
+                    hideAddButton()
+                    hideEmptyState()
+                    hideList()
+                    finishActionMode()
+                }
+
+                TaskListScreenState.EmptyState -> {
+                    hideLoading()
+                    hideList()
+                    hideAddButton()
+                    this.taskListAdapter.submitList(emptyList())
+                    showEmptyState()
+                }
+
+                is TaskListScreenState.DataLoaded -> {
+                    hideLoading()
+                    showList()
+                    showAddButton()
+                    hideEmptyState()
+                    finishActionMode()
+                    this.taskListAdapter.submitList(it.taskList)
+                    showAddButton()
+                }
+
+                TaskListScreenState.Editing -> {
+                    hideLoading()
+                    hideAddButton()
+                    hideEmptyState()
+                }
+                TaskListScreenState.NavigateToCreateTask -> {
+                    navigator.navigateOnToCreateTask()
+                }
+                is TaskListScreenState.Error -> {
+                    hideLoading()
+                    showAddButton()
+                    showSnackBarError(it.error.message, Snackbar.LENGTH_LONG)
+                }
+            }
+        }
+    }
+
+    override fun onLongPress(selectedSize: Int) {
+        startActionMode(selectedSize)
+    }
+
+    override fun onItemSelectedClick(selectedSize: Int) {
+        actionMode?.also {
+            if (selectedSize > 0) {
+                it.title = getMenuTitle(selectedSize)
+            } else {
+                it.finish()
+            }
+        }
+    }
+
+    override fun onItemClick(element: TaskListItem) {
+        navigator.navigateOnToTimer(element.id)
+    }
+
+    private fun manageMenuItemClick(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.delete -> {
+                viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(taskListAdapter.getSelectedItems()))
+            }
+        }
+    }
+
+    private fun configureAddButton() {
+        binding.fbAddTask.setOnClickListener {
+            viewModel.postEvent(TaskListEvent.AddTaskPressed)
+        }
+    }
+
+    private fun configureList() {
+        with(binding.rvTasks) {
+            this.adapter = taskListAdapter
+            this.layoutManager = LinearLayoutManager(context)
+        }
+    }
+
+    private fun configureStatusView() {
+        binding.statusView.setButtonAction {
+            viewModel.postEvent(TaskListEvent.AddTaskPressed)
+        }
+    }
+
+    private fun hideAddButton() {
+        binding.fbAddTask.isGone = true
+    }
+
+    private fun showAddButton() {
+        binding.fbAddTask.isVisible = true
+    }
+
+    private fun showLoading() {
+        binding.loginLoader.isVisible = true
+    }
+
+    private fun hideLoading() {
+        binding.loginLoader.isGone = true
+    }
+
+    private fun showEmptyState() {
+        binding.statusView.isVisible = true
+    }
+
+    private fun hideEmptyState() {
+        binding.statusView.isGone = true
+    }
+
+    private fun showList() {
+        binding.rvTasks.isVisible = true
+    }
+
+    private fun hideList() {
+        binding.rvTasks.isGone = true
+    }
+
+    private fun startActionMode(selectedItems: Int) {
+        actionMode = ActionModeCallback.Builder()
+            .setView(binding.toolbar)
+            .setMenu(R.menu.delete_share_menu)
+            .setTitle(getMenuTitle(selectedItems))
+            .setOnItemClick { item -> manageMenuItemClick(item) }
+            .setOnShowActionMode { viewModel.postEvent(TaskListEvent.EditTaskList) }
+            .setOnFinisActionMode { viewModel.postEvent(TaskListEvent.EditTaskListFinished) }
+            .build()
+            .startActionMode()
+    }
+
+    private fun finishActionMode() {
+        actionMode?.finish()
+    }
+
+    private fun getMenuTitle(items: Int): String = getString(R.string.action_menu_title, items)
+
+}

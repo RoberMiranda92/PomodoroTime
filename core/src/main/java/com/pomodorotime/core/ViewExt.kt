@@ -29,5 +29,5 @@ fun Fragment.showSnackBarError(
     message: String,
     duration: Int
 ) {
-    showSnackBar(message,duration, R.color.design_default_color_error)
+    showSnackBar(message, duration, R.color.design_default_color_error)
 }

@@ -2,79 +2,86 @@ package com.pomodorotime.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.pomodorotime.core.BaseViewModel
+import com.pomodorotime.core.Event
 import com.pomodorotime.data.ApiUser
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.repository.LoginRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class LoginViewModel constructor(
     private val repository: LoginRepository
-) : BaseViewModel() {
+) : BaseViewModel<LoginEvent, LoginScreenState>() {
 
-    private val _screenState: MutableLiveData<@LoginScreenState Int> =
-        MutableLiveData(LoginScreenState.INITIAL)
-    val screenState: LiveData<@LoginScreenState Int>
+    private val _screenState: MutableLiveData<Event<LoginScreenState>> =
+        MutableLiveData(Event(LoginScreenState.SignIn))
+    val screenState: LiveData<Event<LoginScreenState>>
         get() = _screenState
 
-    val loginMode: MutableLiveData<@LoginMode Int> =
-        MutableLiveData(LoginMode.SIGN_IN)
-
-    //Error
-    private val _invalidEmailError: MutableLiveData<String> = MutableLiveData()
-    val invalidEmailError: LiveData<String>
-        get() = _invalidEmailError
-
-    private val _invalidPasswordError: MutableLiveData<String> = MutableLiveData()
-    val invalidPasswordError: LiveData<String>
-        get() = _invalidPasswordError
-
-    private val _loginError: MutableLiveData<String> = MutableLiveData()
-    val loginError: LiveData<String>
-        get() = _loginError
-
+    private val _loginMode: MutableLiveData<@LoginMode Int> = MutableLiveData(LoginMode.SIGN_IN)
     private val _emailLiveData: MutableLiveData<String> = MutableLiveData("")
     private val _passwordLiveData: MutableLiveData<String> = MutableLiveData("")
-    private val _confirmePasswordLiveData: MutableLiveData<String> = MutableLiveData("")
+    private val _confirmPasswordLiveData: MutableLiveData<String> = MutableLiveData("")
 
+    override fun postEvent(event: LoginEvent) {
+        when (event) {
 
-    fun onEmailSet(email: String) {
+            is LoginEvent.LoginTyping -> {
+                onEmailSet(event.user)
+                onPasswordSet(event.password)
+                onConfirmPasswordSet(event.confirmPassword)
+            }
+            is LoginEvent.MainButtonPress -> {
+                startSign()
+            }
+
+            is LoginEvent.SecondaryButtonPress -> {
+                toggleMode()
+            }
+        }
+    }
+
+    private fun onEmailSet(email: String) {
         _emailLiveData.value = email
     }
 
-    fun onPasswordSet(password: String) {
+    private fun onPasswordSet(password: String) {
         _passwordLiveData.value = password
     }
 
-    fun onConfirmPasswordSet(confirmPassword: String) {
-        _confirmePasswordLiveData.value = confirmPassword
+    private fun onConfirmPasswordSet(confirmPassword: String) {
+        _confirmPasswordLiveData.value = confirmPassword
     }
 
-    fun startSign() {
-        when (loginMode.value) {
+    private fun startSign() {
+        when (_loginMode.value) {
             LoginMode.SIGN_IN -> startSignIn()
             LoginMode.SIGN_UP -> startSignUp()
             else -> startSignIn()
         }
     }
 
-    fun toogleMode() {
-        loginMode.value = when (loginMode.value) {
-            LoginMode.SIGN_IN -> LoginMode.SIGN_UP
-            LoginMode.SIGN_UP -> LoginMode.SIGN_IN
-            else -> LoginMode.SIGN_IN
+    private fun toggleMode() {
+        when (_loginMode.value) {
+            LoginMode.SIGN_IN -> {
+                _loginMode.value = LoginMode.SIGN_UP
+                _screenState.value = Event(LoginScreenState.SignUp)
+            }
+            LoginMode.SIGN_UP -> {
+                _loginMode.value = LoginMode.SIGN_IN
+                _screenState.value = Event(LoginScreenState.SignIn)
+            }
+            else -> {
+                _loginMode.value = LoginMode.SIGN_IN
+                _screenState.value = Event(LoginScreenState.SignUp)
+            }
         }
     }
 
     private fun startSignIn() {
+        executeCoroutine {
+            _screenState.value = Event(LoginScreenState.Loading)
 
-        _screenState.value =
-            LoginScreenState.LOADING
-
-        viewModelScope.launch(Dispatchers.IO) {
             val result = repository.signIn(_emailLiveData.value!!, _passwordLiveData.value!!)
 
             when (result) {
@@ -86,11 +93,9 @@ class LoginViewModel constructor(
     }
 
     private fun startSignUp() {
+        executeCoroutine {
+            _screenState.value = Event(LoginScreenState.Loading)
 
-        _screenState.value =
-            LoginScreenState.LOADING
-
-        viewModelScope.launch(Dispatchers.IO) {
             val result = repository.singUp(_emailLiveData.value!!, _passwordLiveData.value!!)
 
             when (result) {
@@ -102,25 +107,22 @@ class LoginViewModel constructor(
     }
 
     private fun onSignInSuccess(user: ApiUser) {
-        _screenState.postValue(LoginScreenState.SUCCESS)
+        _screenState.value = Event(LoginScreenState.Success)
     }
 
 
     private fun onError(error: ErrorResponse) {
-        _screenState.postValue(LoginScreenState.INITIAL)
-
-        when (error.code) {
-            LoginRepository.ERROR_INVALID_EMAIL -> _invalidEmailError.postValue(error.message)
-            LoginRepository.ERROR_WRONG_PASSWORD -> _invalidPasswordError.postValue(error.message)
-            LoginRepository.ERROR_OPERATION_NOT_ALLOWED -> _loginError.postValue(error.message)
-            LoginRepository.ERROR_WEAK_PASSWORD -> _invalidPasswordError.postValue(error.message)
-            LoginRepository.ERROR_EMAIL_ALREADY_IN_USE -> _invalidEmailError.postValue(error.message)
-            LoginRepository.ERROR_INVALID_CREDENTIAL -> _invalidEmailError.postValue(error.message)
-            LoginRepository.ERROR_USER_NOT_FOUND -> _invalidEmailError.postValue(error.message)
-            LoginRepository.ERROR_USER_DISABLED -> _loginError.postValue(error.message)
-            LoginRepository.ERROR_TOO_MANY_REQUESTS -> _loginError.postValue(error.message)
-            else -> _loginError.postValue(error.message)
+        _screenState.value = when (error.code) {
+            LoginRepository.ERROR_INVALID_EMAIL -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_WRONG_PASSWORD -> Event(LoginScreenState.PasswordError(error.message))
+            LoginRepository.ERROR_OPERATION_NOT_ALLOWED -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_WEAK_PASSWORD -> Event(LoginScreenState.PasswordError(error.message))
+            LoginRepository.ERROR_EMAIL_ALREADY_IN_USE -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_INVALID_CREDENTIAL -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_USER_NOT_FOUND -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_USER_DISABLED -> Event(LoginScreenState.EmailError(error.message))
+            LoginRepository.ERROR_TOO_MANY_REQUESTS -> Event(LoginScreenState.EmailError(error.message))
+            else -> Event(LoginScreenState.Error(error.message))
         }
-
     }
 }

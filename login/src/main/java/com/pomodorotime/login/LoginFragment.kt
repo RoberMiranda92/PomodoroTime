@@ -4,16 +4,17 @@ import android.view.LayoutInflater
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.removeErrorOnTyping
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.login.databinding.FragmentLoginBinding
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LoginFragment : BaseFragment<LoginViewModel, FragmentLoginBinding>() {
+class LoginFragment :
+    BaseFragment<LoginEvent, LoginScreenState, LoginViewModel, FragmentLoginBinding>() {
 
     override val viewModel by viewModel<LoginViewModel>()
 
@@ -24,21 +25,33 @@ class LoginFragment : BaseFragment<LoginViewModel, FragmentLoginBinding>() {
     override fun initViews() {
 
         binding.txEmail.addTextChangedListener(onTextChanged = { text, _, _, _ ->
-            viewModel.onEmailSet(
-                text.toString()
+            viewModel.postEvent(
+                LoginEvent.LoginTyping(
+                    text.toString(),
+                    binding.txPassword.text.toString(),
+                    binding.txConfirmPassword.text.toString()
+
+                )
             )
         })
 
         binding.txPassword.addTextChangedListener(onTextChanged = { text, _, _, _ ->
-            viewModel.onPasswordSet(
-                text.toString()
+            viewModel.postEvent(
+                LoginEvent.LoginTyping(
+                    binding.txEmail.text.toString(),
+                    text.toString(),
+                    binding.txConfirmPassword.text.toString()
+                )
             )
         })
 
-
         binding.txConfirmPassword.addTextChangedListener(onTextChanged = { text, _, _, _ ->
-            viewModel.onConfirmPasswordSet(
-                text.toString()
+            viewModel.postEvent(
+                LoginEvent.LoginTyping(
+                    binding.txEmail.text.toString(),
+                    binding.txPassword.text.toString(),
+                    text.toString()
+                )
             )
         })
 
@@ -46,72 +59,68 @@ class LoginFragment : BaseFragment<LoginViewModel, FragmentLoginBinding>() {
         binding.tilPassword.removeErrorOnTyping()
 
         binding.btnLogin.setOnClickListener {
-            viewModel.startSign()
+            viewModel.postEvent(LoginEvent.MainButtonPress)
         }
 
         binding.btnSecondary.setOnClickListener {
-            viewModel.toogleMode()
+            viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         }
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observe(viewLifecycleOwner, Observer {
+        viewModel.screenState.observeEvent(viewLifecycleOwner, {
 
             when (it) {
-                LoginScreenState.INITIAL -> {
+                is LoginScreenState.SignIn -> {
                     showData()
-                }
-                LoginScreenState.LOADING -> {
-                    showLoading();
-                }
-
-                LoginScreenState.SUCCESS -> {
-                    navigator.navigateOnLoginSuccess()
-                }
-            }
-        })
-
-        viewModel.loginMode.observe(viewLifecycleOwner, Observer {
-
-            when (it) {
-                LoginMode.SIGN_UP -> {
-                    binding.ilConfirmPassword.isVisible = true
-                    binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
-                    binding.btnLogin.text = resources.getString(R.string.login_sign_up)
-                }
-                LoginMode.SIGN_IN -> {
                     binding.ilConfirmPassword.isGone = true
                     binding.btnLogin.text = resources.getString(R.string.login_sign_in)
                     binding.btnSecondary.text =
                         resources.getString(R.string.login_create_an_account)
                 }
+
+                is LoginScreenState.SignUp -> {
+                    showData()
+                    binding.ilConfirmPassword.isVisible = true
+                    binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
+                    binding.btnLogin.text = resources.getString(R.string.login_sign_up)
+                }
+                is LoginScreenState.Loading -> {
+                    showLoading()
+                }
+                is LoginScreenState.EmailError -> {
+                    showData()
+                    binding.tilEmail.error = it.error
+                }
+                is LoginScreenState.Error -> {
+                    showData()
+                    showSnackBarError(it.error, Snackbar.LENGTH_SHORT)
+
+                }
+                is LoginScreenState.PasswordError -> {
+                    showData()
+
+                    binding.tilPassword.error = it.error
+                }
+                is LoginScreenState.Success -> {
+                    showData()
+                    navigator.navigateOnLoginSuccess()
+                }
             }
-        })
-
-        viewModel.invalidEmailError.observe(viewLifecycleOwner, Observer {
-            binding.tilEmail.error = it
-        })
-
-        viewModel.invalidPasswordError.observe(viewLifecycleOwner, Observer {
-            binding.tilPassword.error = it
-        })
-
-        viewModel.loginError.observe(viewLifecycleOwner, Observer {
-            showSnackBarError(it, Snackbar.LENGTH_SHORT)
         })
     }
 
     private fun showLoading() {
         with(binding) {
             loginContainer.isGone = true
-            loginLoader.show()
+            loginLoader.isVisible = true
         }
     }
 
     private fun showData() {
         with(binding) {
             loginContainer.isVisible = true
-            loginLoader.hide()
+            loginLoader.isGone = true
         }
     }
 

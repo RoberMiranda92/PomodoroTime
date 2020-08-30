@@ -2,6 +2,7 @@ package com.pomodorotime.koin
 
 import com.pomodorotime.RouteNavigator
 import com.pomodorotime.login.LoginNavigator
+import com.pomodorotime.task.TaskNavigator
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -11,4 +12,7 @@ val appModule = module {
     single(named(NAVIGATOR_NAME)) { RouteNavigator() }
 
     single<LoginNavigator> { get<RouteNavigator>(named(NAVIGATOR_NAME)) }
+
+    single<TaskNavigator> { get<RouteNavigator>(named(NAVIGATOR_NAME)) }
+
 }

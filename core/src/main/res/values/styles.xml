@@ -1,0 +1,61 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#f05b56</item>
+        <item name="colorPrimaryDark">#f05b56</item>
+        <item name="colorPrimaryVariant">#f05b56</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#f05b56</item>
+        <item name="colorSecondaryVariant">#555555</item>
+        <item name="colorOnSecondary">#ffffff</item>
+        <item name="backgroundColor">#ffffff</item>
+        <item name="colorOnBackground">#555555</item>
+        <item name="colorSurface">#ffffff</item>
+        <item name="colorOnSurface">#555555</item>
+        <item name="colorAccent">#f05b56</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:actionModeStyle">@style/ActionModeTheme</item>
+        <item name="actionModeStyle">@style/ActionModeTheme</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionModeTheme.CloseButton</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionModeTheme.CloseButton</item>
+
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Card" parent="Widget.MaterialComponents.CardView">
+        <item name="colorOnSurface">#f05b56</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="MainButtonRounded" parent="Widget.AppCompat.Button">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:background">@drawable/circle_primary_background</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="ActionModeTheme" parent="Widget.AppCompat.ActionMode">
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
+        <item name="android:titleTextStyle">@style/ActionModeTheme.Title</item>
+        <item name="titleTextStyle">@style/ActionModeTheme.Title</item>
+    </style>
+
+    <style name="ActionModeTheme.Title" parent="TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="ActionModeTheme.CloseButton" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="tint">?attr/colorOnSecondary</item>
+    </style>
+
+</resources>

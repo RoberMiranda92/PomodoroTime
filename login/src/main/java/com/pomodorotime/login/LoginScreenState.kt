@@ -1,20 +1,13 @@
 package com.pomodorotime.login
 
-import androidx.annotation.IntDef
 
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-@IntDef(
-    LoginScreenState.INITIAL,
-    LoginScreenState.LOADING,
-    LoginScreenState.ERROR
-)
-@Retention(AnnotationRetention.SOURCE)
-annotation class LoginScreenState {
+sealed class LoginScreenState {
 
-    companion object {
-        const val INITIAL = 0
-        const val LOADING = 1
-        const val ERROR = 2
-        const val SUCCESS = 3
-    }
+    object SignIn : LoginScreenState()
+    object SignUp : LoginScreenState()
+    object Loading : LoginScreenState()
+    data class Error(val error: String) : LoginScreenState()
+    data class EmailError(val error: String) : LoginScreenState()
+    data class PasswordError(val error: String) : LoginScreenState()
+    object Success : LoginScreenState()
 }

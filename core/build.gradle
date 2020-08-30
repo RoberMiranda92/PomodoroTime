@@ -56,12 +56,6 @@ dependencies {
     implementation libraries.androidXConstraintLayout
     implementation libraries.androidXSwipeToRefresh
 
-    //Hilt
-    implementation libraries.dagger_hilt
-    kapt libraries.dagger_hilt_apt
-    implementation libraries.androidX_hilt
-    kapt libraries.androidX_hilt_apt
-
     // Navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'

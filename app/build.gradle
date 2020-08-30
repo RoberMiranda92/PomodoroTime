@@ -42,8 +42,11 @@ android {
 }
 
 dependencies {
-    implementation project(':login')
     implementation project(':core')
+    implementation project(':data')
+    implementation project(':login')
+    implementation project(':task')
+    implementation project(':timer')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin_version"
 
