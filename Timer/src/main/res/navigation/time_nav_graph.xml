@@ -13,5 +13,10 @@
             android:defaultValue="-1"
             app:argType="integer" />
 
+        <argument
+            android:name="taskName"
+            app:argType="string"
+            app:nullable="true" />
+
     </fragment>
 </navigation>

@@ -11,12 +11,15 @@ class TimerFragment :
     BaseFragment<TimerEvents, TimerScreenState, TimerViewModel, FragmentTimeBinding>() {
 
     override val viewModel by viewModel<TimerViewModel>()
-
-    val args: TimerFragmentArgs by navArgs()
+    private val args: TimerFragmentArgs by navArgs()
 
     override fun createBinding(inflater: LayoutInflater) = FragmentTimeBinding.inflate(inflater)
 
     override fun initViews() {
+
+        args.taskName?.let {
+            binding.toolbar.title = it
+        }
     }
 
     override fun observeViewModelChanges() {

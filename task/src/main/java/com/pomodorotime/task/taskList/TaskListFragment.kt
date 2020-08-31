@@ -104,7 +104,7 @@ class TaskListFragment :
     }
 
     override fun onItemClick(element: TaskListItem) {
-        navigator.navigateOnToTimer(element.id)
+        navigator.navigateOnToTimer(element.id, element.name)
     }
 
     private fun manageMenuItemClick(menuItem: MenuItem) {

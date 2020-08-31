@@ -21,6 +21,12 @@
                 android:name="taskId"
                 android:defaultValue="-1"
                 app:argType="integer" />
+
+            <argument
+                android:name="taskName"
+                app:argType="string"
+                app:nullable="true" />
+
         </action>
     </fragment>
 
