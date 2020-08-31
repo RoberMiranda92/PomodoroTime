@@ -7,7 +7,6 @@ import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.taskList.TaskListFragmentDirections.Companion.actionTaskListFragmentToCreateTask
 import com.pomodorotime.task.taskList.TaskListFragmentDirections.Companion.actionTaskListFragmentToTimer
 
-
 class RouteNavigator : LoginNavigator, TaskNavigator {
 
     private var navController: NavController? = null

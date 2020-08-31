@@ -1,7 +1,9 @@
 package com.pomodorotime.timer
 
 import android.view.LayoutInflater
+import androidx.navigation.fragment.navArgs
 import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.observeEvent
 import com.pomodorotime.timer.databinding.FragmentTimeBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -10,13 +12,25 @@ class TimerFragment :
 
     override val viewModel by viewModel<TimerViewModel>()
 
+    val args: TimerFragmentArgs by navArgs()
+
     override fun createBinding(inflater: LayoutInflater) = FragmentTimeBinding.inflate(inflater)
 
     override fun initViews() {
-
     }
 
     override fun observeViewModelChanges() {
+        viewModel.screenState.observeEvent(this) {
 
+            when (it) {
+                is TimerScreenState.DataLoaded -> {
+
+                }
+
+                is TimerScreenState.Loading -> {
+
+                }
+            }
+        }
     }
 }

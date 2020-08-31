@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/time_nav_graph"
+    app:startDestination="@id/timer_timer_fragment">
+
+    <fragment
+        android:id="@+id/timer_timer_fragment"
+        android:name="com.pomodorotime.timer.TimerFragment"
+        android:label="">
+        <argument
+            android:name="taskId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+
+    </fragment>
+</navigation>

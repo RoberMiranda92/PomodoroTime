@@ -2,48 +2,10 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/task_task_list_fragment">
+    app:startDestination="@id/login_nav_graph">
 
-    <fragment
-        android:id="@+id/login_fragment"
-        android:name="com.pomodorotime.login.LoginFragment"
-        android:label="@string/first_fragment_label">
-
-        <action
-            android:id="@+id/action_login_fragment_to_task_list"
-            app:destination="@id/task_task_list_fragment"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/task_task_list_fragment"
-        android:name="com.pomodorotime.task.taskList.TaskListFragment"
-        android:label="@string/second_fragment_label">
-
-        <action
-            android:id="@+id/action_task_list_fragment_to_create_task"
-            app:destination="@id/task_create_task_fragment" />
-
-        <action
-            android:id="@+id/action_task_list_fragment_to_timer"
-            app:destination="@id/timer_timer_fragment">
-
-            <argument
-                android:name="taskId"
-                android:defaultValue="-1"
-                app:argType="integer" />
-        </action>
-    </fragment>
-
-    <fragment
-        android:id="@+id/task_create_task_fragment"
-        android:name="com.pomodorotime.task.create.CreateTaskFragment"
-        android:label="@string/second_fragment_label" />
-
-    <fragment
-        android:id="@+id/timer_timer_fragment"
-        android:name="com.pomodorotime.timer.TimerFragment"
-        android:label="@string/second_fragment_label" />
+    <include app:graph="@navigation/login_nav_graph" />
+    <include app:graph="@navigation/time_nav_graph" />
+    <include app:graph="@navigation/task_nav_graph" />
 
 </navigation>

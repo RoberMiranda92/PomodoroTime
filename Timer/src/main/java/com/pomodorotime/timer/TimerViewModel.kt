@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 
 class TimerViewModel(private val repository: TaskRepository) :
@@ -18,11 +19,9 @@ class TimerViewModel(private val repository: TaskRepository) :
     override fun postEvent(event: TimerEvents) {
 
         when (event) {
-
             is TimerEvents.LoadData -> {
                 loadData(event.id)
             }
-
         }
     }
 
@@ -33,7 +32,8 @@ class TimerViewModel(private val repository: TaskRepository) :
             val result = repository.getTaskById(id)
             when (result) {
                 is ResultWrapper.Success -> {
-                    //_screenState.value = Event(TimerScreenState.DataLoaded())
+                    _screenState.value =
+                        Event(TimerScreenState.DataLoaded(getTaskDetail(result.value)))
                 }
                 is ResultWrapper.NetworkError -> {
                     onNetworkError()
@@ -44,5 +44,9 @@ class TimerViewModel(private val repository: TaskRepository) :
 
             }
         }
+    }
+
+    private fun getTaskDetail(task: TaskEntity): TimeDetail {
+        return TimeDetail(task.name)
     }
 }
