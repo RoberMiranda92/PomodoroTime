@@ -7,12 +7,12 @@
     <fragment
         android:id="@+id/login_fragment"
         android:name="com.pomodorotime.login.LoginFragment"
-        android:label="@string/first_fragment_label">
+        android:label="">
 
         <action
             android:id="@+id/action_login_fragment_to_task_list"
-            app:destination="@id/task_nav_graph"
-            app:popUpTo="@id/nav_graph"
+            app:destination="@+id/task_nav_graph"
+            app:popUpTo="@+id/nav_graph"
             app:popUpToInclusive="true" />
     </fragment>
 </navigation>

@@ -68,12 +68,12 @@ class LoginFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observeEvent(viewLifecycleOwner, {
+        viewModel.screenState.observeEvent(viewLifecycleOwner) {
 
             when (it) {
                 is LoginScreenState.SignIn -> {
                     showData()
-                    binding.ilConfirmPassword.isGone = true
+                    binding.tilConfirmPassword.isGone = true
                     binding.btnLogin.text = resources.getString(R.string.login_sign_in)
                     binding.btnSecondary.text =
                         resources.getString(R.string.login_create_an_account)
@@ -81,7 +81,7 @@ class LoginFragment :
 
                 is LoginScreenState.SignUp -> {
                     showData()
-                    binding.ilConfirmPassword.isVisible = true
+                    binding.tilConfirmPassword.isVisible = true
                     binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
                     binding.btnLogin.text = resources.getString(R.string.login_sign_up)
                 }
@@ -95,7 +95,6 @@ class LoginFragment :
                 is LoginScreenState.Error -> {
                     showData()
                     showSnackBarError(it.error, Snackbar.LENGTH_SHORT)
-
                 }
                 is LoginScreenState.PasswordError -> {
                     showData()
@@ -107,7 +106,7 @@ class LoginFragment :
                     navigator.navigateOnLoginSuccess()
                 }
             }
-        })
+        }
     }
 
     private fun showLoading() {

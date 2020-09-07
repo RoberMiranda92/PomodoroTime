@@ -8,6 +8,7 @@ import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.api.FirebaseLoginApi
 import com.pomodorotime.data.login.api.ILoginApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
 class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLoginRepository {
 
@@ -17,7 +18,7 @@ class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLogi
         }
     }
 
-    override suspend fun singUp(email: String, password: String): ResultWrapper<ApiUser> {
+    override suspend fun signUp(email: String, password: String): ResultWrapper<ApiUser> {
         return safeApiCall(Dispatchers.IO) {
             api.signUp(email, password)
         }
@@ -60,7 +61,6 @@ class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLogi
         const val ERROR_USER_NOT_FOUND = 106
         const val ERROR_USER_DISABLED = 107
         const val ERROR_TOO_MANY_REQUESTS = 108
-
 
         fun getNewInstance(): LoginRepository {
             return LoginRepository(FirebaseLoginApi())

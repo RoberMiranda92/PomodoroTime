@@ -20,7 +20,7 @@ class PomodoroApp : Application() {
             //inject Android context
             androidContext(this@PomodoroApp)
             // use modules
-            modules(appModule, dataModule ,loginModule, taskModule, timerModule)
+            modules(appModule, dataModule, loginModule, taskModule, timerModule)
         }
     }
 }

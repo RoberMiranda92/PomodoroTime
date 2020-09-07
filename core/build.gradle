@@ -11,6 +11,7 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,24 +31,29 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+    testOptions {
+        animationsDisabled = true
+    }
+
+    testOptions {
+        animationsDisabled = true
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin_version"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    testImplementation libraries.jUnit
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    implementation libraries.kotlin
+    implementation libraries.kotlinCoroutines
 
     // JetPack : https://developer.android.com/jetpack/androidx/releases/
     implementation libraries.androidXCore
     implementation libraries.androidXCompat
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation libraries.androidXAnotations
     implementation libraries.androidXActivity
     implementation libraries.androidXFragment
     implementation libraries.androidXViewModel
@@ -56,9 +62,38 @@ dependencies {
     implementation libraries.androidXConstraintLayout
     implementation libraries.androidXSwipeToRefresh
 
-    // Navigation
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+    //Unit Test
+    testImplementation test.coroutines_text
+    testImplementation test.andoridXArchTest
+    testImplementation test.jUnit
+    testImplementation test.roboelectric
+    testImplementation test.mockk
 
+    //Instrumented Test
+    androidTestImplementation test.andoridXTestCore
+    androidTestImplementation test.androidXTestCoreKTX
+    androidTestImplementation test.andoridXArchTest
+    androidTestImplementation test.androidXTestRunner
+    androidTestImplementation test.androidXTestRules
+    androidTestImplementation test.androidXTestMonitor
+    androidTestImplementation test.androidXTestJunit
+    androidTestImplementation test.androidXEspressoCore
+    implementation test.androidXEspressoCore
+    androidTestImplementation test.androidXEspressoContrib
+    androidTestImplementation test.mockkAndroid
+    debugImplementation test.androidXFragmentTesting
+
+    //Koin
+    implementation libraries.koinCore
+    implementation libraries.koinScope
+    implementation libraries.koinViewModel
+    implementation libraries.koinExt
+    androidTestImplementation libraries.testKoinCore
+
+    // Navigation
+    implementation libraries.androidXNavigationFragment
+    implementation libraries.androidXNavigationUi
+
+    //Other
     implementation libraries.materialComponents
 }
