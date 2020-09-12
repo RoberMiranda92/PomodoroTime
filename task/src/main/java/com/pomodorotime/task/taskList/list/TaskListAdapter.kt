@@ -1,4 +1,4 @@
-package com.pomodorotime.task.taskList.list
+package com.pomodorotime.task.tasklist.list
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import com.pomodorotime.core.BaseMultiSelectorAdapter
 import com.pomodorotime.task.databinding.RowTaskViewBinding
+import com.pomodorotime.task.taskList.list.TaskViewHolder
 
 class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :
     BaseMultiSelectorAdapter<TaskListItem, TaskViewHolder>(

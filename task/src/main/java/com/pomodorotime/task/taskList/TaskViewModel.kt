@@ -1,18 +1,16 @@
-package com.pomodorotime.task.taskList
+package com.pomodorotime.task.tasklist
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
-import com.pomodorotime.task.taskList.list.TaskListEvent
-import com.pomodorotime.task.taskList.list.TaskListItem
+import com.pomodorotime.task.tasklist.list.TaskListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
@@ -24,6 +22,11 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
     val screenState: LiveData<Event<TaskListScreenState>>
         get() = _screenState
     private val _taskList: MutableLiveData<List<TaskListItem>> = MutableLiveData(emptyList())
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun setList(task: List<TaskListItem>) {
+        _taskList.value = task
+    }
 
     override fun postEvent(event: TaskListEvent) {
         when (event) {
@@ -40,28 +43,33 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
 
     private fun loadTaskList() {
         executeCoroutine {
-            taskRepository.getAllTasks().map { tasks ->
-                tasks.map {
-                    TaskListItem(
-                        it.id ?: -1,
-                        it.name,
-                        it.creationDate,
-                        it.estimatedPomodoros.toString()
-                    )
+            taskRepository.getAllTasks()
+                .onStart {
+                    _screenState.value = Event(TaskListScreenState.Loading)
+                }.collect { result ->
+                    when (result) {
+                        is ResultWrapper.Success -> {
+                            manageResult(result.value)
+                        }
+
+                        is ResultWrapper.GenericError -> {
+                            _screenState.value =
+                                Event(TaskListScreenState.Error(result.error.message))
+                        }
+                    }
                 }
-            }.onStart {
-                _screenState.value = Event(TaskListScreenState.Loading)
-            }.catch { error ->
-                _screenState.value =
-                    Event(TaskListScreenState.Error(ErrorResponse(message = error.message ?: "")))
-            }.collect {
-                _taskList.value = it
-                _screenState.value = if (it.isEmpty()) {
-                    Event(TaskListScreenState.EmptyState)
-                } else {
+        }
+    }
+
+    private fun manageResult(task: List<TaskEntity>) {
+        _screenState.value = if (task.isEmpty()) {
+            Event(TaskListScreenState.EmptyState)
+        } else {
+            fromModelToView(task)
+                .let {
+                    setList(it)
                     Event(TaskListScreenState.DataLoaded(it))
                 }
-            }
         }
     }
 
@@ -70,7 +78,7 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
             _screenState.value = Event(TaskListScreenState.Loading)
 
             val result = taskRepository.deleteTasks(tasks.map { it.id })
-            val list = _taskList.value
+            val list = _taskList.value!!
 
             when (result) {
                 is ResultWrapper.Success -> {
@@ -84,9 +92,12 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
                     }
                 }
                 is ResultWrapper.NetworkError -> {
+                    onNetworkError()
+                    Event(TaskListScreenState.DataLoaded(list))
                 }
                 is ResultWrapper.GenericError -> {
-                    _screenState.value = Event(TaskListScreenState.Error(result.error))
+                    _screenState.value = Event(TaskListScreenState.Error(result.error.message))
+                    Event(TaskListScreenState.DataLoaded(list))
                 }
             }
         }

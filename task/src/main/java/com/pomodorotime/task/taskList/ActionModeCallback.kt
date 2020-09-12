@@ -1,4 +1,4 @@
-package com.pomodorotime.task.taskList
+package com.pomodorotime.task.tasklist
 
 import android.view.ActionMode
 import android.view.Menu

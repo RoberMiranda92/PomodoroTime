@@ -4,8 +4,8 @@ import androidx.navigation.NavController
 import com.pomodorotime.login.LoginFragmentDirections.Companion.actionLoginFragmentToTaskList
 import com.pomodorotime.login.LoginNavigator
 import com.pomodorotime.task.TaskNavigator
-import com.pomodorotime.task.taskList.TaskListFragmentDirections.Companion.actionTaskListFragmentToCreateTask
-import com.pomodorotime.task.taskList.TaskListFragmentDirections.Companion.actionTaskListFragmentToTimer
+import com.pomodorotime.task.tasklist.TaskListFragmentDirections.Companion.actionTaskListFragmentToCreateTask
+import com.pomodorotime.task.tasklist.TaskListFragmentDirections.Companion.actionTaskListFragmentToTimer
 
 class RouteNavigator : LoginNavigator, TaskNavigator {
 

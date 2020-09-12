@@ -1,13 +1,12 @@
-package com.pomodorotime.task.taskList
+package com.pomodorotime.task.tasklist
 
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.task.taskList.list.TaskListItem
+import com.pomodorotime.task.tasklist.list.TaskListItem
 
 sealed class TaskListScreenState {
     object Loading : TaskListScreenState()
-    data class DataLoaded(val taskList:List<TaskListItem>) : TaskListScreenState()
+    data class DataLoaded(val taskList: List<TaskListItem>) : TaskListScreenState()
     object EmptyState : TaskListScreenState()
-    data class Error(val error: ErrorResponse) : TaskListScreenState()
+    data class Error(val error: String) : TaskListScreenState()
     object Editing : TaskListScreenState()
     object NavigateToCreateTask : TaskListScreenState()
 

@@ -1,4 +1,4 @@
-package com.pomodorotime.task.taskList
+package com.pomodorotime.task.tasklist
 
 import android.view.ActionMode
 import android.view.LayoutInflater
@@ -14,9 +14,8 @@ import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.task.R
 import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.databinding.FragmentTaskListBinding
-import com.pomodorotime.task.taskList.list.TaskListAdapter
-import com.pomodorotime.task.taskList.list.TaskListEvent
-import com.pomodorotime.task.taskList.list.TaskListItem
+import com.pomodorotime.task.tasklist.list.TaskListAdapter
+import com.pomodorotime.task.tasklist.list.TaskListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -83,7 +82,7 @@ class TaskListFragment :
                 is TaskListScreenState.Error -> {
                     hideLoading()
                     showAddButton()
-                    showSnackBarError(it.error.message, Snackbar.LENGTH_LONG)
+                    showSnackBarError(it.error, Snackbar.LENGTH_LONG)
                 }
             }
         }

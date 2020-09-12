@@ -41,6 +41,10 @@ open class Event<out T>(private val content: T) {
     override fun hashCode(): Int {
         return content.hashCode()
     }
+
+    override fun toString(): String {
+        return content.toString()
+    }
 }
 
 /**

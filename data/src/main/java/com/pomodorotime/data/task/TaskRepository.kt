@@ -2,12 +2,24 @@ package com.pomodorotime.data.task
 
 import android.content.Context
 import com.pomodorotime.data.BaseRepository
+import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 
 class TaskRepository private constructor(private val taskDao: TaskDao) : BaseRepository() {
 
-    fun getAllTasks() = taskDao.getAllTask()
+    fun getAllTasks(): Flow<ResultWrapper<List<TaskEntity>>> {
+        return taskDao.getAllTask()
+            .map {
+                ResultWrapper.Success(it)
+            }
+            .catch { throwable ->
+                ResultWrapper.GenericError(error = ErrorResponse(message = throwable.message ?: ""))
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
 
     suspend fun insetTask(entity: TaskEntity): ResultWrapper<Unit> {
         return safeApiCall(Dispatchers.IO) { taskDao.insert(entity) }

@@ -1,4 +1,6 @@
-package com.pomodorotime.task.taskList.list
+package com.pomodorotime.task.tasklist
+
+import com.pomodorotime.task.tasklist.list.TaskListItem
 
 sealed class TaskListEvent {
     object Load : TaskListEvent()

@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/task_task_list_fragment"
-        android:name="com.pomodorotime.task.taskList.TaskListFragment"
+        android:name="com.pomodorotime.task.tasklist.TaskListFragment"
         android:label="">
 
         <action

@@ -1,4 +1,4 @@
-package com.pomodorotime.task.taskList.list
+package com.pomodorotime.task.tasklist.list
 
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible

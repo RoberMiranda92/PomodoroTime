@@ -3,7 +3,7 @@ package com.pomodorotime.task
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
+import android.view.View.OnClickListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.pomodorotime.task.databinding.ViewPomodoroCounterActionsBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +16,7 @@ class PomodorosCounterView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     var count: Int = 1
-        private set(value) {
+        set(value) {
             binding.count.text = value.toString()
             field = value
         }

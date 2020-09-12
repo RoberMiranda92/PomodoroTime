@@ -1,5 +1,6 @@
 package com.pomodorotime.task.create
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
@@ -16,7 +17,7 @@ class CreateTaskViewModel(private val repository: TaskRepository) :
     private val taskPomodorosLiveData: MutableLiveData<Int> = MutableLiveData()
 
     private val _screenState: MutableLiveData<Event<CreateTaskScreenState>> =
-        MutableLiveData(Event(CreateTaskScreenState.Initial))
+        MutableLiveData(Event(CreateTaskScreenState.Initial()))
     val screenState: LiveData<Event<CreateTaskScreenState>>
         get() = _screenState
 
@@ -32,11 +33,13 @@ class CreateTaskViewModel(private val repository: TaskRepository) :
         }
     }
 
-    private fun setTaskName(name: String) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun setTaskName(name: String) {
         taskNameLiveData.value = name
     }
 
-    private fun setPomodoroCounter(pomodoros: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun setPomodoroCounter(pomodoros: Int) {
         taskPomodorosLiveData.value = pomodoros
     }
 
@@ -62,14 +65,26 @@ class CreateTaskViewModel(private val repository: TaskRepository) :
             when (result) {
                 is ResultWrapper.Success -> {
                     _screenState.value = Event(CreateTaskScreenState.Success)
-
                 }
                 is ResultWrapper.NetworkError -> {
                     onNetworkError()
-
+                    _screenState.value =
+                        Event(
+                            CreateTaskScreenState.Initial(
+                                taskNameLiveData.value ?: "",
+                                taskPomodorosLiveData.value ?: 0
+                            )
+                        )
                 }
-                is ResultWrapper.GenericError ->
-                    _screenState.value = Event(CreateTaskScreenState.Error(result.error))
+                is ResultWrapper.GenericError -> {
+                    _screenState.value = Event(CreateTaskScreenState.Error(result.error.message))
+                    _screenState.value = Event(
+                        CreateTaskScreenState.Initial(
+                            taskNameLiveData.value ?: "",
+                            taskPomodorosLiveData.value ?: 0
+                        )
+                    )
+                }
             }
         }
     }

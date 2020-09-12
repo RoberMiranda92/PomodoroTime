@@ -31,22 +31,24 @@ class CreateTaskFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observeEvent(viewLifecycleOwner, { state ->
+        viewModel.screenState.observeEvent(viewLifecycleOwner) { state ->
             when (state) {
                 is CreateTaskScreenState.Initial -> {
                     hideLoading()
                     showUI()
+                    binding.tilTaskName.editText?.setText(state.name)
+                    binding.pcvCounter.count = state.estimated
                 }
                 is CreateTaskScreenState.InvalidName -> {
                     showUI()
-                    binding.tilTaskName.error = "Invalid name for this task"
+                    binding.tilTaskName.error = getString(R.string.create_task_invalid_name)
                 }
                 is CreateTaskScreenState.Loading -> {
                     showLoading()
                     hideUI()
                 }
                 is CreateTaskScreenState.Error -> {
-                    showSnackBarError(state.error.message, Snackbar.LENGTH_LONG)
+                    showSnackBarError(state.error, Snackbar.LENGTH_LONG)
                 }
                 is CreateTaskScreenState.Success -> {
                     showSnackBar(
@@ -58,7 +60,7 @@ class CreateTaskFragment :
                     showUI()
                 }
             }
-        })
+        }
     }
 
     private fun configureToolbar() {

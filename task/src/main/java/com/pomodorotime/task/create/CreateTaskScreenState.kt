@@ -1,11 +1,9 @@
 package com.pomodorotime.task.create
 
-import com.pomodorotime.data.ErrorResponse
-
 sealed class CreateTaskScreenState {
-    object Initial : CreateTaskScreenState()
+    data class Initial(val name: String = "", val estimated: Int = 0) : CreateTaskScreenState()
     object InvalidName : CreateTaskScreenState()
     object Loading : CreateTaskScreenState()
-    data class Error(val error: ErrorResponse) : CreateTaskScreenState()
+    data class Error(val error: String) : CreateTaskScreenState()
     object Success : CreateTaskScreenState()
 }
