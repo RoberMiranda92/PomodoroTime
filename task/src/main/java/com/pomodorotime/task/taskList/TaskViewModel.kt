@@ -82,7 +82,7 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
 
             when (result) {
                 is ResultWrapper.Success -> {
-                    list?.filterNot { tasks.contains(it) }?.also {
+                    list.filterNot { tasks.contains(it) }.also {
                         _taskList.value = it
                         _screenState.value = if (it.isEmpty()) {
                             Event(TaskListScreenState.EmptyState)
@@ -93,11 +93,11 @@ class TaskViewModel(private val taskRepository: TaskRepository) :
                 }
                 is ResultWrapper.NetworkError -> {
                     onNetworkError()
-                    Event(TaskListScreenState.DataLoaded(list))
+                    _screenState.value = Event(TaskListScreenState.DataLoaded(list))
                 }
                 is ResultWrapper.GenericError -> {
                     _screenState.value = Event(TaskListScreenState.Error(result.error.message))
-                    Event(TaskListScreenState.DataLoaded(list))
+                    _screenState.value = Event(TaskListScreenState.DataLoaded(list))
                 }
             }
         }

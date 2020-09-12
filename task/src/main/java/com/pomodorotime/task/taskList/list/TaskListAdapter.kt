@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import com.pomodorotime.core.BaseMultiSelectorAdapter
 import com.pomodorotime.task.databinding.RowTaskViewBinding
-import com.pomodorotime.task.taskList.list.TaskViewHolder
 
 class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :
     BaseMultiSelectorAdapter<TaskListItem, TaskViewHolder>(
