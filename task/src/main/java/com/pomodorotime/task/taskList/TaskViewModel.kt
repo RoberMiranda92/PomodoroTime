@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
+import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
@@ -14,8 +15,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
-class TaskViewModel(private val taskRepository: TaskRepository) :
-    BaseViewModel<TaskListEvent, TaskListScreenState>() {
+class TaskViewModel(
+    private val taskRepository: TaskRepository,
+    idlingResourceWrapper: IdlingResourcesSync? = null
+) : BaseViewModel<TaskListEvent, TaskListScreenState>(idlingResourceWrapper) {
 
     private val _screenState: MutableLiveData<Event<TaskListScreenState>> =
         MutableLiveData()

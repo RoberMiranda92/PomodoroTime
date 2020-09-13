@@ -142,11 +142,11 @@ class TaskListFragment :
     }
 
     private fun showLoading() {
-        binding.loginLoader.isVisible = true
+        binding.loader.isVisible = true
     }
 
     private fun hideLoading() {
-        binding.loginLoader.isGone = true
+        binding.loader.isGone = true
     }
 
     private fun showEmptyState() {

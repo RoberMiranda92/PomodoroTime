@@ -1,12 +1,11 @@
 package com.pomodorotime.task.tasklist.list
 
+import android.text.format.DateFormat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.pomodorotime.core.BaseViewHolder
 import com.pomodorotime.task.R
 import com.pomodorotime.task.databinding.RowTaskViewBinding
-import java.text.DateFormat
-import java.util.*
 
 class TaskViewHolder(private val binding: RowTaskViewBinding) :
     BaseViewHolder<TaskListItem>(binding) {
@@ -14,14 +13,9 @@ class TaskViewHolder(private val binding: RowTaskViewBinding) :
     override fun bind(data: TaskListItem) {
         with(binding) {
             tvTaskName.text = data.name
-            val f: DateFormat = DateFormat.getDateTimeInstance(
-                DateFormat.SHORT,
-                DateFormat.SHORT,
-                Locale.getDefault()
-            )
-            tvTaskDate.text = f.format(data.creationDate)
-            tvEstPommodoros.text = data.extimatedPomodoros
-            ivTaskCheck.isVisible = true
+            tvTaskDate.text = DateFormat.getDateFormat(itemView.context).format(data.creationDate)
+            tvEstPommodoros.text = data.estimatedPomodoros
+            ivTaskCheck.isVisible = data.completed
         }
     }
 
