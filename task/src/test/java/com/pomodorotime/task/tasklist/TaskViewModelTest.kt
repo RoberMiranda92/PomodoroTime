@@ -8,8 +8,6 @@ import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.CoroutinesRule
-import com.pomodorotime.task.tasklist.TaskListScreenState
-import com.pomodorotime.task.tasklist.TaskViewModel
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

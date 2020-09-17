@@ -13,7 +13,7 @@ abstract class BaseViewModel<in Event, out State>(
     private val idlingResourceWrapper: IdlingResourcesSync? = null
 ) : ViewModel() {
 
-    private val _netWorkError: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
+    private val _netWorkError: MutableLiveData<Boolean> = MutableLiveData(false)
     val networkError: LiveData<Boolean>
         get() = _netWorkError
 

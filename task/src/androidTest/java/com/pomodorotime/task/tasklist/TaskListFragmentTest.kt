@@ -180,7 +180,8 @@ class TaskListFragmentTest : KoinTest {
 
         for (i in list.indices) {
 
-            /* check if the ViewHolder is being displayed */onView(
+            /* check if the ViewHolder is being displayed */
+            onView(
                 RecyclerViewMatcher(R.id.rv_tasks)
                     .atPositionOnView(i, R.id.container)
             ).check(matches(isDisplayed()))
@@ -205,6 +206,36 @@ class TaskListFragmentTest : KoinTest {
                 RecyclerViewMatcher(R.id.rv_tasks).atPositionOnView(i, R.id.iv_task_check)
             ).check(matches(if (list[i].completed) isDisplayed() else not(isDisplayed())))
         }
+    }
+
+    @Test
+    fun taskElementsNavigationIsOK() {
+        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val position = 0
+        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+
+        launchFragmentInContainer<TaskListFragment>(
+            null,
+            R.style.AppTheme
+        )
+
+        //List
+        onView(withId(R.id.rv_tasks))
+            .check(matches(isDisplayed()))
+
+        /* check if the ViewHolder is being displayed */onView(
+            RecyclerViewMatcher(R.id.rv_tasks)
+                .atPositionOnView(position, R.id.container)
+        ).check(matches(isDisplayed()))
+
+        onView(
+            RecyclerViewMatcher(R.id.rv_tasks).atPositionOnView(position, R.id.container)
+        ).perform(click())
+
+        verify { navigator.navigateOnToTimer(list[position].id!!, list[position].name) }
+        verify { repository.getAllTasks() }
+        confirmVerified(repository)
+        confirmVerified(navigator)
     }
 
     @Test

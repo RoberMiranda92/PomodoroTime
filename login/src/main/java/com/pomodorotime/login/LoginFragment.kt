@@ -1,5 +1,7 @@
 package com.pomodorotime.login
 
+import android.content.Context
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -20,7 +22,12 @@ class LoginFragment :
 
     private val navigator: LoginNavigator by inject()
 
-    override fun createBinding(inflater: LayoutInflater) = FragmentLoginBinding.inflate(inflater)
+    override fun createBinding(inflater: LayoutInflater): FragmentLoginBinding {
+        val contextThemeWrapper: Context =
+            ContextThemeWrapper(requireContext(), R.style.LoginTheme)
+        val localInflater: LayoutInflater = inflater.cloneInContext(contextThemeWrapper)
+        return FragmentLoginBinding.inflate(localInflater)
+    }
 
     override fun initViews() {
 

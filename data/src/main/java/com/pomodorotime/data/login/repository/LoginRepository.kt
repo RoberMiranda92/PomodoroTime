@@ -8,7 +8,6 @@ import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.api.FirebaseLoginApi
 import com.pomodorotime.data.login.api.ILoginApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 
 class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLoginRepository {
 

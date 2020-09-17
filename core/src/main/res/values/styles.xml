@@ -2,34 +2,54 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#f05b56</item>
-        <item name="colorPrimaryDark">#f05b56</item>
-        <item name="colorPrimaryVariant">#f05b56</item>
+        <item name="colorPrimary">#0288d1</item>
+        <item name="colorPrimaryDark">#0288d1</item>
+        <item name="colorPrimaryVariant">#0288d1</item>
         <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#f05b56</item>
+        <item name="colorSecondary">#0288d1</item>
         <item name="colorSecondaryVariant">#555555</item>
         <item name="colorOnSecondary">#ffffff</item>
         <item name="backgroundColor">#ffffff</item>
         <item name="colorOnBackground">#555555</item>
         <item name="colorSurface">#ffffff</item>
         <item name="colorOnSurface">#555555</item>
-        <item name="colorAccent">#f05b56</item>
+        <item name="colorAccent">#0288d1</item>
+        <item name="colorControlNormal">#ffffff</item>
         <item name="android:windowActionModeOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionModeStyle">@style/ActionModeTheme</item>
         <item name="actionModeStyle">@style/ActionModeTheme</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionModeTheme.CloseButton</item>
         <item name="actionModeCloseButtonStyle">@style/ActionModeTheme.CloseButton</item>
+        <item name="android:progressBarStyle">@style/LoaderTheme</item>
+        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.Primary</item>
+    </style>
 
+    <style name="LoaderTheme" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+    </style>
+
+    <style name="LoginTheme" parent="AppTheme">
+        <item name="textInputStyle">@style/LoginTextTextInputLayout</item>
+        <item name="editTextStyle">@style/LoginTextTextInputEditText</item>
+    </style>
+
+    <style name="LoginBackground">
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="LoginTextTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">?attr/colorSurface</item>
+        <item name="android:background">?attr/colorSurface</item>
+    </style>
+
+    <style name="LoginTextTextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Card" parent="Widget.MaterialComponents.CardView">
-        <item name="colorOnSurface">#f05b56</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

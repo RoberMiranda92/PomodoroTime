@@ -15,7 +15,7 @@
 
         <action
             android:id="@+id/action_task_list_fragment_to_timer"
-            app:destination="@id/time_nav_graph">
+            app:destination="@+id/time_nav_graph">
 
             <argument
                 android:name="taskId"

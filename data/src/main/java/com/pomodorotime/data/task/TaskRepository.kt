@@ -5,8 +5,10 @@ import com.pomodorotime.data.BaseRepository
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
+@ExperimentalCoroutinesApi
 class TaskRepository private constructor(private val taskDao: TaskDao) : BaseRepository() {
 
     fun getAllTasks(): Flow<ResultWrapper<List<TaskEntity>>> {

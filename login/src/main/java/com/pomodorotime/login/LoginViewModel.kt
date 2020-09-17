@@ -96,7 +96,7 @@ class LoginViewModel constructor(
             when (result) {
                 is ResultWrapper.Success<ApiUser> -> onSignInSuccess(result.value)
                 is ResultWrapper.GenericError -> onError(result.error)
-                is ResultWrapper.NetworkError -> onNetworkError();
+                is ResultWrapper.NetworkError -> onNetworkError()
             }
         }
     }

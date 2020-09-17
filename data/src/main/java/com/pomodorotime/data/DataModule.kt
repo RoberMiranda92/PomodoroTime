@@ -8,6 +8,6 @@ val dataModule = module {
 
     single { LoginRepository.getNewInstance() }
 
-    single<TaskRepository> { TaskRepository.getNewInstance(get()) }
+    single { TaskRepository.getNewInstance(get()) }
 
 }

@@ -39,7 +39,7 @@
             tools:visibility="visible" />
 
         <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/login_loader"
+            android:id="@+id/loader"
             style="?android:attr/progressBarStyle"
             android:layout_width="50dp"
             android:layout_height="50dp"

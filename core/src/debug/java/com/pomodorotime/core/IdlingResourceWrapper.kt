@@ -3,7 +3,6 @@ package com.pomodorotime.core
 import android.util.Log
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.idling.CountingIdlingResource
-import com.pomodorotime.core.IdlingResourcesSync
 
 object IdlingResourceWrapper : IdlingResourcesSync {
 

@@ -15,7 +15,7 @@ fun withTextInputLayoutHint(@StringRes resourceId: Int): Matcher<View> {
 
             return if (view is TextInputLayout) {
                 val hint: CharSequence? = view.hint
-                val expectedText = view.resources.getString(resourceId);
+                val expectedText = view.resources.getString(resourceId)
                 hint != null && expectedText == hint
             } else {
                 false
@@ -42,8 +42,8 @@ fun withTextInputLayoutHint(stringMatcher: Matcher<String>): Matcher<View> {
         }
 
         override fun describeTo(description: Description) {
-            description.appendText("with hint: ");
-            stringMatcher.describeTo(description);
+            description.appendText("with hint: ")
+            stringMatcher.describeTo(description)
         }
     }
 }
@@ -73,7 +73,7 @@ fun withToolbarText(@StringRes resourceId: Int): Matcher<View> {
 
             return if (view is MaterialToolbar) {
                 val title: CharSequence? = view.title
-                val expectedText = view.resources.getString(resourceId);
+                val expectedText = view.resources.getString(resourceId)
                 title != null && expectedText == title
             } else {
                 false

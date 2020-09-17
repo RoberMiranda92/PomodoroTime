@@ -7,16 +7,16 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TaskDao {
+interface TaskDao {E
 
     @Query("SELECT * FROM tasks")
     fun getAllTask(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id is :id")
-    fun getTaskById(id: Int): TaskEntity
+    suspend fun getTaskById(id: Int): TaskEntity
 
     @Insert
-    fun insert(taskList: List<TaskEntity>)
+    suspend fun insert(taskList: List<TaskEntity>)
 
     @Insert
     suspend fun insert(task: TaskEntity)
