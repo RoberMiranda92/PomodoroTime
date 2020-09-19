@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/login" />
             <option value="$PROJECT_DIR$/task" />
+            <option value="$PROJECT_DIR$/timer" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

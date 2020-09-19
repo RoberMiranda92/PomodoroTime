@@ -3,9 +3,7 @@ package com.pomodorotime.login
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -121,8 +119,8 @@ class LoginFragmentTest : KoinTest {
             ApiUser(user, "token")
         )
 
-        onView(withId(R.id.tx_email)).perform(typeText(user))
-        onView(withId(R.id.tx_password)).perform(typeText(password))
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
 
         onView(withId(R.id.btn_login)).perform(click())
 
@@ -140,11 +138,11 @@ class LoginFragmentTest : KoinTest {
             ApiUser(user, "token")
         )
 
-        onView(withId(R.id.tx_email)).perform(typeText(user))
-        onView(withId(R.id.tx_password)).perform(typeText(password))
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
         onView(withId(R.id.btn_secondary)).perform(click())
 
-        onView(withId(R.id.tx_confirm_password)).perform(typeText(password))
+        onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
         onView(withId(R.id.btn_login)).perform(click())
 
         onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))
@@ -163,11 +161,11 @@ class LoginFragmentTest : KoinTest {
             error.code, error
         )
 
-        onView(withId(R.id.tx_email)).perform(typeText(user))
-        onView(withId(R.id.tx_password)).perform(typeText(password))
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
         onView(withId(R.id.btn_secondary)).perform(click())
 
-        onView(withId(R.id.tx_confirm_password)).perform(typeText(password))
+        onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
         onView(withId(R.id.btn_login)).perform(click(), closeSoftKeyboard())
 
         onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))
@@ -187,11 +185,11 @@ class LoginFragmentTest : KoinTest {
             error.code, error
         )
 
-        onView(withId(R.id.tx_email)).perform(typeText(user))
-        onView(withId(R.id.tx_password)).perform(typeText(password))
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
         onView(withId(R.id.btn_secondary)).perform(click())
 
-        onView(withId(R.id.tx_confirm_password)).perform(typeText(password))
+        onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
         onView(withId(R.id.btn_login)).perform(click(), closeSoftKeyboard())
 
         onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))

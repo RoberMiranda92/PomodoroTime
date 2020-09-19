@@ -7,7 +7,7 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TaskDao {E
+interface TaskDao {
 
     @Query("SELECT * FROM tasks")
     fun getAllTask(): Flow<List<TaskEntity>>
