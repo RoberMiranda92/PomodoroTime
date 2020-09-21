@@ -1,6 +1,5 @@
 package com.pomodorotime.task.tasklist.list
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -25,9 +24,7 @@ class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :
             parent,
             false
         )
-        binding.root.setOnClickListener {
-            Log.d("TaskListAdapter", "clicked")
-        }
+
         return TaskViewHolder(binding)
     }
 
