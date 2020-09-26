@@ -5,13 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
+import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.getCurrentDate
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 
-class CreateTaskViewModel(private val repository: TaskRepository) :
-    BaseViewModel<CreateTaskEvent, CreateTaskScreenState>() {
+class CreateTaskViewModel(
+    private val repository: TaskRepository,
+    idlingResourceWrapper: IdlingResourcesSync? = null
+) : BaseViewModel<CreateTaskEvent, CreateTaskScreenState>(idlingResourceWrapper) {
 
     private val taskNameLiveData: MutableLiveData<String> = MutableLiveData()
     private val taskPomodorosLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -23,7 +26,7 @@ class CreateTaskViewModel(private val repository: TaskRepository) :
 
     override fun postEvent(event: CreateTaskEvent) {
         when (event) {
-            is CreateTaskEvent.EdittingTask -> {
+            is CreateTaskEvent.EditingTask -> {
                 setTaskName(event.name)
                 setPomodoroCounter(event.estimatedPomodoros)
             }

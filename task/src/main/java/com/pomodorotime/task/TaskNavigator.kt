@@ -6,4 +6,6 @@ interface TaskNavigator {
 
     fun navigateOnToTimer(id: Int, name: String?)
 
+    fun onBack()
+
 }

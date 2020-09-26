@@ -9,10 +9,12 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.*
 import com.pomodorotime.task.R
+import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.databinding.FragmentCreateTaskBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @ExperimentalCoroutinesApi
@@ -20,6 +22,7 @@ class CreateTaskFragment :
     BaseFragment<CreateTaskEvent, CreateTaskScreenState, CreateTaskViewModel, FragmentCreateTaskBinding>() {
 
     override val viewModel: CreateTaskViewModel by viewModel()
+    private val navigator: TaskNavigator by inject()
 
     override fun createBinding(inflater: LayoutInflater) =
         FragmentCreateTaskBinding.inflate(inflater)
@@ -67,7 +70,7 @@ class CreateTaskFragment :
         with(binding.toolbar) {
             setNavigationIcon(R.drawable.ic_action_back)
             setNavigationOnClickListener {
-                findNavController().popBackStack()
+                navigator.onBack()
             }
             setOnMenuItemClickListener {
                 when (it.itemId) {
@@ -84,7 +87,7 @@ class CreateTaskFragment :
         binding.tilTaskName.removeErrorOnTyping()
         binding.txTaskName.addTextChangedListener(onTextChanged = { text, _, _, _ ->
             viewModel.postEvent(
-                CreateTaskEvent.EdittingTask(
+                CreateTaskEvent.EditingTask(
                     text.toString(),
                     binding.pcvCounter.count
                 )
@@ -95,7 +98,7 @@ class CreateTaskFragment :
     private fun configureCounter() {
         binding.pcvCounter.onCounterClicked().onEach {
             viewModel.postEvent(
-                CreateTaskEvent.EdittingTask(
+                CreateTaskEvent.EditingTask(
                     binding.txTaskName.text.toString(),
                     it
                 )

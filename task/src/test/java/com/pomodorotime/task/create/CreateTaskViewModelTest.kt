@@ -150,7 +150,7 @@ class CreateTaskViewModelTest {
         //When
         coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(Unit)
         viewModel.postEvent(
-            CreateTaskEvent.EdittingTask(
+            CreateTaskEvent.EditingTask(
                 TaskEntity1.name,
                 TaskEntity1.estimatedPomodoros
             )

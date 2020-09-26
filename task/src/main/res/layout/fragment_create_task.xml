@@ -18,7 +18,7 @@
 
     <androidx.core.widget.ContentLoadingProgressBar
         android:id="@+id/loader"
-        style="?android:attr/progressBarStyle"
+        style="@style/LoaderTheme"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
@@ -55,11 +55,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_est_pommodoros"
+            android:id="@+id/tv_est_pomodoros"
             style="@style/TextAppearance.MaterialComponents.Body2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/create_task_extimated_pomodoros"
+            android:text="@string/create_task_estimated_pomodoros"
             app:layout_constraintBottom_toTopOf="@id/pcv_counter"
             app:layout_constraintEnd_toStartOf="@id/pcv_counter"
             app:layout_constraintStart_toStartOf="parent"

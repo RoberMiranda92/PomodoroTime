@@ -5,11 +5,21 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
 import androidx.test.espresso.matcher.BoundedMatcher
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputLayout
@@ -53,6 +63,24 @@ fun withTextInputLayoutHint(stringMatcher: Matcher<String>): Matcher<View> {
         override fun describeTo(description: Description) {
             description.appendText("with hint: ")
             stringMatcher.describeTo(description)
+        }
+    }
+}
+
+fun withTextInputError(@StringRes error: Int): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+
+        override fun matchesSafely(view: View): Boolean {
+            val string = view.context.resources.getString(error)
+            return if (view is TextInputLayout) {
+                string == view.error
+            } else {
+                false
+            }
+        }
+
+        override fun describeTo(description: Description) {
+            description.appendText("with error: $error")
         }
     }
 }
@@ -176,3 +204,20 @@ private fun Drawable.getBitmap(): Bitmap {
     }
     return result
 }
+
+fun withMenu(@MenuRes menuRes: Int): Matcher<View> {
+
+    return object : TypeSafeMatcher<View>() {
+        override fun matchesSafely(view: View): Boolean {
+            return true
+        }
+
+        override fun describeTo(description: Description) {
+            description.appendText("has menu menuRes $menuRes")
+        }
+    }
+}
+
+
+
+

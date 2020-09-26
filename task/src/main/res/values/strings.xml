@@ -12,7 +12,7 @@
     <string name="create_task_title">Create task</string>
     <string name="create_task_success">Task created!</string>
     <string name="create_task_task_name_hint">What are you working on?</string>
-    <string name="create_task_extimated_pomodoros">Estimated pomodoros</string>
+    <string name="create_task_estimated_pomodoros">Estimated pomodoros</string>
     <string name="create_task_invalid_name">Invalid name for this task</string>
 
     <!-- Action Menu -->

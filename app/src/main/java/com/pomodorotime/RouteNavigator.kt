@@ -31,7 +31,7 @@ class RouteNavigator : LoginNavigator, TaskNavigator {
         navController = null
     }
 
-    fun onBack() {
+    override fun onBack() {
         navController?.popBackStack()
     }
 
