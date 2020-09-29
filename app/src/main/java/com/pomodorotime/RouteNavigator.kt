@@ -6,8 +6,9 @@ import com.pomodorotime.login.LoginNavigator
 import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.tasklist.TaskListFragmentDirections.Companion.actionTaskListFragmentToCreateTask
 import com.pomodorotime.task.tasklist.TaskListFragmentDirections.Companion.actionTaskListFragmentToTimer
+import com.pomodorotime.timer.TimeNavigator
 
-class RouteNavigator : LoginNavigator, TaskNavigator {
+class RouteNavigator : LoginNavigator, TaskNavigator, TimeNavigator {
 
     private var navController: NavController? = null
 
@@ -34,6 +35,5 @@ class RouteNavigator : LoginNavigator, TaskNavigator {
     override fun onBack() {
         navController?.popBackStack()
     }
-
 
 }

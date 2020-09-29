@@ -3,6 +3,7 @@ package com.pomodorotime.koin
 import com.pomodorotime.RouteNavigator
 import com.pomodorotime.login.LoginNavigator
 import com.pomodorotime.task.TaskNavigator
+import com.pomodorotime.timer.TimeNavigator
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -14,5 +15,7 @@ val appModule = module {
     single<LoginNavigator> { get<RouteNavigator>(named(NAVIGATOR_NAME)) }
 
     single<TaskNavigator> { get<RouteNavigator>(named(NAVIGATOR_NAME)) }
+
+    single<TimeNavigator> { get<RouteNavigator>(named(NAVIGATOR_NAME)) }
 
 }

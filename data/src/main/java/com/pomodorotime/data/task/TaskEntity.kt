@@ -14,8 +14,14 @@ data class TaskEntity(
     val name: String,
     @ColumnInfo(name = "creationDate")
     val creationDate: Date,
+    @ColumnInfo(name = "done_pomodoros")
+    val donePomodoros: Int,
     @ColumnInfo(name = "estimated_pomodoros")
     val estimatedPomodoros: Int,
+    @ColumnInfo(name = "short_breaks")
+    val shortBreaks: Int,
+    @ColumnInfo(name = "long_breaks")
+    val longBreaks: Int,
     @ColumnInfo(name = "is_completed")
     val completed: Boolean
 )

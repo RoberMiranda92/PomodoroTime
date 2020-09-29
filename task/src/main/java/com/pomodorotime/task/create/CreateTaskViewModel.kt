@@ -56,10 +56,18 @@ class CreateTaskViewModel(
 
         executeCoroutine {
             _screenState.value = Event(CreateTaskScreenState.Loading)
+
+            val estimatedPomodoros = taskPomodorosLiveData.value ?: 1
+            val shortBreaks = calculateShortBreaks(estimatedPomodoros)
+            val longBreaks = calculateLongBreaks(estimatedPomodoros)
+
             val result = repository.insetTask(
                 TaskEntity(
                     name = taskName,
-                    estimatedPomodoros = taskPomodorosLiveData.value ?: 1,
+                    estimatedPomodoros = estimatedPomodoros,
+                    donePomodoros = 0,
+                    shortBreaks = shortBreaks,
+                    longBreaks = longBreaks,
                     creationDate = getCurrentDate(),
                     completed = false
                 )
@@ -91,4 +99,8 @@ class CreateTaskViewModel(
             }
         }
     }
+    //TODO MOVE THIS TO USE CASES
+    private fun calculateShortBreaks(estimatedPomodoros: Int) = estimatedPomodoros * 4
+
+    private fun calculateLongBreaks(estimatedPomodoros: Int) = estimatedPomodoros / 4
 }

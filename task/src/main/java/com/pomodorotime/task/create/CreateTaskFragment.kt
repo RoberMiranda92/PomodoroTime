@@ -5,7 +5,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.*
 import com.pomodorotime.task.R
@@ -96,6 +95,7 @@ class CreateTaskFragment :
     }
 
     private fun configureCounter() {
+        binding.pcvCounter.count = 1
         binding.pcvCounter.onCounterClicked().onEach {
             viewModel.postEvent(
                 CreateTaskEvent.EditingTask(

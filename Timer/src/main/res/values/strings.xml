@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="time_timer_title">Timer</string>
+
+    <string name="timer_done_pomodoros">Done %d / %d </string>
+    <string name="timer_timer">%02d:%02d </string>
+
 </resources>
