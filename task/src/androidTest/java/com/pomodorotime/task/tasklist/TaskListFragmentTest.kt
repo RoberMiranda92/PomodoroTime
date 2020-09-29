@@ -18,6 +18,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
+import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
@@ -279,7 +280,7 @@ class TaskListFragmentTest : KoinTest {
             container.perform(if (i == 0) longClick() else click())
 
             onView(RecyclerViewMatcher(R.id.rv_tasks).atPositionOnView(i, R.id.container))
-            .check(matches(withBackground(R.drawable.row_background)))
+                .check(matches(withBackground(R.drawable.row_background)))
 
             actionBarTitle =
                 InstrumentationRegistry.getInstrumentation().context.resources.getString(
@@ -510,34 +511,69 @@ class TaskListFragmentTest : KoinTest {
         confirmVerified(navigator)
     }
 
+    @Test
+    fun onLoadTaskError() {
+        val error = ErrorResponse(code = -1, message = "Invalid message")
+        every { repository.getAllTasks() } returns flowOf(
+            ResultWrapper.GenericError(
+                error.code,
+                error
+            )
+        )
+
+        launchFragmentInContainer<TaskListFragment>(
+            null,
+            R.style.AppTheme
+        )
+
+        onView(withId(com.google.android.material.R.id.snackbar_text))
+            .check(matches(withText(error.message)))
+
+        verify { repository.getAllTasks() }
+        confirmVerified(repository)
+        confirmVerified(navigator)
+    }
+    
     companion object {
         private val TaskEntity1 = TaskEntity(
             id = 1,
             name = "Task1",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
         private val TaskEntity2 = TaskEntity(
             id = 2,
             name = "Task2",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
         private val TaskEntity3 = TaskEntity(
             id = 3,
             name = "Task3",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
 
         private val TaskEntity4 = TaskEntity(
             id = 4,
             name = "Task4",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
+            shortBreaks = 0,
+            longBreaks = 0,
             completed = true
         )
     }

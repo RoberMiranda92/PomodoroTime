@@ -12,16 +12,8 @@ import kotlinx.coroutines.flow.*
 class TaskRepository private constructor(private val taskDao: TaskDao) : BaseRepository() {
 
     fun getAllTasks(): Flow<ResultWrapper<List<TaskEntity>>> {
-        return taskDao.getAllTask()
-            .map {
-                ResultWrapper.Success(it)
-            }
-            .catch { throwable ->
-                ResultWrapper.GenericError(error = ErrorResponse(message = throwable.message ?: ""))
-            }
-            .flowOn(Dispatchers.IO)
+        return safeFlowCall(Dispatchers.IO, taskDao.getAllTask())
     }
-
 
     suspend fun insetTask(entity: TaskEntity): ResultWrapper<Unit> {
         return safeApiCall(Dispatchers.IO) { taskDao.insert(entity) }

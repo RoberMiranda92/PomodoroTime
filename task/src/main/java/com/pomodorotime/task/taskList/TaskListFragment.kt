@@ -81,7 +81,7 @@ class TaskListFragment :
                 }
                 is TaskListScreenState.Error -> {
                     hideLoading()
-                    showAddButton()
+                    hideAddButton()
                     showSnackBarError(it.error, Snackbar.LENGTH_LONG)
                 }
             }

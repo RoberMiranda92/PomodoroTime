@@ -3,10 +3,16 @@ package com.pomodorotime.data
 import androidx.annotation.CallSuper
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import okio.IOException
 import retrofit2.HttpException
 
+@ExperimentalCoroutinesApi
 open class BaseRepository {
 
     suspend fun <T> safeApiCall(
@@ -15,6 +21,21 @@ open class BaseRepository {
         return withContext(dispatcher) {
             encapsulateResult(apiCall)
         }
+    }
+
+    fun <T> safeFlowCall(
+        dispatcher: CoroutineDispatcher,
+        apiFlow: Flow<T>
+    ): Flow<ResultWrapper<T>> {
+        return flow<ResultWrapper<T>> {
+            try {
+                apiFlow.collect {
+                    emit(ResultWrapper.Success(it))
+                }
+            } catch (throwable: Throwable) {
+                emit(manageException(throwable))
+            }
+        }.flowOn(dispatcher)
     }
 
     private suspend fun <T> encapsulateResult(
@@ -30,7 +51,7 @@ open class BaseRepository {
     }
 
     @CallSuper
-   open protected fun <T> manageException(throwable: Throwable): ResultWrapper<T> {
+    open protected fun <T> manageException(throwable: Throwable): ResultWrapper<T> {
         return when (throwable) {
             is IOException -> ResultWrapper.NetworkError
             is HttpException -> {

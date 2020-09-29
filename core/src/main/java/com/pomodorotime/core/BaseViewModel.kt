@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 abstract class BaseViewModel<in Event, out State>(
     private val idlingResourceWrapper: IdlingResourcesSync? = null
 ) : ViewModel() {
@@ -27,6 +30,15 @@ abstract class BaseViewModel<in Event, out State>(
 
         val job = viewModelScope.launch(Dispatchers.Main, block = block)
         job.invokeOnCompletion { idlingResourceWrapper?.decrement() }
+    }
+
+    protected fun subscribeFlow(flow: Flow<Any>) {
+        flow.onStart {
+            idlingResourceWrapper?.increment()
+        }.onCompletion {
+            idlingResourceWrapper?.decrement()
+        }.flowOn(Dispatchers.Main)
+            .launchIn(viewModelScope)
     }
 
     abstract fun postEvent(event: Event)

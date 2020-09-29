@@ -118,7 +118,6 @@ class CreateTaskFragmentTest : KoinTest {
 
         onView(withId(R.id.action_save)).perform(click())
 
-
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.create_task_success)))
 

@@ -20,6 +20,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.*
 
 @ExperimentalCoroutinesApi
 class CreateTaskViewModelTest {
@@ -168,9 +169,12 @@ class CreateTaskViewModelTest {
     companion object {
         private val TaskEntity1 = TaskEntity(
             name = "Task1",
-            creationDate = getCurrentDate(),
+            creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
 
     }

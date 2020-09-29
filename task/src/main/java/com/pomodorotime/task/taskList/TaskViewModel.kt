@@ -11,7 +11,7 @@ import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.tasklist.list.TaskListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
@@ -35,8 +35,10 @@ class TaskViewModel(
         when (event) {
             TaskListEvent.Load -> loadTaskList()
             TaskListEvent.EditTaskList -> _screenState.value = Event(TaskListScreenState.Editing)
-            TaskListEvent.AddTaskPressed -> _screenState.value =
-                Event(TaskListScreenState.NavigateToCreateTask)
+            TaskListEvent.AddTaskPressed -> {
+                _screenState.value =
+                    Event(TaskListScreenState.NavigateToCreateTask)
+            }
             is TaskListEvent.DeleteTaskElementsPressed -> deleteElements(event.list)
             TaskListEvent.EditTaskListFinished -> {
                 _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList.value!!))
@@ -45,11 +47,11 @@ class TaskViewModel(
     }
 
     private fun loadTaskList() {
-        executeCoroutine {
+        subscribeFlow(
             taskRepository.getAllTasks()
                 .onStart {
                     _screenState.value = Event(TaskListScreenState.Loading)
-                }.collect { result ->
+                }.onEach { result ->
                     when (result) {
                         is ResultWrapper.Success -> {
                             manageResult(result.value)
@@ -60,8 +62,9 @@ class TaskViewModel(
                                 Event(TaskListScreenState.Error(result.error.message))
                         }
                     }
+
                 }
-        }
+        )
     }
 
     private fun manageResult(task: List<TaskEntity>) {

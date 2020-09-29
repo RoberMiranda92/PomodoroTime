@@ -221,22 +221,31 @@ class TaskViewModelTest {
             id = 1,
             name = "Task1",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
         private val TaskEntity2 = TaskEntity(
             id = 2,
             name = "Task2",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
         private val TaskEntity3 = TaskEntity(
             id = 3,
             name = "Task3",
             creationDate = Date(),
+            donePomodoros = 0,
             estimatedPomodoros = 1,
-            completed = false
+            shortBreaks = 0,
+            longBreaks = 0,
+            completed = true
         )
 
     }
