@@ -19,10 +19,7 @@ class CreateTaskViewModel(
     private val taskNameLiveData: MutableLiveData<String> = MutableLiveData()
     private val taskPomodorosLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    private val _screenState: MutableLiveData<Event<CreateTaskScreenState>> =
-        MutableLiveData(Event(CreateTaskScreenState.Initial()))
-    val screenState: LiveData<Event<CreateTaskScreenState>>
-        get() = _screenState
+    override fun initialState(): CreateTaskScreenState  = CreateTaskScreenState.Initial()
 
     override fun postEvent(event: CreateTaskEvent) {
         when (event) {
@@ -30,7 +27,7 @@ class CreateTaskViewModel(
                 setTaskName(event.name)
                 setPomodoroCounter(event.estimatedPomodoros)
             }
-            CreateTaskEvent.SaveTask -> {
+            is CreateTaskEvent.SaveTask -> {
                 save()
             }
         }

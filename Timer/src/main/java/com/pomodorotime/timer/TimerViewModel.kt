@@ -28,15 +28,11 @@ class TimerViewModel(private val repository: TaskRepository) :
     private val _mode: MutableLiveData<@PomodoroMode Int> =
         MutableLiveData<@TimerStatus Int>(PomodoroMode.POMODORO)
 
-    private val _screenState: MutableLiveData<Event<TimerScreenState>> =
-        MutableLiveData()
-    val screenState: LiveData<Event<TimerScreenState>>
-        get() = _screenState
-
     private var intervalJob: Job? = null
 
-    override fun postEvent(event: TimerEvents) {
+    override fun initialState(): TimerScreenState  = TimerScreenState.Initial
 
+    override fun postEvent(event: TimerEvents) {
         when (event) {
             is TimerEvents.LoadData -> {
                 loadData(event.id)

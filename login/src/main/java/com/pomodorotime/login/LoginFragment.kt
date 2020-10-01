@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
-import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.removeErrorOnTyping
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.login.databinding.FragmentLoginBinding
@@ -75,43 +74,44 @@ class LoginFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observeEvent(viewLifecycleOwner) {
 
-            when (it) {
-                is LoginScreenState.SignIn -> {
-                    showData()
-                    binding.tilConfirmPassword.isGone = true
-                    binding.btnLogin.text = resources.getString(R.string.login_sign_in)
-                    binding.btnSecondary.text =
-                        resources.getString(R.string.login_create_an_account)
-                }
+    }
 
-                is LoginScreenState.SignUp -> {
-                    showData()
-                    binding.tilConfirmPassword.isVisible = true
-                    binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
-                    binding.btnLogin.text = resources.getString(R.string.login_sign_up)
-                }
-                is LoginScreenState.Loading -> {
-                    showLoading()
-                }
-                is LoginScreenState.EmailError -> {
-                    showData()
-                    binding.tilEmail.error = it.error
-                }
-                is LoginScreenState.Error -> {
-                    showData()
-                    showSnackBarError(it.error, Snackbar.LENGTH_SHORT)
-                }
-                is LoginScreenState.PasswordError -> {
-                    showData()
+    override fun onNewState(state: LoginScreenState) {
+        when (state) {
+            is LoginScreenState.SignIn -> {
+                showData()
+                binding.tilConfirmPassword.isGone = true
+                binding.btnLogin.text = resources.getString(R.string.login_sign_in)
+                binding.btnSecondary.text =
+                    resources.getString(R.string.login_create_an_account)
+            }
 
-                    binding.tilPassword.error = it.error
-                }
-                is LoginScreenState.Success -> {
-                    showData()
-                    navigator.navigateOnLoginSuccess()
-                }
+            is LoginScreenState.SignUp -> {
+                showData()
+                binding.tilConfirmPassword.isVisible = true
+                binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
+                binding.btnLogin.text = resources.getString(R.string.login_sign_up)
+            }
+            is LoginScreenState.Loading -> {
+                showLoading()
+            }
+            is LoginScreenState.EmailError -> {
+                showData()
+                binding.tilEmail.error = state.error
+            }
+            is LoginScreenState.Error -> {
+                showData()
+                showSnackBarError(state.error, Snackbar.LENGTH_SHORT)
+            }
+            is LoginScreenState.PasswordError -> {
+                showData()
+
+                binding.tilPassword.error = state.error
+            }
+            is LoginScreenState.Success -> {
+                showData()
+                navigator.navigateOnLoginSuccess()
             }
         }
     }

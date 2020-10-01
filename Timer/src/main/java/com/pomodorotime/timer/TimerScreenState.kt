@@ -1,6 +1,7 @@
 package com.pomodorotime.timer
 
 sealed class TimerScreenState {
+    object Initial: TimerScreenState()
     object Loading : TimerScreenState()
     class DataLoaded(
         val taskDetail: TimeDetail, val time: Long, @TimerStatus val status: Int,

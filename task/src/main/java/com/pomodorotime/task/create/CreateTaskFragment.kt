@@ -33,34 +33,36 @@ class CreateTaskFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observeEvent(viewLifecycleOwner) { state ->
-            when (state) {
-                is CreateTaskScreenState.Initial -> {
-                    hideLoading()
-                    showUI()
-                    binding.tilTaskName.editText?.setText(state.name)
-                    binding.pcvCounter.count = state.estimated
-                }
-                is CreateTaskScreenState.InvalidName -> {
-                    showUI()
-                    binding.tilTaskName.error = getString(R.string.create_task_invalid_name)
-                }
-                is CreateTaskScreenState.Loading -> {
-                    showLoading()
-                    hideUI()
-                }
-                is CreateTaskScreenState.Error -> {
-                    showSnackBarError(state.error, Snackbar.LENGTH_LONG)
-                }
-                is CreateTaskScreenState.Success -> {
-                    showSnackBar(
-                        getString(R.string.create_task_success),
-                        Snackbar.LENGTH_LONG,
-                        R.color.success_color
-                    )
-                    hideLoading()
-                    showUI()
-                }
+
+    }
+
+    override fun onNewState(state: CreateTaskScreenState) {
+        when (state) {
+            is CreateTaskScreenState.Initial -> {
+                hideLoading()
+                showUI()
+                binding.tilTaskName.editText?.setText(state.name)
+                binding.pcvCounter.count = state.estimated
+            }
+            is CreateTaskScreenState.InvalidName -> {
+                showUI()
+                binding.tilTaskName.error = getString(R.string.create_task_invalid_name)
+            }
+            is CreateTaskScreenState.Loading -> {
+                showLoading()
+                hideUI()
+            }
+            is CreateTaskScreenState.Error -> {
+                showSnackBarError(state.error, Snackbar.LENGTH_LONG)
+            }
+            is CreateTaskScreenState.Success -> {
+                showSnackBar(
+                    getString(R.string.create_task_success),
+                    Snackbar.LENGTH_LONG,
+                    R.color.success_color
+                )
+                hideLoading()
+                showUI()
             }
         }
     }

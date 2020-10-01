@@ -1,6 +1,5 @@
 package com.pomodorotime.login
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
@@ -15,15 +14,12 @@ class LoginViewModel constructor(
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<LoginEvent, LoginScreenState>(idlingResourceWrapper) {
 
-    private val _screenState: MutableLiveData<Event<LoginScreenState>> =
-        MutableLiveData(Event(LoginScreenState.SignIn))
-    val screenState: LiveData<Event<LoginScreenState>>
-        get() = _screenState
-
     private val _loginMode: MutableLiveData<@LoginMode Int> = MutableLiveData(LoginMode.SIGN_IN)
     private val _emailLiveData: MutableLiveData<String> = MutableLiveData("")
     private val _passwordLiveData: MutableLiveData<String> = MutableLiveData("")
     private val _confirmPasswordLiveData: MutableLiveData<String> = MutableLiveData("")
+
+    override fun initialState(): LoginScreenState = LoginScreenState.SignIn
 
     override fun postEvent(event: LoginEvent) {
         when (event) {

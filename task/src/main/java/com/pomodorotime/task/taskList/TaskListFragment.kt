@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
 import com.pomodorotime.core.BaseMultiSelectorAdapter
-import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.task.R
 import com.pomodorotime.task.TaskNavigator
@@ -38,52 +37,56 @@ class TaskListFragment :
         configureAddButton()
         configureList()
         configureStatusView()
-        viewModel.postEvent(TaskListEvent.Load)
     }
 
     override fun observeViewModelChanges() {
 
-        viewModel.screenState.observeEvent(this) {
-            when (it) {
-                TaskListScreenState.Loading -> {
-                    showLoading()
-                    hideAddButton()
-                    hideEmptyState()
-                    hideList()
-                    finishActionMode()
-                }
+    }
 
-                TaskListScreenState.EmptyState -> {
-                    hideLoading()
-                    hideList()
-                    hideAddButton()
-                    this.taskListAdapter.submitList(emptyList())
-                    showEmptyState()
-                }
+    override fun onNewState(state: TaskListScreenState) {
+        when (state) {
+            TaskListScreenState.Initial -> {
+                viewModel.postEvent(TaskListEvent.Load)
+            }
 
-                is TaskListScreenState.DataLoaded -> {
-                    hideLoading()
-                    showList()
-                    showAddButton()
-                    hideEmptyState()
-                    finishActionMode()
-                    this.taskListAdapter.submitList(it.taskList)
-                    showAddButton()
-                }
+            TaskListScreenState.Loading -> {
+                showLoading()
+                hideAddButton()
+                hideEmptyState()
+                hideList()
+                finishActionMode()
+            }
 
-                TaskListScreenState.Editing -> {
-                    hideLoading()
-                    hideAddButton()
-                    hideEmptyState()
-                }
-                TaskListScreenState.NavigateToCreateTask -> {
-                    navigator.navigateOnToCreateTask()
-                }
-                is TaskListScreenState.Error -> {
-                    hideLoading()
-                    hideAddButton()
-                    showSnackBarError(it.error, Snackbar.LENGTH_LONG)
-                }
+            TaskListScreenState.EmptyState -> {
+                hideLoading()
+                hideList()
+                hideAddButton()
+                this.taskListAdapter.submitList(emptyList())
+                showEmptyState()
+            }
+
+            is TaskListScreenState.DataLoaded -> {
+                hideLoading()
+                showList()
+                showAddButton()
+                hideEmptyState()
+                finishActionMode()
+                this.taskListAdapter.submitList(state.taskList)
+                showAddButton()
+            }
+
+            TaskListScreenState.Editing -> {
+                hideLoading()
+                hideAddButton()
+                hideEmptyState()
+            }
+            TaskListScreenState.NavigateToCreateTask -> {
+                navigator.navigateOnToCreateTask()
+            }
+            is TaskListScreenState.Error -> {
+                hideLoading()
+                hideAddButton()
+                showSnackBarError(state.error, Snackbar.LENGTH_LONG)
             }
         }
     }

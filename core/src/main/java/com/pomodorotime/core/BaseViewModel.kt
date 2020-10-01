@@ -12,9 +12,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
-abstract class BaseViewModel<in Event, out State>(
+abstract class BaseViewModel<in Event, State>(
     private val idlingResourceWrapper: IdlingResourcesSync? = null
 ) : ViewModel() {
+
+    protected val _screenState: MutableLiveData<com.pomodorotime.core.Event<State>> =
+        MutableLiveData(Event(initialState()))
+
+    val screenState: LiveData<com.pomodorotime.core.Event<State>>
+        get() = _screenState
 
     private val _netWorkError: MutableLiveData<Boolean> = MutableLiveData(false)
     val networkError: LiveData<Boolean>
@@ -40,6 +46,8 @@ abstract class BaseViewModel<in Event, out State>(
         }.flowOn(Dispatchers.Main)
             .launchIn(viewModelScope)
     }
+
+    abstract fun initialState():State
 
     abstract fun postEvent(event: Event)
 }

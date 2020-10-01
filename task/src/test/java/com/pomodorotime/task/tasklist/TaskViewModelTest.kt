@@ -68,6 +68,7 @@ class TaskViewModelTest {
             viewModel.postEvent(TaskListEvent.Load)
 
             //Verify
+            coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
             coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
             coVerify { repository.getAllTasks() }
             coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.EmptyState)) }
@@ -86,6 +87,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.Load)
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
         coVerify { repository.getAllTasks() }
         coVerify {
@@ -111,6 +113,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.Load)
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
         coVerify { repository.getAllTasks() }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Error(error.message))) }
@@ -122,6 +125,7 @@ class TaskViewModelTest {
         //Given
         val taskList = fromModelToView(listOf(TaskEntity1, TaskEntity2, TaskEntity3))
         val toDeleteList = taskList.subList(0, 2)
+
         viewModel.setList(taskList)
 
         //When
@@ -130,6 +134,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(toDeleteList))
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
         coVerify { repository.deleteTasks(toDeleteList.map { it.id }) }
         coVerify {
@@ -156,6 +161,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(taskList))
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
         coVerify { repository.deleteTasks(taskList.map { it.id }) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.EmptyState)) }
@@ -175,6 +181,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(taskList))
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
         coVerify { repository.deleteTasks(taskList.map { it.id }) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Error(error.message))) }
@@ -189,6 +196,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.EditTaskList)
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Editing)) }
         verifyAll()
     }
@@ -199,6 +207,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.AddTaskPressed)
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.NavigateToCreateTask)) }
         verifyAll()
     }
@@ -212,6 +221,7 @@ class TaskViewModelTest {
         viewModel.postEvent(TaskListEvent.EditTaskListFinished)
 
         //Verify
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.DataLoaded(list))) }
         verifyAll()
     }

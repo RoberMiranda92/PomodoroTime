@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 
-abstract class BaseFragment<in Event, out State, VM : BaseViewModel<Event, State>, T : ViewBinding> :
+abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T : ViewBinding> :
     Fragment() {
 
     protected abstract val viewModel: VM
@@ -37,6 +37,10 @@ abstract class BaseFragment<in Event, out State, VM : BaseViewModel<Event, State
                 showSnackBarError("Check conexion", Snackbar.LENGTH_LONG)
             }
         })
+
+        viewModel.screenState.observeEvent(viewLifecycleOwner) {
+            onNewState(it)
+        }
     }
 
     abstract fun createBinding(inflater: LayoutInflater): T
@@ -44,5 +48,7 @@ abstract class BaseFragment<in Event, out State, VM : BaseViewModel<Event, State
     abstract fun initViews()
 
     abstract fun observeViewModelChanges()
+
+    abstract fun onNewState(state: State)
 
 }

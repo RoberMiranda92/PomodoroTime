@@ -1,7 +1,6 @@
 package com.pomodorotime.task.tasklist
 
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
@@ -20,11 +19,9 @@ class TaskViewModel(
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<TaskListEvent, TaskListScreenState>(idlingResourceWrapper) {
 
-    private val _screenState: MutableLiveData<Event<TaskListScreenState>> =
-        MutableLiveData()
-    val screenState: LiveData<Event<TaskListScreenState>>
-        get() = _screenState
     private val _taskList: MutableLiveData<List<TaskListItem>> = MutableLiveData(emptyList())
+
+    override fun initialState(): TaskListScreenState = TaskListScreenState.Initial
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun setList(task: List<TaskListItem>) {

@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
 import com.pomodorotime.core.BaseFragment
-import com.pomodorotime.core.observeEvent
 import com.pomodorotime.timer.databinding.FragmentTimeBinding
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -23,7 +22,7 @@ class TimerFragment :
             setUpToolbar(it)
         }
 
-        viewModel.postEvent(TimerEvents.LoadData(args.taskId))
+
     }
 
     private fun setUpPlayButton(@TimerStatus mode: Int) {
@@ -44,18 +43,23 @@ class TimerFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.screenState.observeEvent(this) {
 
-            when (it) {
-                is TimerScreenState.DataLoaded -> {
-                    setUptDetail(it.taskDetail, it.mode)
-                    setUpTimer(it.time)
-                    setUpPlayButton(it.status)
-                }
+    }
 
-                is TimerScreenState.Loading -> {
+    override fun onNewState(state: TimerScreenState) {
+        when (state) {
+            is TimerScreenState.Initial -> {
+                viewModel.postEvent(TimerEvents.LoadData(args.taskId))
+            }
 
-                }
+            is TimerScreenState.DataLoaded -> {
+                setUptDetail(state.taskDetail, state.mode)
+                setUpTimer(state.time)
+                setUpPlayButton(state.status)
+            }
+
+            is TimerScreenState.Loading -> {
+
             }
         }
     }

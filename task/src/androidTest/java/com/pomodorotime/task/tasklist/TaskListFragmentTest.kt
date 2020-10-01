@@ -270,7 +270,7 @@ class TaskListFragmentTest : KoinTest {
                 .atPositionOnView(0, R.id.container)
         ).check(matches(isDisplayed()))
 
-        var actionBarTitle: String = ""
+        var actionBarTitle: String
 
         for (i in list.indices) {
 
@@ -340,7 +340,7 @@ class TaskListFragmentTest : KoinTest {
                 .atPositionOnView(0, R.id.container)
         ).check(matches(isDisplayed()))
 
-        var actionBarTitle = ""
+        var actionBarTitle: String
 
         for (i in list.indices) {
             onView(
@@ -427,7 +427,7 @@ class TaskListFragmentTest : KoinTest {
                 .atPositionOnView(0, R.id.container)
         ).check(matches(isDisplayed()))
 
-        var actionBarTitle: String = ""
+        var actionBarTitle: String
 
         for (i in list.indices) {
             onView(
@@ -529,11 +529,23 @@ class TaskListFragmentTest : KoinTest {
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(error.message)))
 
+        //List
+        onView(withId(R.id.rv_tasks))
+            .check(matches(not(isDisplayed())))
+
+        //Button
+        onView(withId(R.id.fb_add_task))
+            .check(matches(not(isDisplayed())))
+
+        //Status view
+        onView(withId(R.id.status_view))
+            .check(matches(isDisplayed()))
+
         verify { repository.getAllTasks() }
         confirmVerified(repository)
         confirmVerified(navigator)
     }
-    
+
     companion object {
         private val TaskEntity1 = TaskEntity(
             id = 1,
