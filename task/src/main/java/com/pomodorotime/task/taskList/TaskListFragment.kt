@@ -45,11 +45,11 @@ class TaskListFragment :
 
     override fun onNewState(state: TaskListScreenState) {
         when (state) {
-            TaskListScreenState.Initial -> {
+            is TaskListScreenState.Initial -> {
                 viewModel.postEvent(TaskListEvent.Load)
             }
 
-            TaskListScreenState.Loading -> {
+            is TaskListScreenState.Loading -> {
                 showLoading()
                 hideAddButton()
                 hideEmptyState()
@@ -57,7 +57,7 @@ class TaskListFragment :
                 finishActionMode()
             }
 
-            TaskListScreenState.EmptyState -> {
+            is TaskListScreenState.EmptyState -> {
                 hideLoading()
                 hideList()
                 hideAddButton()
@@ -75,13 +75,15 @@ class TaskListFragment :
                 showAddButton()
             }
 
-            TaskListScreenState.Editing -> {
+            is TaskListScreenState.Editing -> {
                 hideLoading()
                 hideAddButton()
                 hideEmptyState()
             }
-            TaskListScreenState.NavigateToCreateTask -> {
+            is TaskListScreenState.NavigateToCreateTask -> {
                 navigator.navigateOnToCreateTask()
+                viewModel.postEvent(TaskListEvent.OnNavigationDone)
+
             }
             is TaskListScreenState.Error -> {
                 hideLoading()

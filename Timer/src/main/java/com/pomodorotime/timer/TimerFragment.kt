@@ -5,9 +5,12 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
 import com.pomodorotime.core.BaseFragment
 import com.pomodorotime.timer.databinding.FragmentTimeBinding
+import com.pomodorotime.timer.models.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@ExperimentalCoroutinesApi
 class TimerFragment :
     BaseFragment<TimerEvents, TimerScreenState, TimerViewModel, FragmentTimeBinding>() {
 
@@ -21,8 +24,6 @@ class TimerFragment :
         args.taskName?.let {
             setUpToolbar(it)
         }
-
-
     }
 
     private fun setUpPlayButton(@TimerStatus mode: Int) {
@@ -54,7 +55,7 @@ class TimerFragment :
 
             is TimerScreenState.DataLoaded -> {
                 setUptDetail(state.taskDetail, state.mode)
-                setUpTimer(state.time)
+                setUpTimer(state.time, state.progress)
                 setUpPlayButton(state.status)
             }
 
@@ -99,13 +100,10 @@ class TimerFragment :
         }
     }
 
-    private fun setUpTimer(time: Long) {
+    private fun setUpTimer(time: Long, progress: Float) {
         val minutes = time / 1000 / 60
         val seconds = time / 1000 % 60
         binding.txTimer.text = getString(R.string.timer_timer, minutes, seconds)
-    }
-
-    companion object {
-        const val POMODORO_DEFAULT_TIMER: Long = 1500000
+        binding.timerProgress.progress = progress
     }
 }

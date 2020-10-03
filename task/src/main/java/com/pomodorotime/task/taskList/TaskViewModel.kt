@@ -30,14 +30,15 @@ class TaskViewModel(
 
     override fun postEvent(event: TaskListEvent) {
         when (event) {
-            TaskListEvent.Load -> loadTaskList()
-            TaskListEvent.EditTaskList -> _screenState.value = Event(TaskListScreenState.Editing)
-            TaskListEvent.AddTaskPressed -> {
+            is TaskListEvent.Load -> loadTaskList()
+            is TaskListEvent.EditTaskList -> _screenState.value = Event(TaskListScreenState.Editing)
+            is TaskListEvent.AddTaskPressed -> {
                 _screenState.value =
                     Event(TaskListScreenState.NavigateToCreateTask)
             }
             is TaskListEvent.DeleteTaskElementsPressed -> deleteElements(event.list)
-            TaskListEvent.EditTaskListFinished -> {
+            is TaskListEvent.OnNavigationDone,
+            is TaskListEvent.EditTaskListFinished -> {
                 _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList.value!!))
             }
         }

@@ -4,7 +4,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#0288d1</item>
         <item name="colorPrimaryDark">#0288d1</item>
-        <item name="colorPrimaryVariant">#0288d1</item>
+        <item name="colorPrimaryVariant">#56c2fd</item>
         <item name="colorOnPrimary">#FFFFFF</item>
         <item name="colorSecondary">#0288d1</item>
         <item name="colorSecondaryVariant">#555555</item>

@@ -1,6 +1,5 @@
 package com.pomodorotime.timer
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.pomodorotime.core.BaseViewModel
@@ -12,6 +11,7 @@ import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
+import com.pomodorotime.timer.models.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -22,7 +22,7 @@ class TimerViewModel(private val repository: TaskRepository) :
     BaseViewModel<TimerEvents, TimerScreenState>() {
 
     private val _detail: MutableLiveData<TimeDetail> = MutableLiveData<TimeDetail>(null)
-    private val _counter: MutableLiveData<Long> = MutableLiveData(25 * 1000)
+    private val _counter: MutableLiveData<Long> = MutableLiveData(POMODORO_DEFAULT_TIME)
     private val _status: MutableLiveData<@TimerStatus Int> =
         MutableLiveData<@TimerStatus Int>(TimerStatus.PAUSE)
     private val _mode: MutableLiveData<@PomodoroMode Int> =
@@ -30,7 +30,7 @@ class TimerViewModel(private val repository: TaskRepository) :
 
     private var intervalJob: Job? = null
 
-    override fun initialState(): TimerScreenState  = TimerScreenState.Initial
+    override fun initialState(): TimerScreenState = TimerScreenState.Initial
 
     override fun postEvent(event: TimerEvents) {
         when (event) {
@@ -61,6 +61,7 @@ class TimerViewModel(private val repository: TaskRepository) :
                             TimerScreenState.DataLoaded(
                                 this,
                                 _counter.value!!,
+                                calculateProgress(),
                                 _status.value!!,
                                 _mode.value!!
                             )
@@ -84,7 +85,16 @@ class TimerViewModel(private val repository: TaskRepository) :
         intervalJob = getTimer(_counter.value!!, 1000)
             .map {
                 _detail.value?.let { detail ->
-                    Event(TimerScreenState.DataLoaded(detail, it, _status.value!!, _mode.value!!))
+                    _counter.value = it
+                    Event(
+                        TimerScreenState.DataLoaded(
+                            detail,
+                            it,
+                            calculateProgress(),
+                            _status.value!!,
+                            _mode.value!!
+                        )
+                    )
                 }
             }
             .onStart {
@@ -101,10 +111,9 @@ class TimerViewModel(private val repository: TaskRepository) :
     }
 
     private fun stopCounter() {
-        intervalJob?.cancel()
         _status.value = TimerStatus.PAUSE
-        _screenState.value =
-            getDataLoadedEvent()
+        _screenState.value = getDataLoadedEvent()
+        intervalJob?.cancel()
     }
 
     private fun getDataLoadedEvent(): Event<TimerScreenState.DataLoaded> {
@@ -112,49 +121,66 @@ class TimerViewModel(private val repository: TaskRepository) :
             TimerScreenState.DataLoaded(
                 _detail.value!!,
                 _counter.value!!,
+                calculateProgress(),
                 _status.value!!,
                 _mode.value!!
             )
         )
     }
 
+    private fun calculateProgress(): Float {
+        val maxTime = when (_mode.value) {
+            PomodoroMode.POMODORO -> POMODORO_DEFAULT_TIME
+            PomodoroMode.LONG_BREAK -> POMODORO_LONG_BREAK_DEFAULT_TIME
+            PomodoroMode.SHORT_BREAK -> POMODORO_SMALL_BREAK_DEFAULT_TIME
+            else -> 0
+        }
+
+        return ((_counter.value?.times(100) ?: 1) / maxTime).toFloat()
+    }
+
+
     private fun onPomodoroEnded() {
         var currentPomodoro = _detail.value!!.donePomodoros
         val totalPomodoros = _detail.value!!.total
-        //TODO: MOVE THIS TO A USE CASE
-        when (_mode.value) {
-            PomodoroMode.POMODORO -> {
-                val isPomodoroEnded = currentPomodoro == totalPomodoros
-                val isLongBreak = currentPomodoro != 0 && currentPomodoro % 4 == 0
 
-                when {
-                    isPomodoroEnded -> {
-                        stopCounter()
+        val isPomodoroPaused = _status.value!! == TimerStatus.PAUSE
+        if (!isPomodoroPaused) {
+            //TODO: MOVE THIS TO A USE CASE
+            when (_mode.value) {
+                PomodoroMode.POMODORO -> {
+                    val isPomodoroEnded = currentPomodoro == totalPomodoros
+                    val isLongBreak = currentPomodoro != 0 && currentPomodoro % 4 == 0
+
+                    when {
+                        isPomodoroEnded -> {
+                            stopCounter()
+                        }
+                        isLongBreak -> {
+                            //Time for a long break
+                            _mode.value = PomodoroMode.LONG_BREAK
+                            _counter.value = POMODORO_LONG_BREAK_DEFAULT_TIME
+                        }
+                        else -> {
+                            //Time for a small break
+                            _mode.value = PomodoroMode.SHORT_BREAK
+                            _counter.value = POMODORO_SMALL_BREAK_DEFAULT_TIME
+                        }
                     }
-                    isLongBreak -> {
-                        //Time for a long break
-                        _mode.value = PomodoroMode.LONG_BREAK
-                        _counter.value = POMODORO_LONG_BREAK_DEFAULT_TIME
-                    }
-                    else -> {
-                        //Time for a small break
-                        _mode.value = PomodoroMode.SHORT_BREAK
-                        _counter.value = POMODORO_SMALL_BREAK_DEFAULT_TIME
+
+                    currentPomodoro += 1
+                    _detail.value = _detail.value?.let {
+                        TimeDetail(it.name, currentPomodoro, it.total)
                     }
                 }
-
-                currentPomodoro += 1
-                _detail.value = _detail.value?.let {
-                    TimeDetail(it.name, currentPomodoro, it.total)
+                PomodoroMode.SHORT_BREAK,
+                PomodoroMode.LONG_BREAK -> {
+                    _counter.value = POMODORO_DEFAULT_TIME
+                    _mode.value = PomodoroMode.POMODORO
                 }
             }
-            PomodoroMode.SHORT_BREAK,
-            PomodoroMode.LONG_BREAK -> {
-                _counter.value = POMODORO_DEFAULT_TIME
-                _mode.value = PomodoroMode.POMODORO
-            }
+            stopCounter()
         }
-        stopCounter()
     }
 
 }

@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/list_ripple_background"
     android:minHeight="80dp"
-    android:padding="16dp">
+    android:padding="@dimen/material_default_activity_margin">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_task_check"
