@@ -1,9 +1,9 @@
-package com.pomodorotime.timer
+package com.pomodorotime.timer.models
 
 import androidx.annotation.IntDef
-import com.pomodorotime.timer.PomodoroMode.Companion.LONG_BREAK
-import com.pomodorotime.timer.PomodoroMode.Companion.POMODORO
-import com.pomodorotime.timer.PomodoroMode.Companion.SHORT_BREAK
+import com.pomodorotime.timer.models.PomodoroMode.Companion.LONG_BREAK
+import com.pomodorotime.timer.models.PomodoroMode.Companion.POMODORO
+import com.pomodorotime.timer.models.PomodoroMode.Companion.SHORT_BREAK
 
 @Target(
     AnnotationTarget.CLASS, AnnotationTarget.TYPE,

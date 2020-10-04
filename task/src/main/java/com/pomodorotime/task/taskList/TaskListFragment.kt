@@ -9,17 +9,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
 import com.pomodorotime.core.BaseMultiSelectorAdapter
+import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.task.R
 import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.databinding.FragmentTaskListBinding
 import com.pomodorotime.task.tasklist.list.TaskListAdapter
 import com.pomodorotime.task.tasklist.list.TaskListItem
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-@ExperimentalCoroutinesApi
 class TaskListFragment :
     BaseFragment<TaskListEvent, TaskListScreenState, TaskViewModel, FragmentTaskListBinding>(),
     BaseMultiSelectorAdapter.OnItemClick<TaskListItem> {
@@ -40,7 +39,11 @@ class TaskListFragment :
     }
 
     override fun observeViewModelChanges() {
-
+        viewModel.navigationToCreateTask.observeEvent(viewLifecycleOwner){
+            if(it){
+                navigator.navigateOnToCreateTask()
+            }
+        }
     }
 
     override fun onNewState(state: TaskListScreenState) {
@@ -80,11 +83,7 @@ class TaskListFragment :
                 hideAddButton()
                 hideEmptyState()
             }
-            is TaskListScreenState.NavigateToCreateTask -> {
-                navigator.navigateOnToCreateTask()
-                viewModel.postEvent(TaskListEvent.OnNavigationDone)
 
-            }
             is TaskListScreenState.Error -> {
                 hideLoading()
                 hideAddButton()
@@ -187,5 +186,4 @@ class TaskListFragment :
     }
 
     private fun getMenuTitle(items: Int): String = getString(R.string.action_menu_title, items)
-
 }

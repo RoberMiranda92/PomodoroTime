@@ -1,6 +1,7 @@
 package com.pomodorotime.task.tasklist
 
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
@@ -21,6 +22,10 @@ class TaskViewModel(
 
     private val _taskList: MutableLiveData<List<TaskListItem>> = MutableLiveData(emptyList())
 
+    private val _navigationToCreateTask: MutableLiveData<Event<Boolean>> = MutableLiveData()
+    val navigationToCreateTask: LiveData<Event<Boolean>>
+        get() = _navigationToCreateTask
+
     override fun initialState(): TaskListScreenState = TaskListScreenState.Initial
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -33,11 +38,9 @@ class TaskViewModel(
             is TaskListEvent.Load -> loadTaskList()
             is TaskListEvent.EditTaskList -> _screenState.value = Event(TaskListScreenState.Editing)
             is TaskListEvent.AddTaskPressed -> {
-                _screenState.value =
-                    Event(TaskListScreenState.NavigateToCreateTask)
+                _navigationToCreateTask.value = Event(true)
             }
             is TaskListEvent.DeleteTaskElementsPressed -> deleteElements(event.list)
-            is TaskListEvent.OnNavigationDone,
             is TaskListEvent.EditTaskListFinished -> {
                 _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList.value!!))
             }

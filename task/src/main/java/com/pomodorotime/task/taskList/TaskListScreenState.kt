@@ -9,5 +9,4 @@ sealed class TaskListScreenState {
     object EmptyState : TaskListScreenState()
     data class Error(val error: String) : TaskListScreenState()
     object Editing : TaskListScreenState()
-    object NavigateToCreateTask : TaskListScreenState()
 }

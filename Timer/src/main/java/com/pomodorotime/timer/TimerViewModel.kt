@@ -1,5 +1,6 @@
 package com.pomodorotime.timer
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.pomodorotime.core.BaseViewModel
@@ -21,12 +22,14 @@ import kotlinx.coroutines.flow.*
 class TimerViewModel(private val repository: TaskRepository) :
     BaseViewModel<TimerEvents, TimerScreenState>() {
 
-    private val _detail: MutableLiveData<TimeDetail> = MutableLiveData<TimeDetail>(null)
-    private val _counter: MutableLiveData<Long> = MutableLiveData(POMODORO_DEFAULT_TIME)
-    private val _status: MutableLiveData<@TimerStatus Int> =
-        MutableLiveData<@TimerStatus Int>(TimerStatus.PAUSE)
-    private val _mode: MutableLiveData<@PomodoroMode Int> =
-        MutableLiveData<@TimerStatus Int>(PomodoroMode.POMODORO)
+    private val _onBakPressedDialog: MutableLiveData<Event<Boolean>> = MutableLiveData()
+    val onBakPressedDialog: LiveData<Event<Boolean>>
+        get() = _onBakPressedDialog
+
+    private var _detail: TimeDetail? = null
+    private var _counter: Long = POMODORO_DEFAULT_TIME
+    private var _status: @TimerStatus Int = TimerStatus.PAUSE
+    private var _mode: @PomodoroMode Int = PomodoroMode.POMODORO
 
     private var intervalJob: Job? = null
 
@@ -38,7 +41,7 @@ class TimerViewModel(private val repository: TaskRepository) :
                 loadData(event.id)
             }
             is TimerEvents.OnPlayStopButtonClicked -> {
-                when (_status.value) {
+                when (_status) {
                     TimerStatus.PAUSE -> {
                         playCounter()
                     }
@@ -47,7 +50,19 @@ class TimerViewModel(private val repository: TaskRepository) :
                     }
                 }
             }
+            is TimerEvents.OnBackPressed -> {
+                manageBack()
+            }
         }
+    }
+
+    private fun manageBack() {
+        _onBakPressedDialog.value = Event(
+            when (_status) {
+                TimerStatus.PLAY -> true
+                else -> false
+            }
+        )
     }
 
     private fun loadData(id: Int) {
@@ -56,14 +71,14 @@ class TimerViewModel(private val repository: TaskRepository) :
             val result = repository.getTaskById(id)
             when (result) {
                 is ResultWrapper.Success -> {
-                    _detail.value = getTaskDetail(result.value).apply {
+                    _detail = getTaskDetail(result.value).apply {
                         _screenState.value = Event(
                             TimerScreenState.DataLoaded(
                                 this,
-                                _counter.value!!,
+                                _counter,
                                 calculateProgress(),
-                                _status.value!!,
-                                _mode.value!!
+                                _status,
+                                _mode
                             )
                         )
                     }
@@ -82,23 +97,23 @@ class TimerViewModel(private val repository: TaskRepository) :
     }
 
     private fun playCounter() {
-        intervalJob = getTimer(_counter.value!!, 1000)
+        intervalJob = getTimer(_counter, 1000)
             .map {
-                _detail.value?.let { detail ->
-                    _counter.value = it
+                _detail?.let { detail ->
+                    _counter = it
                     Event(
                         TimerScreenState.DataLoaded(
                             detail,
                             it,
                             calculateProgress(),
-                            _status.value!!,
-                            _mode.value!!
+                            _status,
+                            _mode
                         )
                     )
                 }
             }
             .onStart {
-                _status.value = TimerStatus.PLAY
+                _status = TimerStatus.PLAY
                 getDataLoadedEvent()
             }
             .onEach {
@@ -111,7 +126,7 @@ class TimerViewModel(private val repository: TaskRepository) :
     }
 
     private fun stopCounter() {
-        _status.value = TimerStatus.PAUSE
+        _status = TimerStatus.PAUSE
         _screenState.value = getDataLoadedEvent()
         intervalJob?.cancel()
     }
@@ -119,35 +134,32 @@ class TimerViewModel(private val repository: TaskRepository) :
     private fun getDataLoadedEvent(): Event<TimerScreenState.DataLoaded> {
         return Event(
             TimerScreenState.DataLoaded(
-                _detail.value!!,
-                _counter.value!!,
-                calculateProgress(),
-                _status.value!!,
-                _mode.value!!
+                _detail!!, _counter, calculateProgress(), _status, _mode
             )
         )
     }
 
+    //TODO MOVE USE CASE
     private fun calculateProgress(): Float {
-        val maxTime = when (_mode.value) {
+        val maxTime = when (_mode) {
             PomodoroMode.POMODORO -> POMODORO_DEFAULT_TIME
             PomodoroMode.LONG_BREAK -> POMODORO_LONG_BREAK_DEFAULT_TIME
             PomodoroMode.SHORT_BREAK -> POMODORO_SMALL_BREAK_DEFAULT_TIME
             else -> 0
         }
 
-        return ((_counter.value?.times(100) ?: 1) / maxTime).toFloat()
+        return (_counter.times(100) / maxTime).toFloat()
     }
 
 
     private fun onPomodoroEnded() {
-        var currentPomodoro = _detail.value!!.donePomodoros
-        val totalPomodoros = _detail.value!!.total
+        var currentPomodoro = _detail!!.donePomodoros
+        val totalPomodoros = _detail?.total
 
-        val isPomodoroPaused = _status.value!! == TimerStatus.PAUSE
+        val isPomodoroPaused = _status == TimerStatus.PAUSE
         if (!isPomodoroPaused) {
             //TODO: MOVE THIS TO A USE CASE
-            when (_mode.value) {
+            when (_mode) {
                 PomodoroMode.POMODORO -> {
                     val isPomodoroEnded = currentPomodoro == totalPomodoros
                     val isLongBreak = currentPomodoro != 0 && currentPomodoro % 4 == 0
@@ -158,25 +170,25 @@ class TimerViewModel(private val repository: TaskRepository) :
                         }
                         isLongBreak -> {
                             //Time for a long break
-                            _mode.value = PomodoroMode.LONG_BREAK
-                            _counter.value = POMODORO_LONG_BREAK_DEFAULT_TIME
+                            _mode = PomodoroMode.LONG_BREAK
+                            _counter = POMODORO_LONG_BREAK_DEFAULT_TIME
                         }
                         else -> {
                             //Time for a small break
-                            _mode.value = PomodoroMode.SHORT_BREAK
-                            _counter.value = POMODORO_SMALL_BREAK_DEFAULT_TIME
+                            _mode = PomodoroMode.SHORT_BREAK
+                            _counter = POMODORO_SMALL_BREAK_DEFAULT_TIME
                         }
                     }
 
                     currentPomodoro += 1
-                    _detail.value = _detail.value?.let {
+                    _detail = _detail?.let {
                         TimeDetail(it.name, currentPomodoro, it.total)
                     }
                 }
                 PomodoroMode.SHORT_BREAK,
                 PomodoroMode.LONG_BREAK -> {
-                    _counter.value = POMODORO_DEFAULT_TIME
-                    _mode.value = PomodoroMode.POMODORO
+                    _counter = POMODORO_DEFAULT_TIME
+                    _mode = PomodoroMode.POMODORO
                 }
             }
             stopCounter()

@@ -3,9 +3,15 @@ package com.pomodorotime.timer
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.observeEvent
 import com.pomodorotime.timer.databinding.FragmentTimeBinding
-import com.pomodorotime.timer.models.*
+import com.pomodorotime.timer.models.PomodoroMode
+import com.pomodorotime.timer.models.TimeDetail
+import com.pomodorotime.timer.models.TimerEvents
+import com.pomodorotime.timer.models.TimerScreenState
+import com.pomodorotime.timer.models.TimerStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -44,7 +50,27 @@ class TimerFragment :
     }
 
     override fun observeViewModelChanges() {
+        viewModel.onBakPressedDialog.observeEvent(viewLifecycleOwner) {
+            if (it) {
+                showBackDialog()
+            } else {
+                navigator.onBack()
+            }
+        }
+    }
 
+    override fun onBackPressed() {
+        viewModel.postEvent(TimerEvents.OnBackPressed)
+    }
+
+    private fun showBackDialog() {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        builder.setMessage("Do you want to leave this task?")
+        builder.setPositiveButton("Yes") { dialog, which ->
+            navigator.onBack()
+        }
+        builder.setNegativeButton("No") { dialog, which -> }
+        builder.show()
     }
 
     override fun onNewState(state: TimerScreenState) {
@@ -70,7 +96,7 @@ class TimerFragment :
             title = it
             setNavigationIcon(R.drawable.ic_action_back)
             setNavigationOnClickListener {
-                navigator.onBack()
+                onBackPressed()
             }
         }
     }
