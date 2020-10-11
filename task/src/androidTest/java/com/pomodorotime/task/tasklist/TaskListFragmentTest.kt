@@ -20,7 +20,7 @@ import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.R
 import com.pomodorotime.task.RecyclerViewMatcher

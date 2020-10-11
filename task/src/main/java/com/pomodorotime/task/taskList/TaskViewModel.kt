@@ -7,7 +7,7 @@ import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.tasklist.list.TaskListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi

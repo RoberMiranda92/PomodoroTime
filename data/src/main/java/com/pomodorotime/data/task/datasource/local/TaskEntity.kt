@@ -1,4 +1,4 @@
-package com.pomodorotime.data.task
+package com.pomodorotime.data.task.datasource.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

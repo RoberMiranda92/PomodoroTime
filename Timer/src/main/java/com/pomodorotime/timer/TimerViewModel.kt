@@ -10,7 +10,7 @@ import com.pomodorotime.data.POMODORO_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_LONG_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.timer.models.PomodoroMode
 import com.pomodorotime.timer.models.TimeDetail

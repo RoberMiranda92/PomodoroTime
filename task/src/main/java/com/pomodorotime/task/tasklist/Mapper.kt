@@ -1,6 +1,6 @@
 package com.pomodorotime.task.tasklist
 
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.task.tasklist.list.TaskListItem
 
 fun fromModelToView(tasks: List<TaskEntity>): List<TaskListItem> {

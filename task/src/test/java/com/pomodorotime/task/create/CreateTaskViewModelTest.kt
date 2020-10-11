@@ -3,13 +3,11 @@ package com.pomodorotime.task.create
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.core.getCurrentDate
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.CoroutinesRule
-import com.pomodorotime.task.tasklist.TaskListScreenState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

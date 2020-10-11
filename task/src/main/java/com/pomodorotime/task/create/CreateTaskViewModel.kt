@@ -1,14 +1,13 @@
 package com.pomodorotime.task.create
 
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.getCurrentDate
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskEntity
+import com.pomodorotime.data.task.datasource.local.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 
 class CreateTaskViewModel(

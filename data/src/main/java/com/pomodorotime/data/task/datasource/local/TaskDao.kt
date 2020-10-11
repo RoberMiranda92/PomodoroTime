@@ -1,4 +1,4 @@
-package com.pomodorotime.data.task
+package com.pomodorotime.data.task.datasource.local
 
 import androidx.room.Dao
 import androidx.room.Delete
