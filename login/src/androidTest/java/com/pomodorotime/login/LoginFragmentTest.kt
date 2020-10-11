@@ -12,7 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.repository.LoginRepository

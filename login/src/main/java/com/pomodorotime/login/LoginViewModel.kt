@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.repository.LoginRepository

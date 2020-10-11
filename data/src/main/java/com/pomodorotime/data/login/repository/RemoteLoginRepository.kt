@@ -1,6 +1,6 @@
 package com.pomodorotime.data.login.repository
 
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.ResultWrapper
 
 interface RemoteLoginRepository {

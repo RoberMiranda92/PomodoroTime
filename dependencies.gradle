@@ -33,7 +33,7 @@ ext.versions = [
         retrofit_version                   : "2.9.0",
 
         //Koin
-        koin_version                       : "2.1.6",
+        koin_version                       : "2.2.0-rc-2",
 
         // Dependency Versions
         materialComponents                 : '1.2.0',
@@ -73,7 +73,7 @@ ext.libraries = [
         androidXSwipeToRefresh      : "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swipe_refresh_layout",
         androidXAnotations          : "androidx.annotation:annotation:$versions.androidXAnotations",
 
-        //Firease
+        //Firebase
         firebaseCore                : "com.google.firebase:firebase-core:17.4.4",
         firebaseAuth                : "com.google.firebase:firebase-auth:19.3.2",
         firebaseDataBase            : "com.google.firebase:firebase-database-ktx:19.4.0",

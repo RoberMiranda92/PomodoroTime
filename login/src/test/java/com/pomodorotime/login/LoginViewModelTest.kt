@@ -3,7 +3,7 @@ package com.pomodorotime.login
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.login.repository.LoginRepository

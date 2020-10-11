@@ -7,9 +7,11 @@ import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.getCurrentDate
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.datasource.local.TaskEntity
+import com.pomodorotime.data.task.TaskDataModel
 import com.pomodorotime.data.task.TaskRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 class CreateTaskViewModel(
     private val repository: TaskRepository,
     idlingResourceWrapper: IdlingResourcesSync? = null
@@ -18,7 +20,7 @@ class CreateTaskViewModel(
     private val taskNameLiveData: MutableLiveData<String> = MutableLiveData()
     private val taskPomodorosLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    override fun initialState(): CreateTaskScreenState  = CreateTaskScreenState.Initial()
+    override fun initialState(): CreateTaskScreenState = CreateTaskScreenState.Initial()
 
     override fun postEvent(event: CreateTaskEvent) {
         super.postEvent(event)
@@ -59,7 +61,7 @@ class CreateTaskViewModel(
             val longBreaks = calculateLongBreaks(estimatedPomodoros)
 
             val result = repository.insetTask(
-                TaskEntity(
+                TaskDataModel(
                     name = taskName,
                     estimatedPomodoros = estimatedPomodoros,
                     donePomodoros = 0,
@@ -96,6 +98,7 @@ class CreateTaskViewModel(
             }
         }
     }
+
     //TODO MOVE THIS TO USE CASES
     private fun calculateShortBreaks(estimatedPomodoros: Int) = estimatedPomodoros * 4
 

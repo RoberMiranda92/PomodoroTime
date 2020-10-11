@@ -1,7 +1,7 @@
 package com.pomodorotime.data.login.api
 
 import com.google.firebase.auth.FirebaseAuth
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import kotlinx.coroutines.tasks.await
 
 class FirebaseLoginApi : ILoginApi {

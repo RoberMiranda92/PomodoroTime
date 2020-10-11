@@ -5,7 +5,7 @@ import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.datasource.local.TaskEntity
+import com.pomodorotime.data.task.dataBase.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.CoroutinesRule
 import io.mockk.MockKAnnotations

@@ -10,7 +10,8 @@ import com.pomodorotime.data.POMODORO_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_LONG_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.datasource.local.TaskEntity
+import com.pomodorotime.data.task.TaskDataModel
+import com.pomodorotime.data.task.dataBase.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.timer.models.PomodoroMode
 import com.pomodorotime.timer.models.TimeDetail
@@ -102,7 +103,7 @@ class TimerViewModel(private val repository: TaskRepository) :
         }
     }
 
-    private fun getTaskDetail(task: TaskEntity): TimeDetail {
+    private fun getTaskDetail(task: TaskDataModel): TimeDetail {
         return TimeDetail(task.name, task.donePomodoros, task.estimatedPomodoros)
     }
 

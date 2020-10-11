@@ -2,7 +2,7 @@ package com.pomodorotime
 
 import android.app.Application
 import com.pomodorotime.core.di.coreModule
-import com.pomodorotime.data.dataModule
+import com.pomodorotime.data.di.dataModule
 import com.pomodorotime.koin.appModule
 import com.pomodorotime.login.loginModule
 import com.pomodorotime.task.taskModule

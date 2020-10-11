@@ -1,7 +1,7 @@
 package com.pomodorotime.data.login.repository
 
 import com.google.firebase.auth.FirebaseAuthException
-import com.pomodorotime.data.ApiUser
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.BaseRepository
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper

@@ -1,4 +1,4 @@
-package com.pomodorotime.data
+package com.pomodorotime.data.di
 
 import com.pomodorotime.data.login.repository.LoginRepository
 import com.pomodorotime.data.task.TaskRepository
