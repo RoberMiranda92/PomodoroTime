@@ -72,8 +72,11 @@ dependencies {
     kapt libraries.room_compiler
     implementation libraries.room_ktx
 
+    //Firebase
     implementation libraries.firebaseCore
     implementation libraries.firebaseAuth
+    implementation libraries.firebaseDataBase
+
     implementation libraries.gson
     implementation libraries.kotlinCoroutinesPlayServices
 

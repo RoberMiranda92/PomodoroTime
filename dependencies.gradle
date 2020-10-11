@@ -76,6 +76,7 @@ ext.libraries = [
         //Firease
         firebaseCore                : "com.google.firebase:firebase-core:17.4.4",
         firebaseAuth                : "com.google.firebase:firebase-auth:19.3.2",
+        firebaseDataBase            : "com.google.firebase:firebase-database-ktx:19.4.0",
 
         //Koin
         koinCore                    : "org.koin:koin-core:$versions.koin_version",
