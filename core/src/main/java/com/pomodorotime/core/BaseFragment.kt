@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
+import com.pomodorotime.core.logger.PomodoroLogger
+import org.koin.android.ext.android.inject
 
 abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T : ViewBinding> :
     Fragment() {
@@ -17,9 +19,12 @@ abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T
     private lateinit var callback: OnBackPressedCallback
     protected abstract val viewModel: VM
     protected lateinit var binding: T
+    protected val logger: PomodoroLogger by inject()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = createBinding(inflater)
         callback = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             onBackPressed()
@@ -42,6 +47,7 @@ abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T
         })
 
         viewModel.screenState.observe(viewLifecycleOwner, Observer {
+            logger.logDebug("New state $it")
             onNewState(it.peekContent())
         })
     }
@@ -55,9 +61,8 @@ abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T
     abstract fun onNewState(state: State)
 
     //Override this to manage back in fragments
-    protected open fun onBackPressed(){
+    protected open fun onBackPressed() {
         callback.isEnabled = false
         requireActivity().onBackPressed()
     }
-
 }
