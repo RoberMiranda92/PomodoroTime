@@ -1,6 +1,7 @@
 package com.pomodorotime
 
 import android.app.Application
+import com.pomodorotime.core.di.coreModule
 import com.pomodorotime.data.dataModule
 import com.pomodorotime.koin.appModule
 import com.pomodorotime.login.loginModule
@@ -20,7 +21,7 @@ class PomodoroApp : Application() {
             //inject Android context
             androidContext(this@PomodoroApp)
             // use modules
-            modules(appModule, dataModule, loginModule, taskModule, timerModule)
+            modules(appModule, coreModule, dataModule, loginModule, taskModule, timerModule)
         }
     }
 }

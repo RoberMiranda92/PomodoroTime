@@ -34,6 +34,7 @@ class TaskViewModel(
     }
 
     override fun postEvent(event: TaskListEvent) {
+        super.postEvent(event)
         when (event) {
             is TaskListEvent.Load -> loadTaskList()
             is TaskListEvent.EditTaskList -> _screenState.value = Event(TaskListScreenState.Editing)

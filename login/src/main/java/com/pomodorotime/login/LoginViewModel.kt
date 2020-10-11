@@ -22,6 +22,7 @@ class LoginViewModel constructor(
     override fun initialState(): LoginScreenState = LoginScreenState.SignIn
 
     override fun postEvent(event: LoginEvent) {
+        super.postEvent(event)
         when (event) {
             is LoginEvent.LoginTyping -> {
                 onEmailSet(event.user)

@@ -22,6 +22,7 @@ class CreateTaskViewModel(
     override fun initialState(): CreateTaskScreenState  = CreateTaskScreenState.Initial()
 
     override fun postEvent(event: CreateTaskEvent) {
+        super.postEvent(event)
         when (event) {
             is CreateTaskEvent.EditingTask -> {
                 setTaskName(event.name)

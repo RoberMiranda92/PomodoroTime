@@ -12,11 +12,20 @@ import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
-import com.pomodorotime.timer.models.*
+import com.pomodorotime.timer.models.PomodoroMode
+import com.pomodorotime.timer.models.TimeDetail
+import com.pomodorotime.timer.models.TimerEvents
+import com.pomodorotime.timer.models.TimerScreenState
+import com.pomodorotime.timer.models.TimerStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
 class TimerViewModel(private val repository: TaskRepository) :
@@ -36,6 +45,7 @@ class TimerViewModel(private val repository: TaskRepository) :
     override fun initialState(): TimerScreenState = TimerScreenState.Initial
 
     override fun postEvent(event: TimerEvents) {
+        super.postEvent(event)
         when (event) {
             is TimerEvents.LoadData -> {
                 loadData(event.id)
@@ -151,7 +161,6 @@ class TimerViewModel(private val repository: TaskRepository) :
         return (_counter.times(100) / maxTime).toFloat()
     }
 
-
     private fun onPomodoroEnded() {
         var currentPomodoro = _detail!!.donePomodoros
         val totalPomodoros = _detail?.total
@@ -194,6 +203,5 @@ class TimerViewModel(private val repository: TaskRepository) :
             stopCounter()
         }
     }
-
 }
 

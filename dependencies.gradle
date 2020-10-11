@@ -33,6 +33,7 @@ ext.versions = [
 
         // Dependency Versions
         materialComponents  : '1.2.0',
+        timber              : "4.7.1",
 
         // Testing dependencies
         core_testing_version: "2.1.0",
@@ -93,8 +94,7 @@ ext.libraries = [
         gson                        : "com.google.code.gson:gson:2.8.6",
         materialComponents          : "com.google.android.material:material:$versions.materialComponents",
 
-        biometrix                   : "androidx.biometric:biometric:$versions.biometrix",
-
+        timber                      : "com.jakewharton.timber:timber:$versions.timber"
 ]
 ext.test = [
 
