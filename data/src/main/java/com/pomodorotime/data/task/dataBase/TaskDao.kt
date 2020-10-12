@@ -1,30 +1,26 @@
-package com.pomodorotime.data.task.datasource.local
+package com.pomodorotime.data.task.dataBase
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TaskDao {
+interface TaskDao : IDataBase {
 
     @Query("SELECT * FROM tasks")
-    fun getAllTask(): Flow<List<TaskEntity>>
+    override fun getAllTask(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id is :id")
-    suspend fun getTaskById(id: Int): TaskEntity
+    override suspend fun getTaskById(id: Int): TaskEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(taskList: List<TaskEntity>)
+    override suspend fun insert(taskList: List<TaskEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(task: TaskEntity)
+    override suspend fun insert(task: TaskEntity)
 
     @Delete
-    fun delete(task: TaskEntity)
+    override suspend fun delete(task: TaskEntity)
 
     @Query("DELETE FROM TASKS WHERE id IN (:list)")
-    fun deleteTaskList(list: List<Int>)
+    override suspend fun deleteTaskList(list: List<Int>)
 }
