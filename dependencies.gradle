@@ -4,10 +4,10 @@ ext.versions = [
         name                               : "1.0",
 
         // Android Versions
-        compileSdk                         : 29,
-        targetSdk                          : 29,
+        compileSdk                         : 30,
+        targetSdk                          : 30,
         minSdk                             : 21,
-        buildTools                         : '29.0.2',
+        buildTools                         : '30.0.1',
 
         // Gradle Versions
         androidGradlePlugin                : '4.0.1',
@@ -31,6 +31,7 @@ ext.versions = [
         espresso_version                   : "3.1.0",
         room_version                       : "2.3.0-alpha01",
         retrofit_version                   : "2.9.0",
+        workManagerVersion                 : "2.4.0",
 
         //Koin
         koin_version                       : "2.2.0-rc-2",
@@ -72,6 +73,7 @@ ext.libraries = [
         androidXConstraintLayout    : "androidx.constraintlayout:constraintlayout:$versions.constraint_layout",
         androidXSwipeToRefresh      : "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swipe_refresh_layout",
         androidXAnotations          : "androidx.annotation:annotation:$versions.androidXAnotations",
+        androidWorkManager          : "androidx.work:work-runtime-ktx:$versions.workManagerVersion",
 
         //Firebase
         firebaseCore                : "com.google.firebase:firebase-core:17.5.0",
