@@ -5,16 +5,15 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
-import com.pomodorotime.data.login.api.models.ApiUser
+import com.pomodorotime.core.logger.PomodoroLogger
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.login.repository.LoginRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -37,7 +36,7 @@ import org.koin.test.KoinTest
 class LoginFragmentTest : KoinTest {
 
     @MockK
-    lateinit var repository: LoginRepository
+    lateinit var loginRepository: LoginRepository
 
     @RelaxedMockK
     lateinit var navigator: LoginNavigator
@@ -51,7 +50,8 @@ class LoginFragmentTest : KoinTest {
             modules(
                 module { viewModel { LoginViewModel(get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single { repository } }
+                module { single { loginRepository } },
+                module { single { PomodoroLogger() } }
             )
         }
         IdlingRegistry.getInstance().register(idlingResourceWrapper.getIdlingResource())
@@ -115,8 +115,8 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.Success(
-            ApiUser(user, "token")
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.Success(
+            ApiUser(user, "id", "token")
         )
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
@@ -134,8 +134,8 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { repository.signUp(any(), any()) } returns ResultWrapper.Success(
-            ApiUser(user, "token")
+        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.Success(
+            ApiUser(user, "id", "token")
         )
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
@@ -157,7 +157,7 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { repository.signUp(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.GenericError(
             error.code, error
         )
 
@@ -181,7 +181,7 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { repository.signUp(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.GenericError(
             error.code, error
         )
 

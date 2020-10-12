@@ -74,8 +74,8 @@ ext.libraries = [
         androidXAnotations          : "androidx.annotation:annotation:$versions.androidXAnotations",
 
         //Firebase
-        firebaseCore                : "com.google.firebase:firebase-core:17.4.4",
-        firebaseAuth                : "com.google.firebase:firebase-auth:19.3.2",
+        firebaseCore                : "com.google.firebase:firebase-core:17.5.0",
+        firebaseAuth                : "com.google.firebase:firebase-auth-ktx:19.4.0",
         firebaseDataBase            : "com.google.firebase:firebase-database-ktx:19.4.0",
 
         //Koin

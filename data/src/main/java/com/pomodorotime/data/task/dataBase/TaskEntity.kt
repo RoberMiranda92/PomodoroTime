@@ -9,7 +9,7 @@ import java.util.*
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int? = null,
+    val id: Long? = null,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "creationDate")

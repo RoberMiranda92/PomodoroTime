@@ -20,7 +20,7 @@ class RouteNavigator : LoginNavigator, TaskNavigator, TimeNavigator {
         navController?.navigate(actionTaskListFragmentToCreateTask())
     }
 
-    override fun navigateOnToTimer(id: Int, name: String?) {
+    override fun navigateOnToTimer(id: Long, name: String?) {
         navController?.navigate(actionTaskListFragmentToTimer(id, name))
     }
 

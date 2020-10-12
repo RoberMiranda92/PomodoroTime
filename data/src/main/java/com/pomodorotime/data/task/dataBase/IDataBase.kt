@@ -10,9 +10,9 @@ interface IDataBase {
 
     suspend fun insert(taskList: List<TaskEntity>)
 
-    suspend fun insert(task: TaskEntity)
+    suspend fun insert(task: TaskEntity): Long
 
     suspend fun delete(task: TaskEntity)
 
-    suspend fun deleteTaskList(list: List<Int>)
+    suspend fun deleteTaskList(list: List<Long>)
 }

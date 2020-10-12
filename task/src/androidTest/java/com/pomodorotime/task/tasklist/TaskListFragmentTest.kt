@@ -20,7 +20,7 @@ import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.dataBase.TaskEntity
+import com.pomodorotime.data.task.TaskDataModel
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.R
 import com.pomodorotime.task.RecyclerViewMatcher
@@ -144,7 +144,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskListInitOK() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3)
+        val list = listOf(Task1, Task2, Task3)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
@@ -177,7 +177,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskElementsAreOK() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val list = listOf(Task1, Task2, Task3, Task4)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
@@ -223,7 +223,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskElementsNavigationIsOK() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val list = listOf(Task1, Task2, Task3, Task4)
         val position = 0
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
@@ -253,7 +253,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskElementsOnLongIsOK() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val list = listOf(Task1, Task2, Task3, Task4)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
@@ -323,7 +323,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskActionBarIsClosedWithClicksOK() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val list = listOf(Task1, Task2, Task3, Task4)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
@@ -409,7 +409,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskElementsOnDeleteButtonClick() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3, TaskEntity4)
+        val list = listOf(Task1, Task2, Task3, Task4)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
         coEvery { repository.deleteTasks(any()) } returns ResultWrapper.Success(Unit)
 
@@ -476,7 +476,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun addTaskButtonClick() {
-        val list = listOf(TaskEntity1, TaskEntity2, TaskEntity3)
+        val list = listOf(Task1, Task2, Task3)
         every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
@@ -547,7 +547,7 @@ class TaskListFragmentTest : KoinTest {
     }
 
     companion object {
-        private val TaskEntity1 = TaskEntity(
+        private val Task1 = TaskDataModel(
             id = 1,
             name = "Task1",
             creationDate = Date(),
@@ -557,7 +557,7 @@ class TaskListFragmentTest : KoinTest {
             longBreaks = 0,
             completed = true
         )
-        private val TaskEntity2 = TaskEntity(
+        private val Task2 = TaskDataModel(
             id = 2,
             name = "Task2",
             creationDate = Date(),
@@ -567,7 +567,7 @@ class TaskListFragmentTest : KoinTest {
             longBreaks = 0,
             completed = true
         )
-        private val TaskEntity3 = TaskEntity(
+        private val Task3 = TaskDataModel(
             id = 3,
             name = "Task3",
             creationDate = Date(),
@@ -578,7 +578,7 @@ class TaskListFragmentTest : KoinTest {
             completed = true
         )
 
-        private val TaskEntity4 = TaskEntity(
+        private val Task4 = TaskDataModel(
             id = 4,
             name = "Task4",
             creationDate = Date(),

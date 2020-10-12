@@ -3,7 +3,7 @@ package com.pomodorotime.data.task
 import java.util.Date
 
 data class TaskDataModel(
-    val id: Int? = null,
+    var id: Long? = null,
     val name: String,
     val creationDate: Date,
     val donePomodoros: Int,

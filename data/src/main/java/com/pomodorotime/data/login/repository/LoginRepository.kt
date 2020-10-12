@@ -1,33 +1,51 @@
 package com.pomodorotime.data.login.repository
 
 import com.google.firebase.auth.FirebaseAuthException
-import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.BaseRepository
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.login.api.FirebaseLoginApi
-import com.pomodorotime.data.login.api.ILoginApi
+import com.pomodorotime.data.login.api.models.ApiUser
+import com.pomodorotime.data.login.datasource.LoginRemoteDataSource
+import com.pomodorotime.data.user.UserLocalDataSource
 import kotlinx.coroutines.Dispatchers
 
-class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLoginRepository {
+class LoginRepository(
+    private val remoteDataSource: LoginRemoteDataSource,
+    private val userLocalDataSource: UserLocalDataSource
+) : BaseRepository(),
+    RemoteLoginRepository {
 
     override suspend fun signIn(email: String, password: String): ResultWrapper<ApiUser> {
-        return safeApiCall(Dispatchers.IO) {
-            api.signIn(email, password)
+        val result = safeApiCall(Dispatchers.IO) {
+            remoteDataSource.signIn(email, password)
         }
+        if (result is ResultWrapper.Success) {
+            saveUser(result.value)
+        }
+        return result
     }
 
     override suspend fun signUp(email: String, password: String): ResultWrapper<ApiUser> {
-        return safeApiCall(Dispatchers.IO) {
-            api.signUp(email, password)
+        val result = safeApiCall(Dispatchers.IO) {
+            remoteDataSource.signUp(email, password)
         }
+        if (result is ResultWrapper.Success) {
+            saveUser(result.value)
+        }
+        return result
+    }
+
+    private fun saveUser(value: ApiUser) {
+        userLocalDataSource.user = value
     }
 
     override fun <T> manageException(throwable: Throwable): ResultWrapper<T> {
         return when (throwable) {
             is FirebaseAuthException -> {
                 val code = loginErrorCodeMapper(throwable)
-                ResultWrapper.GenericError(code = code, error = ErrorResponse(code = code, message = throwable.message ?: "")
+                ResultWrapper.GenericError(
+                    code = code,
+                    error = ErrorResponse(code = code, message = throwable.message ?: "")
                 )
             }
             else -> super.manageException(throwable)
@@ -62,7 +80,10 @@ class LoginRepository(private val api: ILoginApi) : BaseRepository(), RemoteLogi
         const val ERROR_TOO_MANY_REQUESTS = 108
 
         fun getNewInstance(): LoginRepository {
-            return LoginRepository(FirebaseLoginApi())
+            return LoginRepository(
+                LoginRemoteDataSource.getNewInstance(),
+                UserLocalDataSource
+            )
         }
     }
 }

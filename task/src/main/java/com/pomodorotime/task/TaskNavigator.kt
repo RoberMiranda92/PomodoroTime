@@ -4,7 +4,7 @@ interface TaskNavigator {
 
     fun navigateOnToCreateTask()
 
-    fun navigateOnToTimer(id: Int, name: String?)
+    fun navigateOnToTimer(id: Long, name: String?)
 
     fun onBack()
 

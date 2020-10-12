@@ -7,29 +7,18 @@ import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withParent
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
+import com.pomodorotime.core.logger.PomodoroLogger
 import com.pomodorotime.data.ResultWrapper
 import com.pomodorotime.data.task.TaskRepository
-import com.pomodorotime.task.R
-import com.pomodorotime.task.TaskNavigator
-import com.pomodorotime.task.withMenu
-import com.pomodorotime.task.withTextInputError
-import com.pomodorotime.task.withTextInputLayoutHint
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.confirmVerified
+import com.pomodorotime.task.*
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
@@ -63,7 +52,10 @@ class CreateTaskFragmentTest : KoinTest {
             modules(
                 module { viewModel { CreateTaskViewModel(get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single { repository } }
+                module { single { repository } },
+                module {
+                    single { PomodoroLogger() }
+                }
             )
         }
         IdlingRegistry.getInstance().register(idlingResourceWrapper.getIdlingResource())
@@ -81,7 +73,7 @@ class CreateTaskFragmentTest : KoinTest {
 
     @Test
     fun createTaskOk() {
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
 
         //Toolbar
         val toolbar = onView(withId(R.id.toolbar))
@@ -145,8 +137,12 @@ class CreateTaskFragmentTest : KoinTest {
         val toolbar = onView(withId(R.id.toolbar))
         toolbar.check(matches(isDisplayed()))
 
-        onView(allOf(withParent(withId(R.id.toolbar)),
-            isAssignableFrom(AppCompatImageButton::class.java))).perform(click())
+        onView(
+            allOf(
+                withParent(withId(R.id.toolbar)),
+                isAssignableFrom(AppCompatImageButton::class.java)
+            )
+        ).perform(click())
 
         verify { navigator.onBack() }
         confirmVerified(navigator)

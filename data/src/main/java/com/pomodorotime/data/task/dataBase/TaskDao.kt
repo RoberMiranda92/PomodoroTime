@@ -16,11 +16,11 @@ interface TaskDao : IDataBase {
     override suspend fun insert(taskList: List<TaskEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    override suspend fun insert(task: TaskEntity)
+    override suspend fun insert(task: TaskEntity): Long
 
     @Delete
     override suspend fun delete(task: TaskEntity)
 
     @Query("DELETE FROM TASKS WHERE id IN (:list)")
-    override suspend fun deleteTaskList(list: List<Int>)
+    override suspend fun deleteTaskList(list: List<Long>)
 }

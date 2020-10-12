@@ -4,7 +4,11 @@ import com.pomodorotime.core.ListItem
 import java.util.*
 
 data class TaskListItem(
-    val id: Int, val name: String, val creationDate: Date, val estimatedPomodoros: String, val completed: Boolean
+    val id: Long,
+    val name: String,
+    val creationDate: Date,
+    val estimatedPomodoros: String,
+    val completed: Boolean
 ) : ListItem {
 
     override fun getType(): Int =

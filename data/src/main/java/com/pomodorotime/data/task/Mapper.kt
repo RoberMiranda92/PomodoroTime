@@ -15,6 +15,18 @@ fun ApiTask.toDataModel() =
         completed
     )
 
+fun TaskDataModel.toApiTaskModel() =
+    ApiTask(
+        id,
+        name,
+        creationDate,
+        donePomodoros,
+        estimatedPomodoros,
+        shortBreaks,
+        longBreaks,
+        completed
+    )
+
 fun TaskEntity.toDataModel() =
     TaskDataModel(
         id,

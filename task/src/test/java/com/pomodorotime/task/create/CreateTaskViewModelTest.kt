@@ -62,7 +62,7 @@ class CreateTaskViewModelTest {
         viewModel.setPomodoroCounter(TaskEntity1.estimatedPomodoros)
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
@@ -135,7 +135,7 @@ class CreateTaskViewModelTest {
         viewModel.setTaskName("")
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
@@ -148,7 +148,7 @@ class CreateTaskViewModelTest {
     fun createTaskEventEddiTaskEmptyNameTest() = coroutinesRule.runBlockingTest {
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(
             CreateTaskEvent.EditingTask(
                 TaskEntity1.name,

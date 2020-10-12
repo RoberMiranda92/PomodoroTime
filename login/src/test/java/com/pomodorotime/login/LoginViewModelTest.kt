@@ -3,9 +3,9 @@ package com.pomodorotime.login
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.login.repository.LoginRepository
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -26,7 +26,7 @@ class LoginViewModelTest {
     val coroutinesRule = CoroutinesRule()
 
     @MockK
-    lateinit var repository: LoginRepository
+    lateinit var loginRepository: LoginRepository
 
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<LoginScreenState>>
@@ -39,7 +39,7 @@ class LoginViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        viewModel = LoginViewModel(repository)
+        viewModel = LoginViewModel(loginRepository)
     }
 
     @After
@@ -61,7 +61,7 @@ class LoginViewModelTest {
     private fun confirmVerifyMocks() {
         confirmVerified(screenStateObserver)
         confirmVerified(netWorkErrorObserver)
-        confirmVerified(repository)
+        confirmVerified(loginRepository)
     }
 
     @Test
@@ -136,11 +136,11 @@ class LoginViewModelTest {
     @ExperimentalCoroutinesApi
     fun onMainButtonClickedAndModeIsSignIn() = runBlockingTest {
         //Given
-        val user = ApiUser("user@email.com", "token")
+        val user = ApiUser("user@email.com", "id", "token")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.Success(user)
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.Success(user)
 
         //When
         viewModel.screenState.observeForever(screenStateObserver)
@@ -152,7 +152,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Success)) }
 
         confirmVerifyMocks()
@@ -167,7 +167,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             LoginRepository.ERROR_INVALID_EMAIL,
             error
         )
@@ -182,7 +182,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -200,7 +200,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -215,7 +215,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -230,7 +230,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -245,7 +245,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -260,7 +260,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -275,7 +275,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -293,7 +293,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -307,7 +307,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -325,7 +325,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -340,7 +340,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -358,7 +358,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -373,7 +373,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
 
         confirmVerifyMocks()
@@ -388,7 +388,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -403,7 +403,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.PasswordError(error.message))) }
 
         confirmVerifyMocks()
@@ -418,7 +418,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -433,7 +433,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.PasswordError(error.message))) }
 
         confirmVerifyMocks()
@@ -451,7 +451,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.GenericError(
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
             error.code,
             error
         )
@@ -466,7 +466,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Error(error.message))) }
 
         confirmVerifyMocks()
@@ -479,7 +479,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signIn(any(), any()) } returns ResultWrapper.NetworkError
+        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.NetworkError
 
         //When
         viewModel.screenState.observeForever(screenStateObserver)
@@ -491,7 +491,7 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signIn(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
         coVerify { netWorkErrorObserver.onChanged(true) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
@@ -503,11 +503,11 @@ class LoginViewModelTest {
     @ExperimentalCoroutinesApi
     fun onMainButtonClickedAndModeIsSignUp() = runBlockingTest {
         //Given
-        val user = ApiUser("user@email.com", "token")
+        val user = ApiUser("user@email.com", "id", "token")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signUp(any(), any()) } returns ResultWrapper.Success(user)
+        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.Success(user)
 
         //When
         viewModel.screenState.observeForever(screenStateObserver)
@@ -521,7 +521,7 @@ class LoginViewModelTest {
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signUp(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signUp(typeEvent.user, typeEvent.password) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Success)) }
 
         confirmVerifyMocks()
@@ -534,7 +534,7 @@ class LoginViewModelTest {
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { repository.signUp(any(), any()) } returns ResultWrapper.NetworkError
+        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.NetworkError
 
         //When
         viewModel.screenState.observeForever(screenStateObserver)
@@ -548,7 +548,7 @@ class LoginViewModelTest {
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { repository.signUp(typeEvent.user, typeEvent.password) }
+        coVerify { loginRepository.signUp(typeEvent.user, typeEvent.password) }
         coVerify { netWorkErrorObserver.onChanged(true) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
 

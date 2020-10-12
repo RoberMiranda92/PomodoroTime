@@ -19,8 +19,8 @@
 
             <argument
                 android:name="taskId"
-                android:defaultValue="-1"
-                app:argType="integer" />
+                android:defaultValue="-1L"
+                app:argType="long" />
 
             <argument
                 android:name="taskName"

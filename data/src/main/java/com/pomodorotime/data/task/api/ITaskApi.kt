@@ -4,11 +4,11 @@ import com.pomodorotime.data.task.api.models.ApiTask
 
 interface ITaskApi {
 
-    fun getAllTask()
+    suspend fun getAllTask()
 
-    fun insetTask(task: ApiTask)
+    suspend fun insetTask(userId: String, task: ApiTask)
 
-    fun updateTask(task: ApiTask)
+    suspend fun updateTask(userId: String, task: ApiTask)
 
-    fun deleteTask(id: Int)
+    suspend fun deleteTask(userId: String, id: Long)
 }

@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
-import com.pomodorotime.core.logger.PomodoroLogger
 import com.pomodorotime.core.removeErrorOnTyping
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.login.databinding.FragmentLoginBinding

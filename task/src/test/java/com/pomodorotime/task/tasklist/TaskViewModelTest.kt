@@ -5,7 +5,7 @@ import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.dataBase.TaskEntity
+import com.pomodorotime.data.task.TaskDataModel
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.CoroutinesRule
 import io.mockk.MockKAnnotations
@@ -37,6 +37,9 @@ class TaskViewModelTest {
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<TaskListScreenState>>
 
+    @RelaxedMockK
+    lateinit var navigationToCreateTaskObserver: Observer<Event<Boolean>>
+
     private lateinit var viewModel: TaskViewModel
 
     @Before
@@ -44,11 +47,13 @@ class TaskViewModelTest {
         MockKAnnotations.init(this)
         viewModel = TaskViewModel(repository)
         viewModel.screenState.observeForever(screenStateObserver)
+        viewModel.navigationToCreateTask.observeForever(navigationToCreateTaskObserver)
     }
 
     @After
     fun setDown() {
         viewModel.screenState.removeObserver(screenStateObserver)
+        viewModel.navigationToCreateTask.removeObserver(navigationToCreateTaskObserver)
     }
 
     private fun verifyAll() {
@@ -60,7 +65,7 @@ class TaskViewModelTest {
     fun loadEmptyTaskListTestSuccess() =
         coroutinesRule.runBlockingTest {
             //Given
-            val list = ResultWrapper.Success(emptyList<TaskEntity>())
+            val list = ResultWrapper.Success(emptyList<TaskDataModel>())
 
             //When
             coEvery { repository.getAllTasks() } returns flowOf(list)
@@ -78,7 +83,7 @@ class TaskViewModelTest {
     @Test
     fun loadTaskListTestSuccess() = coroutinesRule.runBlockingTest {
         //Given
-        val taskList = listOf(TaskEntity1, TaskEntity2, TaskEntity3)
+        val taskList = listOf(Task1, Task2, Task3)
         val list = ResultWrapper.Success(taskList)
 
         //When
@@ -123,7 +128,7 @@ class TaskViewModelTest {
     @Test
     fun onDeleteTaskElementsPressedSuccessTest() = coroutinesRule.runBlockingTest {
         //Given
-        val taskList = fromModelToView(listOf(TaskEntity1, TaskEntity2, TaskEntity3))
+        val taskList = fromModelToView(listOf(Task1, Task2, Task3))
         val toDeleteList = taskList.subList(0, 2)
 
         viewModel.setList(taskList)
@@ -141,7 +146,7 @@ class TaskViewModelTest {
             screenStateObserver.onChanged(
                 Event(
                     TaskListScreenState.DataLoaded(
-                        fromModelToView(listOf(TaskEntity3))
+                        fromModelToView(listOf(Task3))
                     )
                 )
             )
@@ -152,7 +157,7 @@ class TaskViewModelTest {
     @Test
     fun onDeleteTaskElementsPressedSuccessAndEmptyTest() = coroutinesRule.runBlockingTest {
         //Given
-        val taskList = fromModelToView(listOf(TaskEntity1, TaskEntity2, TaskEntity3))
+        val taskList = fromModelToView(listOf(Task1, Task2, Task3))
         viewModel.setList(taskList)
 
         //When
@@ -172,7 +177,7 @@ class TaskViewModelTest {
     fun onDeleteTaskElementsPressedSuccessAndErrorTest() = coroutinesRule.runBlockingTest {
         //Given
         val error = ErrorResponse(message = "my exception")
-        val taskList = fromModelToView(listOf(TaskEntity1, TaskEntity2, TaskEntity3))
+        val taskList = fromModelToView(listOf(Task1, Task2, Task3))
         viewModel.setList(taskList)
 
         //When
@@ -208,13 +213,13 @@ class TaskViewModelTest {
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
-        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.NavigateToCreateTask)) }
+        coVerify { navigationToCreateTaskObserver.onChanged(Event(true)) }
         verifyAll()
     }
 
     @Test
     fun onEditTaskListFinishedTest() = coroutinesRule.runBlockingTest {
-        val list = fromModelToView(listOf(TaskEntity1, TaskEntity2))
+        val list = fromModelToView(listOf(Task1, Task2))
 
         //When
         viewModel.setList(list)
@@ -227,7 +232,7 @@ class TaskViewModelTest {
     }
 
     companion object {
-        private val TaskEntity1 = TaskEntity(
+        private val Task1 = TaskDataModel(
             id = 1,
             name = "Task1",
             creationDate = Date(),
@@ -237,7 +242,7 @@ class TaskViewModelTest {
             longBreaks = 0,
             completed = true
         )
-        private val TaskEntity2 = TaskEntity(
+        private val Task2 = TaskDataModel(
             id = 2,
             name = "Task2",
             creationDate = Date(),
@@ -247,7 +252,7 @@ class TaskViewModelTest {
             longBreaks = 0,
             completed = true
         )
-        private val TaskEntity3 = TaskEntity(
+        private val Task3 = TaskDataModel(
             id = 3,
             name = "Task3",
             creationDate = Date(),

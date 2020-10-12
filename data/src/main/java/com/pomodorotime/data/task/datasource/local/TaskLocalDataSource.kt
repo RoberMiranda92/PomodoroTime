@@ -12,15 +12,15 @@ class TaskLocalDataSource(private val taskDataBase: IDataBase) {
         return taskDataBase.getAllTask()
     }
 
-    suspend fun insetTask(entity: TaskEntity) =
-        taskDataBase.insert(entity)
-
+    suspend fun insetTask(entity: TaskEntity): Long {
+        return taskDataBase.insert(entity)
+    }
 
     suspend fun getTaskById(id: Int): TaskEntity {
         return taskDataBase.getTaskById(id)
     }
 
-    suspend fun deleteTasks(idList: List<Int>) = taskDataBase.deleteTaskList(idList)
+    suspend fun deleteTasks(idList: List<Long>) = taskDataBase.deleteTaskList(idList)
 
     companion object {
 

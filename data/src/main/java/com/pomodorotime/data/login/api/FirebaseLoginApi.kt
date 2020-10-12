@@ -13,13 +13,21 @@ class FirebaseLoginApi : ILoginApi {
         val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
         val tokenResult = firebaseAuth.getAccessToken(true).await()
 
-        return ApiUser(authResult.user?.email, tokenResult.token)
+        return ApiUser(
+            authResult.user?.email ?: "",
+            authResult.user?.uid ?: "",
+            tokenResult.token ?: ""
+        )
     }
 
     override suspend fun signUp(email: String, password: String): ApiUser {
         val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         val tokenResult = firebaseAuth.getAccessToken(true).await()
 
-        return ApiUser(authResult.user?.email, tokenResult.token)
+        return ApiUser(
+            authResult.user?.email ?: "",
+            authResult.user?.uid ?: "",
+            tokenResult.token ?: ""
+        )
     }
 }
