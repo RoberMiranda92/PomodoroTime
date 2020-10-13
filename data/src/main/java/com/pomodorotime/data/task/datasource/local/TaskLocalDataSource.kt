@@ -16,7 +16,7 @@ class TaskLocalDataSource(private val taskDataBase: IDataBase) {
         return taskDataBase.insert(entity)
     }
 
-    suspend fun getTaskById(id: Int): TaskEntity {
+    suspend fun getTaskById(id: Long): TaskEntity {
         return taskDataBase.getTaskById(id)
     }
 

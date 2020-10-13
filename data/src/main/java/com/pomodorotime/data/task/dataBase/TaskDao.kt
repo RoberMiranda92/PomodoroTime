@@ -1,6 +1,10 @@
 package com.pomodorotime.data.task.dataBase
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -10,7 +14,7 @@ interface TaskDao : IDataBase {
     override fun getAllTask(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id is :id")
-    override suspend fun getTaskById(id: Int): TaskEntity
+    override suspend fun getTaskById(id: Long): TaskEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     override suspend fun insert(taskList: List<TaskEntity>)

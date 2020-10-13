@@ -6,7 +6,7 @@ interface IDataBase {
 
     fun getAllTask(): Flow<List<TaskEntity>>
 
-    suspend fun getTaskById(id: Int): TaskEntity
+    suspend fun getTaskById(id: Long): TaskEntity
 
     suspend fun insert(taskList: List<TaskEntity>)
 
