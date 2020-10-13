@@ -1,8 +1,9 @@
-package com.pomodorotime.domain.task.models
+package com.pomodorotime.domain.models
 
-import java.util.Date
+import com.pomodorotime.data.task.TaskDataModel
+import java.util.*
 
-data class Task (
+data class Task(
     var id: Long? = null,
     val name: String,
     val creationDate: Date,
@@ -12,3 +13,15 @@ data class Task (
     val longBreaks: Int,
     val completed: Boolean
 )
+
+fun TaskDataModel.toDomainModel() =
+    Task(
+        id,
+        name,
+        creationDate,
+        donePomodoros,
+        estimatedPomodoros,
+        shortBreaks,
+        longBreaks,
+        completed
+    )
