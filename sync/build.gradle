@@ -43,4 +43,12 @@ dependencies {
     implementation libraries.androidXCore
     implementation libraries.androidWorkManager
 
+    //Koin
+    implementation libraries.koinCore
+    implementation libraries.koinScope
+    implementation libraries.koinViewModel
+    implementation libraries.koinExt
+    androidTestImplementation libraries.testKoinCore
+
+
 }

@@ -5,8 +5,8 @@ import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.ITaskRepository
 import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.CoroutinesRule
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -14,13 +14,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
+import java.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.*
 
 @ExperimentalCoroutinesApi
 class TaskViewModelTest {
@@ -32,7 +32,7 @@ class TaskViewModelTest {
     val coroutinesRule = CoroutinesRule()
 
     @MockK
-    lateinit var repository: TaskRepository
+    lateinit var repository: ITaskRepository
 
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<TaskListScreenState>>

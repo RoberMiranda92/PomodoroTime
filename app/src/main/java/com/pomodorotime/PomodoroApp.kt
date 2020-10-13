@@ -5,6 +5,7 @@ import com.pomodorotime.core.di.coreModule
 import com.pomodorotime.data.di.dataModule
 import com.pomodorotime.koin.appModule
 import com.pomodorotime.login.loginModule
+import com.pomodorotime.sync.di.syncModule
 import com.pomodorotime.task.taskModule
 import com.pomodorotime.timer.di.timerModule
 import org.koin.android.ext.koin.androidContext
@@ -21,7 +22,15 @@ class PomodoroApp : Application() {
             //inject Android context
             androidContext(this@PomodoroApp)
             // use modules
-            modules(appModule, coreModule, dataModule, loginModule, taskModule, timerModule)
+            modules(
+                appModule,
+                coreModule,
+                syncModule,
+                dataModule,
+                loginModule,
+                taskModule,
+                timerModule
+            )
         }
     }
 }

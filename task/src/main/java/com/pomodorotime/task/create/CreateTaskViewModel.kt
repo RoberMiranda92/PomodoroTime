@@ -7,13 +7,13 @@ import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.getCurrentDate
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.ITaskRepository
 import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.TaskRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class CreateTaskViewModel(
-    private val repository: TaskRepository,
+    private val repository: ITaskRepository,
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<CreateTaskEvent, CreateTaskScreenState>(idlingResourceWrapper) {
 
@@ -59,22 +59,21 @@ class CreateTaskViewModel(
             val estimatedPomodoros = taskPomodorosLiveData.value ?: 1
             val shortBreaks = calculateShortBreaks(estimatedPomodoros)
             val longBreaks = calculateLongBreaks(estimatedPomodoros)
-
-            val result = repository.insetTask(
-                TaskDataModel(
-                    name = taskName,
-                    estimatedPomodoros = estimatedPomodoros,
-                    donePomodoros = 0,
-                    shortBreaks = shortBreaks,
-                    longBreaks = longBreaks,
-                    creationDate = getCurrentDate(),
-                    completed = false
-                )
+            val task = TaskDataModel(
+                name = taskName,
+                estimatedPomodoros = estimatedPomodoros,
+                donePomodoros = 0,
+                shortBreaks = shortBreaks,
+                longBreaks = longBreaks,
+                creationDate = getCurrentDate(),
+                completed = false
             )
+            val result = repository.insetTask(task)
 
             when (result) {
                 is ResultWrapper.Success -> {
                     _screenState.value = Event(CreateTaskScreenState.Success)
+
                 }
                 is ResultWrapper.NetworkError -> {
                     onNetworkError()

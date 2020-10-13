@@ -16,25 +16,25 @@ class TaskRepository private constructor(
     private val localDataSource: TaskLocalDataSource,
     private val remoteDataSource: TaskRemoteDataSource,
     private val userLocalDataSource: UserLocalDataSource
-) : BaseRepository() {
+) : BaseRepository(), ITaskRepository {
 
-    fun getAllTasks(): Flow<ResultWrapper<List<TaskDataModel>>> {
+    override fun getAllTasks(): Flow<ResultWrapper<List<TaskDataModel>>> {
         return safeFlowCall(Dispatchers.IO, localDataSource.getAllTasks().transform
         { emit(it.map { it.toDataModel() }) })
     }
 
-    suspend fun insetTask(task: TaskDataModel): ResultWrapper<Long> {
+    override suspend fun insetTask(task: TaskDataModel): ResultWrapper<Long> {
         return safeApiCall(Dispatchers.IO) { localDataSource.insetTask(task.toEntityModel()) }
     }
 
-    suspend fun getTaskById(id: Int): ResultWrapper<TaskDataModel> {
+    override suspend fun getTaskById(id: Int): ResultWrapper<TaskDataModel> {
         return safeApiCall(Dispatchers.IO) { localDataSource.getTaskById(id).toDataModel() }
     }
 
-    suspend fun deleteTasks(idList: List<Long>): ResultWrapper<Unit> =
+    override suspend fun deleteTasks(idList: List<Long>): ResultWrapper<Unit> =
         safeApiCall(Dispatchers.IO) { localDataSource.deleteTasks(idList) }
 
-    suspend fun insetTaskRemote(task: TaskDataModel): ResultWrapper<Unit> {
+    override suspend fun insetTaskRemote(task: TaskDataModel): ResultWrapper<Unit> {
         val userId: String = userLocalDataSource.getUserId()
         return safeApiCall(Dispatchers.IO) {
             remoteDataSource.insetTask(

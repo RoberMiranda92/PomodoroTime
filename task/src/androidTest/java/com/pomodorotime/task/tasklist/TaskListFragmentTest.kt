@@ -20,8 +20,8 @@ import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ErrorResponse
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.ITaskRepository
 import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.R
 import com.pomodorotime.task.RecyclerViewMatcher
 import com.pomodorotime.task.TaskNavigator
@@ -36,6 +36,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
+import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.hamcrest.Matchers.allOf
@@ -49,7 +50,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
-import java.util.Date
 
 @LargeTest
 @ExperimentalCoroutinesApi
@@ -57,7 +57,7 @@ import java.util.Date
 class TaskListFragmentTest : KoinTest {
 
     @MockK
-    lateinit var repository: TaskRepository
+    lateinit var repository: ITaskRepository
 
     @RelaxedMockK
     lateinit var navigator: TaskNavigator

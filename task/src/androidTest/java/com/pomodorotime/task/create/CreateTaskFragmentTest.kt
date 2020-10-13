@@ -14,8 +14,12 @@ import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.logger.PomodoroLogger
 import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.TaskRepository
-import com.pomodorotime.task.*
+import com.pomodorotime.data.task.ITaskRepository
+import com.pomodorotime.task.R
+import com.pomodorotime.task.TaskNavigator
+import com.pomodorotime.task.withMenu
+import com.pomodorotime.task.withTextInputError
+import com.pomodorotime.task.withTextInputLayoutHint
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
@@ -38,7 +42,7 @@ import org.koin.test.KoinTest
 class CreateTaskFragmentTest : KoinTest {
 
     @MockK
-    lateinit var repository: TaskRepository
+    lateinit var repository: ITaskRepository
 
     @RelaxedMockK
     lateinit var navigator: TaskNavigator
@@ -52,7 +56,7 @@ class CreateTaskFragmentTest : KoinTest {
             modules(
                 module { viewModel { CreateTaskViewModel(get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single { repository } },
+                module { single<ITaskRepository> { repository } },
                 module {
                     single { PomodoroLogger() }
                 }

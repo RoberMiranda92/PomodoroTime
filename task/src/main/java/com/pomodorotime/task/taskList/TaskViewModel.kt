@@ -7,8 +7,8 @@ import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.ITaskRepository
 import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.task.tasklist.list.TaskListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.onEach
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
 class TaskViewModel(
-    private val taskRepository: TaskRepository,
+    private val taskRepository: ITaskRepository,
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<TaskListEvent, TaskListScreenState>(idlingResourceWrapper) {
 

@@ -9,6 +9,9 @@ class TaskRemoteDataSource(private val api: ITaskApi) {
     suspend fun insetTask(userId: String, task: ApiTask) =
         api.insetTask(userId, task)
 
+    suspend fun deleteTask(userId: String, taskId: Long) =
+        api.deleteTask(userId, taskId)
+
     companion object {
         fun getNewInstance(): TaskRemoteDataSource {
             return TaskRemoteDataSource(FirebaseTaskApi())

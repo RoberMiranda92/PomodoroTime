@@ -10,8 +10,8 @@ import com.pomodorotime.data.POMODORO_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_LONG_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
 import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.data.task.ITaskRepository
 import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.dataBase.TaskEntity
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.timer.models.PomodoroMode
 import com.pomodorotime.timer.models.TimeDetail
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
-class TimerViewModel(private val repository: TaskRepository) :
+class TimerViewModel(private val repository: ITaskRepository) :
     BaseViewModel<TimerEvents, TimerScreenState>() {
 
     private val _onBakPressedDialog: MutableLiveData<Event<Boolean>> = MutableLiveData()
