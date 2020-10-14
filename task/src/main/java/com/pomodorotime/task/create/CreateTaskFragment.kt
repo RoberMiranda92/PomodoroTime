@@ -6,11 +6,14 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.pomodorotime.core.*
+import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.observeEvent
+import com.pomodorotime.core.removeErrorOnTyping
+import com.pomodorotime.core.showSnackBar
+import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.task.R
 import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.databinding.FragmentCreateTaskBinding
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
@@ -32,7 +35,11 @@ class CreateTaskFragment :
     }
 
     override fun observeViewModelChanges() {
-
+        viewModel.createTaskError.observeEvent(viewLifecycleOwner) {
+            if (it.show) {
+                showSnackBarError(it.message, Snackbar.LENGTH_LONG)
+            }
+        }
     }
 
     override fun onNewState(state: CreateTaskScreenState) {
@@ -50,9 +57,6 @@ class CreateTaskFragment :
             is CreateTaskScreenState.Loading -> {
                 showLoading()
                 hideUI()
-            }
-            is CreateTaskScreenState.Error -> {
-                showSnackBarError(state.error, Snackbar.LENGTH_LONG)
             }
             is CreateTaskScreenState.Success -> {
                 showSnackBar(

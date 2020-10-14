@@ -1,4 +1,7 @@
 //FROM https://nolambda.stream/posts/jacoco-setup-for-multi-module-project/
+// https://medium.com/@fraggjkee/measuring-unit-test-coverage-in-multi-module-android-projects-using-jacoco-113d201ccb79
+// https://medium.com/swlh/measuring-unit-test-coverage-in-multi-module-android-projects-using-jacoco-part-2-352ef949ecfb
+
 def coveredProject = subprojects
 
 apply plugin: 'jacoco'
@@ -10,46 +13,75 @@ configure(coveredProject) { prj ->
         toolVersion = "0.8.6"
     }
 
-    task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
-        group = 'Reporting'
-        description = 'Generate Jacoco coverage'
+    def isAndroid = prj.name != "domain"
 
-        reports {
-            csv.enabled = true
-            xml.enabled = false
-            html.enabled = true
+    if (isAndroid) {
+        task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+            group = 'Reporting'
+            description = 'Generate Jacoco coverage'
+
+            reports {
+                csv.enabled = true
+                xml.enabled = false
+                html.enabled = true
+            }
+
+            final fileFilter = ['android/*',
+                                '**/BR.class',
+                                '**/R.class',
+                                '**/R$*.class',
+                                '**/Manifest*.*',
+                                'android/**/*.*',
+                                '**/BuildConfig.*',
+                                '**/*$ViewBinder*.*',
+                                '**/*$ViewInjector*.*',
+                                '**/Lambda$*.class',
+                                '**/Lambda.class',
+                                '**/*Lambda.class',
+                                '**/*Lambda*.class',
+                                '**/*Binding*.*',
+                                '**/DataBinderMapperImpl*.*',
+            ]
+
+            final kotlinTree = fileTree(dir: "${prj.buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
+            final javacTree = fileTree(dir: "${prj.buildDir}/intermediates/javac/debug", excludes: fileFilter)
+            final mainSrc = "${prj.projectDir}/src/main/java"
+
+            sourceDirectories.setFrom files([mainSrc])
+            classDirectories.setFrom files([kotlinTree, javacTree])
+            executionData.setFrom fileTree(dir: prj.buildDir, includes: [
+                    'jacoco/testDebugUnitTest.exec',
+                    'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
+            ])
+
+            doLast() {
+                print "file://${reports.html.destination}/index.html"
+            }
         }
+    } else {
+        task jacocoReport(type: JacocoReport, dependsOn: ['test','jacocoTestReport' ]) {
+            group = 'Reporting'
+            description = 'Generate Jacoco coverage'
 
-        final fileFilter = ['android/*',
-                            '**/BR.class',
-                            '**/R.class',
-                            '**/R$*.class',
-                            '**/Manifest*.*',
-                            'android/**/*.*',
-                            '**/BuildConfig.*',
-                            '**/*$ViewBinder*.*',
-                            '**/*$ViewInjector*.*',
-                            '**/Lambda$*.class',
-                            '**/Lambda.class',
-                            '**/*Lambda.class',
-                            '**/*Lambda*.class',
-                            '**/*Binding*.*',
-                            '**/DataBinderMapperImpl*.*',
-        ]
+            reports {
+                csv.enabled = true
+                xml.enabled = false
+                html.enabled = true
+            }
 
-        final kotlinTree = fileTree(dir: "${prj.buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
-        final javacTree = fileTree(dir: "${prj.buildDir}/intermediates/javac/debug", excludes: fileFilter)
-        final mainSrc = "${prj.projectDir}/src/main/java"
+            final fileFilter = []
+            final mainSrc = "${prj.projectDir}/src/main/java"
+            final kotlinTree = fileTree(dir: "${prj.buildDir}/classes/kotlin/main", excludes: fileFilter)
 
-        sourceDirectories.setFrom files([mainSrc])
-        classDirectories.setFrom files([kotlinTree, javacTree])
-        executionData.setFrom fileTree(dir: prj.buildDir, includes: [
-                'jacoco/testDebugUnitTest.exec',
-                'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
-        ])
+            sourceDirectories.setFrom files([mainSrc])
+            classDirectories.setFrom files([kotlinTree])
+            executionData.setFrom fileTree(dir: prj.buildDir, includes: [
+                    'jacoco/test.exec'
+            ])
 
-        doLast() {
-            print "file://${reports.html.destination}/index.html"
+            doLast() {
+                print "file://${reports.html.destination}/index.html"
+            }
         }
     }
 }
@@ -74,14 +106,14 @@ task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
     final source = files(projects.jacocoReport.sourceDirectories)
     final execution = files(projects.jacocoReport.executionData)
 
-    print(source)
-    print(execution)
+    println("Source $source")
+    println("Execution $execution")
 
     additionalSourceDirs.setFrom source
     sourceDirectories.setFrom source
 
     classDirectories.setFrom files(projects.jacocoReport.classDirectories)
-    executionData.setFrom files(projects.jacocoReport.executionData)
+    executionData.setFrom execution
 
     reports {
         html {
@@ -101,5 +133,9 @@ task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
     doFirst {
         //noinspection GroovyAssignabilityCheck
         executionData.setFrom files(executionData.findAll { it.exists() })
+    }
+
+    doLast() {
+        print "file://${reports.html.destination}/index.html"
     }
 }

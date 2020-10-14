@@ -7,8 +7,8 @@ import androidx.work.Data
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.TaskDataModel
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.task.ITaskRepository
 import com.pomodorotime.sync.SyncTypes
 import com.pomodorotime.sync.di.Synchronizer
 import com.pomodorotime.sync.workmanager.workers.InsertTaskWorker
@@ -30,7 +30,7 @@ class WorkManagerSynchronizer(
         workManager = WorkManager.getInstance(context)
     }
 
-    override fun performSync(task: TaskDataModel, type: SyncTypes) {
+    override fun performSync(task: Task, type: SyncTypes) {
 
         val requestBuilder = OneTimeWorkRequest.Builder(getWorkByType(type))
 
@@ -53,7 +53,7 @@ class WorkManagerSynchronizer(
         workManager.enqueue(requestBuilder.build())
     }
 
-    private fun buildData(task: TaskDataModel): Data {
+    private fun buildData(task: Task): Data {
 
         val data = Data.Builder()
 

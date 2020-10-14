@@ -3,10 +3,12 @@ package com.pomodorotime.task.tasklist
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.TaskDataModel
+import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.task.usecases.DeleteTaskUseCase
+import com.pomodorotime.domain.task.usecases.GetAllTaskUseCase
 import com.pomodorotime.task.CoroutinesRule
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -32,10 +34,16 @@ class TaskViewModelTest {
     val coroutinesRule = CoroutinesRule()
 
     @MockK
-    lateinit var repository: ITaskRepository
+    lateinit var getAllTaskUseCase: GetAllTaskUseCase
+
+    @MockK
+    lateinit var deleteTaskUseCase: DeleteTaskUseCase
 
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<TaskListScreenState>>
+
+    @RelaxedMockK
+    lateinit var errorObserver: Observer<Event<SnackBarrError>>
 
     @RelaxedMockK
     lateinit var navigationToCreateTaskObserver: Observer<Event<Boolean>>
@@ -45,19 +53,21 @@ class TaskViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        viewModel = TaskViewModel(repository)
+        viewModel = TaskViewModel(getAllTaskUseCase, deleteTaskUseCase)
         viewModel.screenState.observeForever(screenStateObserver)
         viewModel.navigationToCreateTask.observeForever(navigationToCreateTaskObserver)
+        viewModel.taskListError.observeForever(errorObserver)
     }
 
     @After
     fun setDown() {
         viewModel.screenState.removeObserver(screenStateObserver)
         viewModel.navigationToCreateTask.removeObserver(navigationToCreateTaskObserver)
+        viewModel.taskListError.removeObserver(errorObserver)
     }
 
     private fun verifyAll() {
-        confirmVerified(repository)
+        confirmVerified(getAllTaskUseCase)
         confirmVerified(screenStateObserver)
     }
 
@@ -65,17 +75,17 @@ class TaskViewModelTest {
     fun loadEmptyTaskListTestSuccess() =
         coroutinesRule.runBlockingTest {
             //Given
-            val list = ResultWrapper.Success(emptyList<TaskDataModel>())
+            val list = ResultWrapper.Success(emptyList<Task>())
 
             //When
-            coEvery { repository.getAllTasks() } returns flowOf(list)
+            coEvery { getAllTaskUseCase.invoke(any()) } returns flowOf(list)
 
             viewModel.postEvent(TaskListEvent.Load)
 
             //Verify
             coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
             coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-            coVerify { repository.getAllTasks() }
+            coVerify { getAllTaskUseCase.invoke(any()) }
             coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.EmptyState)) }
             verifyAll()
         }
@@ -87,14 +97,14 @@ class TaskViewModelTest {
         val list = ResultWrapper.Success(taskList)
 
         //When
-        coEvery { repository.getAllTasks() } returns flowOf(list)
+        coEvery { getAllTaskUseCase.invoke(any()) } returns flowOf(list)
 
         viewModel.postEvent(TaskListEvent.Load)
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-        coVerify { repository.getAllTasks() }
+        coVerify { getAllTaskUseCase.invoke(any()) }
         coVerify {
             screenStateObserver.onChanged(
                 Event(
@@ -110,18 +120,19 @@ class TaskViewModelTest {
     @Test
     fun loadErrorTaskListTestSuccess() = coroutinesRule.runBlockingTest {
         //Given
-        val error = ErrorResponse(message = "my exception")
+        val error = ErrorEntity.GenericError(message = "my exception")
 
         //When
-        coEvery { repository.getAllTasks() } returns flowOf(ResultWrapper.GenericError(null, error))
+        coEvery { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Error(error))
 
         viewModel.postEvent(TaskListEvent.Load)
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-        coVerify { repository.getAllTasks() }
-        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Error(error.message))) }
+        coVerify { getAllTaskUseCase.invoke(any()) }
+        coVerify { errorObserver.onChanged(Event(SnackBarrError(true, error.message))) }
+        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.EmptyState)) }
         verifyAll()
     }
 
@@ -134,14 +145,19 @@ class TaskViewModelTest {
         viewModel.setList(taskList)
 
         //When
-        coEvery { repository.deleteTasks(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { deleteTaskUseCase.invoke(any()) } returns ResultWrapper.Success(Unit)
 
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(toDeleteList))
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-        coVerify { repository.deleteTasks(toDeleteList.map { it.id }) }
+        coVerify {
+            deleteTaskUseCase.invoke(
+                DeleteTaskUseCase.DeleteTaskUseCaseParams(
+                    toDeleteList.map { it.id })
+            )
+        }
         coVerify {
             screenStateObserver.onChanged(
                 Event(
@@ -161,14 +177,18 @@ class TaskViewModelTest {
         viewModel.setList(taskList)
 
         //When
-        coEvery { repository.deleteTasks(any()) } returns ResultWrapper.Success(Unit)
+        coEvery { deleteTaskUseCase.invoke(any()) } returns ResultWrapper.Success(Unit)
 
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(taskList))
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-        coVerify { repository.deleteTasks(taskList.map { it.id }) }
+        coVerify {
+            deleteTaskUseCase.invoke(
+                DeleteTaskUseCase.DeleteTaskUseCaseParams(taskList.map { it.id })
+            )
+        }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.EmptyState)) }
         verifyAll()
     }
@@ -176,20 +196,20 @@ class TaskViewModelTest {
     @Test
     fun onDeleteTaskElementsPressedSuccessAndErrorTest() = coroutinesRule.runBlockingTest {
         //Given
-        val error = ErrorResponse(message = "my exception")
+        val error = ErrorEntity.GenericError(message = "my exception")
         val taskList = fromModelToView(listOf(Task1, Task2, Task3))
         viewModel.setList(taskList)
 
         //When
-        coEvery { repository.deleteTasks(any()) } returns ResultWrapper.GenericError(null, error)
+        coEvery { deleteTaskUseCase.invoke(any()) } returns ResultWrapper.Error(error)
 
         viewModel.postEvent(TaskListEvent.DeleteTaskElementsPressed(taskList))
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Initial)) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Loading)) }
-        coVerify { repository.deleteTasks(taskList.map { it.id }) }
-        coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.Error(error.message))) }
+        coVerify { deleteTaskUseCase.invoke(DeleteTaskUseCase.DeleteTaskUseCaseParams(taskList.map { it.id })) }
+        coVerify { errorObserver.onChanged(Event(SnackBarrError(true, error.message))) }
         coVerify { screenStateObserver.onChanged(Event(TaskListScreenState.DataLoaded(taskList))) }
 
         verifyAll()
@@ -232,7 +252,7 @@ class TaskViewModelTest {
     }
 
     companion object {
-        private val Task1 = TaskDataModel(
+        private val Task1 = Task(
             id = 1,
             name = "Task1",
             creationDate = Date(),
@@ -242,7 +262,7 @@ class TaskViewModelTest {
             longBreaks = 0,
             completed = true
         )
-        private val Task2 = TaskDataModel(
+        private val Task2 = Task(
             id = 2,
             name = "Task2",
             creationDate = Date(),
@@ -252,7 +272,7 @@ class TaskViewModelTest {
             longBreaks = 0,
             completed = true
         )
-        private val Task3 = TaskDataModel(
+        private val Task3 = Task(
             id = 3,
             name = "Task3",
             creationDate = Date(),

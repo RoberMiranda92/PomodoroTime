@@ -13,8 +13,8 @@ import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.logger.PomodoroLogger
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.task.usecases.CreateTaskUseCase
 import com.pomodorotime.task.R
 import com.pomodorotime.task.TaskNavigator
 import com.pomodorotime.task.withMenu
@@ -42,7 +42,7 @@ import org.koin.test.KoinTest
 class CreateTaskFragmentTest : KoinTest {
 
     @MockK
-    lateinit var repository: ITaskRepository
+    lateinit var createTasUseCase: CreateTaskUseCase
 
     @RelaxedMockK
     lateinit var navigator: TaskNavigator
@@ -56,7 +56,7 @@ class CreateTaskFragmentTest : KoinTest {
             modules(
                 module { viewModel { CreateTaskViewModel(get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single<ITaskRepository> { repository } },
+                module { single { createTasUseCase } },
                 module {
                     single { PomodoroLogger() }
                 }
@@ -77,7 +77,7 @@ class CreateTaskFragmentTest : KoinTest {
 
     @Test
     fun createTaskOk() {
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
+        coEvery { createTasUseCase.invoke(any()) } returns ResultWrapper.Success(1L)
 
         //Toolbar
         val toolbar = onView(withId(R.id.toolbar))
@@ -117,8 +117,9 @@ class CreateTaskFragmentTest : KoinTest {
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.create_task_success)))
 
-        coVerify { repository.insetTask(any()) }
-        confirmVerified(repository)
+        coVerify { createTasUseCase.invoke(any()) }
+
+        confirmVerified(createTasUseCase)
     }
 
     @Test

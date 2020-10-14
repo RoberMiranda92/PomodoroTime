@@ -3,6 +3,7 @@ package com.pomodorotime
 import android.app.Application
 import com.pomodorotime.core.di.coreModule
 import com.pomodorotime.data.di.dataModule
+import com.pomodorotime.domain.di.domainModule
 import com.pomodorotime.koin.appModule
 import com.pomodorotime.login.loginModule
 import com.pomodorotime.sync.di.syncModule
@@ -26,6 +27,7 @@ class PomodoroApp : Application() {
                 appModule,
                 coreModule,
                 syncModule,
+                domainModule,
                 dataModule,
                 loginModule,
                 taskModule,

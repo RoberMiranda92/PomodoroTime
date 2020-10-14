@@ -5,9 +5,6 @@ apply from: 'jacoco.gradle'
 
 buildscript {
     apply from: 'dependencies.gradle'
-    ext {
-        kotlin_version = '1.4.10'
-    }
 
     repositories {
         google()

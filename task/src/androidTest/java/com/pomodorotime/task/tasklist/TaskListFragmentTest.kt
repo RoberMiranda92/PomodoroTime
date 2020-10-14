@@ -18,10 +18,12 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.TaskDataModel
+import com.pomodorotime.core.logger.PomodoroLogger
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.task.usecases.DeleteTaskUseCase
+import com.pomodorotime.domain.task.usecases.GetAllTaskUseCase
 import com.pomodorotime.task.R
 import com.pomodorotime.task.RecyclerViewMatcher
 import com.pomodorotime.task.TaskNavigator
@@ -36,7 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
-import java.util.Date
+import java.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.hamcrest.Matchers.allOf
@@ -57,7 +59,10 @@ import org.koin.test.KoinTest
 class TaskListFragmentTest : KoinTest {
 
     @MockK
-    lateinit var repository: ITaskRepository
+    lateinit var getAllTaskUseCase: GetAllTaskUseCase
+
+    @MockK
+    lateinit var deleteTaskUseCase: DeleteTaskUseCase
 
     @RelaxedMockK
     lateinit var navigator: TaskNavigator
@@ -69,9 +74,13 @@ class TaskListFragmentTest : KoinTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         startKoin {
             modules(
-                module { viewModel { TaskViewModel(get(), idlingResourceWrapper) } },
+                module { viewModel { TaskViewModel(get(), get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single { repository } }
+                module {
+                    single { getAllTaskUseCase }
+                    single { deleteTaskUseCase }
+                },
+                module { single { PomodoroLogger() } }
             )
         }
         IdlingRegistry.getInstance().register(idlingResourceWrapper.getIdlingResource())
@@ -85,7 +94,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskListInitEmptyOK() {
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(emptyList()))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(emptyList()))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -125,7 +134,7 @@ class TaskListFragmentTest : KoinTest {
 
     @Test
     fun taskListInitEmptyClickOK() {
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(emptyList()))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(emptyList()))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -137,15 +146,17 @@ class TaskListFragmentTest : KoinTest {
             .perform(click())
 
         verify { navigator.navigateOnToCreateTask() }
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
         confirmVerified(navigator)
     }
 
     @Test
     fun taskListInitOK() {
         val list = listOf(Task1, Task2, Task3)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -178,7 +189,7 @@ class TaskListFragmentTest : KoinTest {
     @Test
     fun taskElementsAreOK() {
         val list = listOf(Task1, Task2, Task3, Task4)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -225,7 +236,7 @@ class TaskListFragmentTest : KoinTest {
     fun taskElementsNavigationIsOK() {
         val list = listOf(Task1, Task2, Task3, Task4)
         val position = 0
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -246,15 +257,18 @@ class TaskListFragmentTest : KoinTest {
         ).perform(click())
 
         verify { navigator.navigateOnToTimer(list[position].id!!, list[position].name) }
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
+
         confirmVerified(navigator)
     }
 
     @Test
     fun taskElementsOnLongIsOK() {
         val list = listOf(Task1, Task2, Task3, Task4)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -316,15 +330,17 @@ class TaskListFragmentTest : KoinTest {
             withResourceName("action_mode_bar")
         ).check(matches(not(isDisplayed())))
 
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
         confirmVerified(navigator)
     }
 
     @Test
     fun taskActionBarIsClosedWithClicksOK() {
         val list = listOf(Task1, Task2, Task3, Task4)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -402,16 +418,18 @@ class TaskListFragmentTest : KoinTest {
             }
         }
 
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
         confirmVerified(navigator)
     }
 
     @Test
     fun taskElementsOnDeleteButtonClick() {
         val list = listOf(Task1, Task2, Task3, Task4)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
-        coEvery { repository.deleteTasks(any()) } returns ResultWrapper.Success(Unit)
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
+        coEvery { deleteTaskUseCase.invoke(any()) } returns ResultWrapper.Success(Unit)
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -468,16 +486,18 @@ class TaskListFragmentTest : KoinTest {
         ).check(matches(not(isDisplayed())))
 
 
-        verify { repository.getAllTasks() }
-        coVerify { repository.deleteTasks(list.mapNotNull { it.id }) }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+        coVerify { deleteTaskUseCase.invoke(DeleteTaskUseCase.DeleteTaskUseCaseParams(list.mapNotNull { it.id })) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
         confirmVerified(navigator)
     }
 
     @Test
     fun addTaskButtonClick() {
         val list = listOf(Task1, Task2, Task3)
-        every { repository.getAllTasks() } returns flowOf(ResultWrapper.Success(list))
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(ResultWrapper.Success(list))
 
         launchFragmentInContainer<TaskListFragment>(
             null,
@@ -506,19 +526,19 @@ class TaskListFragmentTest : KoinTest {
             .perform(click())
 
         verify { navigator.navigateOnToCreateTask() }
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
         confirmVerified(navigator)
     }
 
     @Test
     fun onLoadTaskError() {
-        val error = ErrorResponse(code = -1, message = "Invalid message")
-        every { repository.getAllTasks() } returns flowOf(
-            ResultWrapper.GenericError(
-                error.code,
-                error
-            )
+        val error = ErrorEntity.GenericError(code = -1, message = "Invalid message")
+
+        every { getAllTaskUseCase.invoke(any()) } returns flowOf(
+            ResultWrapper.Error(error)
         )
 
         launchFragmentInContainer<TaskListFragment>(
@@ -541,13 +561,16 @@ class TaskListFragmentTest : KoinTest {
         onView(withId(R.id.status_view))
             .check(matches(isDisplayed()))
 
-        verify { repository.getAllTasks() }
-        confirmVerified(repository)
+        verify { getAllTaskUseCase.invoke(any()) }
+
+        confirmVerified(getAllTaskUseCase)
+        confirmVerified(deleteTaskUseCase)
+
         confirmVerified(navigator)
     }
 
     companion object {
-        private val Task1 = TaskDataModel(
+        private val Task1 = Task(
             id = 1,
             name = "Task1",
             creationDate = Date(),
@@ -557,7 +580,7 @@ class TaskListFragmentTest : KoinTest {
             longBreaks = 0,
             completed = true
         )
-        private val Task2 = TaskDataModel(
+        private val Task2 = Task(
             id = 2,
             name = "Task2",
             creationDate = Date(),
@@ -567,7 +590,7 @@ class TaskListFragmentTest : KoinTest {
             longBreaks = 0,
             completed = true
         )
-        private val Task3 = TaskDataModel(
+        private val Task3 = Task(
             id = 3,
             name = "Task3",
             creationDate = Date(),
@@ -578,7 +601,7 @@ class TaskListFragmentTest : KoinTest {
             completed = true
         )
 
-        private val Task4 = TaskDataModel(
+        private val Task4 = Task(
             id = 4,
             name = "Task4",
             creationDate = Date(),

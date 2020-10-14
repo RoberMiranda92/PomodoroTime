@@ -56,6 +56,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(':domain')
 
     implementation libraries.kotlin
     implementation libraries.kotlinCoroutines

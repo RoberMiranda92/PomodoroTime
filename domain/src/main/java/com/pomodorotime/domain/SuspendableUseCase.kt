@@ -1,18 +1,20 @@
 package com.pomodorotime.domain
 
-import com.pomodorotime.data.ResultWrapper
+import com.pomodorotime.domain.models.ResultWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-abstract class SuspendableUseCase<in P, out R>(private val coroutineDispatcher: CoroutineDispatcher) :
-    UseCase<R>() {
+abstract class SuspendableUseCase<in P, out R>(
+    private val coroutineDispatcher: CoroutineDispatcher,
+    private val errorHandler: IErrorHandler
+) {
 
     suspend operator fun invoke(parameters: P): ResultWrapper<R> {
         return withContext(coroutineDispatcher) {
             try {
                 ResultWrapper.Success(execute(parameters))
             } catch (throwable: Throwable) {
-                manageException(throwable)
+                ResultWrapper.Error(errorHandler.getError(throwable))
             }
         }
     }

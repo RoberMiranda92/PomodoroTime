@@ -1,7 +1,7 @@
 package com.pomodorotime.core.logger
 
-import com.pomodorotimer.logger.Logger
-import com.pomodorotimer.logger.TimberLogger
+import com.pomodorotime.logger.Logger
+import com.pomodorotime.logger.TimberLogger
 
 class PomodoroLogger {
 

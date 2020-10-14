@@ -3,13 +3,19 @@ package com.pomodorotime.login
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.login.api.models.ApiUser
-import com.pomodorotime.data.login.repository.LoginRepository
-import io.mockk.*
+import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.login.usecases.SigInUseCase
+import com.pomodorotime.domain.login.usecases.SigUpUseCase
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.User
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -26,10 +32,25 @@ class LoginViewModelTest {
     val coroutinesRule = CoroutinesRule()
 
     @MockK
-    lateinit var loginRepository: LoginRepository
+    lateinit var signUpUseCase: SigUpUseCase
+
+    @MockK
+    lateinit var signInUseCase: SigInUseCase
 
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<LoginScreenState>>
+
+    @RelaxedMockK
+    lateinit var navigatorObserver: Observer<Event<Boolean>>
+
+    @RelaxedMockK
+    lateinit var emailErrorObserver: Observer<Event<String>>
+
+    @RelaxedMockK
+    lateinit var passwordErrorObserver: Observer<Event<String>>
+
+    @RelaxedMockK
+    lateinit var errorObserver: Observer<Event<SnackBarrError>>
 
     @RelaxedMockK
     lateinit var netWorkErrorObserver: Observer<Boolean>
@@ -39,13 +60,24 @@ class LoginViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        viewModel = LoginViewModel(loginRepository)
+        viewModel = LoginViewModel(signUpUseCase, signInUseCase)
+
+        viewModel.screenState.observeForever(screenStateObserver)
+        viewModel.networkError.observeForever(netWorkErrorObserver)
+        viewModel.navigationToDashboard.observeForever(navigatorObserver)
+        viewModel.emailError.observeForever(emailErrorObserver)
+        viewModel.passwordError.observeForever(passwordErrorObserver)
+        viewModel.error.observeForever(errorObserver)
     }
 
     @After
     fun setDown() {
         viewModel.screenState.removeObserver(screenStateObserver)
         viewModel.networkError.removeObserver(netWorkErrorObserver)
+        viewModel.navigationToDashboard.removeObserver(navigatorObserver)
+        viewModel.emailError.removeObserver(emailErrorObserver)
+        viewModel.passwordError.removeObserver(passwordErrorObserver)
+        viewModel.error.removeObserver(errorObserver)
     }
 
     private fun verifyInitialState() {
@@ -61,7 +93,12 @@ class LoginViewModelTest {
     private fun confirmVerifyMocks() {
         confirmVerified(screenStateObserver)
         confirmVerified(netWorkErrorObserver)
-        confirmVerified(loginRepository)
+        confirmVerified(navigatorObserver)
+        confirmVerified(emailErrorObserver)
+        confirmVerified(passwordErrorObserver)
+        confirmVerified(errorObserver)
+        confirmVerified(signUpUseCase)
+        confirmVerified(signInUseCase)
     }
 
     @Test
@@ -80,8 +117,6 @@ class LoginViewModelTest {
         val loginScreenState = LoginScreenState.SignUp
 
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
 
         viewModel.postEvent(event)
 
@@ -99,8 +134,6 @@ class LoginViewModelTest {
         val loginScreenState = LoginScreenState.SignUp
 
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
 
         viewModel.postEvent(event)
 
@@ -117,8 +150,6 @@ class LoginViewModelTest {
         val event = LoginEvent.SecondaryButtonPress
 
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
 
         viewModel.postEvent(event)
         viewModel.postEvent(event)
@@ -136,15 +167,12 @@ class LoginViewModelTest {
     @ExperimentalCoroutinesApi
     fun onMainButtonClickedAndModeIsSignIn() = runBlockingTest {
         //Given
-        val user = ApiUser("user@email.com", "id", "token")
+        val user = User("user@email.com", "id", "token")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.Success(user)
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Success(user)
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
@@ -152,62 +180,30 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Success)) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInInvalidEmailError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_INVALID_EMAIL, message = "Invalid message")
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            LoginRepository.ERROR_INVALID_EMAIL,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInEmailInUseError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(
-                code = LoginRepository.ERROR_EMAIL_ALREADY_IN_USE,
-                message = "Invalid message"
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
             )
+        }
+        coVerify { navigatorObserver.onChanged(Event(true)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignInInvalidEmailError() = coroutinesRule.runBlockingTest {
+        //Given
+        val error: ErrorEntity.UserEmailError = ErrorEntity.UserEmailError("Invalid message")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Error(error)
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
@@ -215,124 +211,60 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInUserDisabledError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_USER_DISABLED, message = "Invalid message")
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInUserNotFoundError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_USER_NOT_FOUND, message = "Invalid message")
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInInvalidCredentialsError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(
-                code = LoginRepository.ERROR_INVALID_CREDENTIAL,
-                message = "Invalid message"
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
             )
+        }
+        coVerify { emailErrorObserver.onChanged(Event(error.message)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignInWrongPasswordError() = coroutinesRule.runBlockingTest {
+        //Given
+        val error: ErrorEntity.UserPasswordError = ErrorEntity.UserPasswordError("Invalid message")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Error(error)
+
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
 
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInOperationNotAllowedError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(
-                code = LoginRepository.ERROR_OPERATION_NOT_ALLOWED,
-                message = "Invalid message"
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
             )
+        }
+        coVerify { passwordErrorObserver.onChanged(Event(error.message)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignInGenericError() = coroutinesRule.runBlockingTest {
+        //Given
+        val error: ErrorEntity.GenericError = ErrorEntity.GenericError(-1, "Invalid message")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Error(error)
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
@@ -340,32 +272,29 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInTooManyRequestError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(
-                code = LoginRepository.ERROR_TOO_MANY_REQUESTS,
-                message = "Invalid message"
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
             )
+        }
+        coVerify { errorObserver.onChanged(Event(SnackBarrError(true, error.message))) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignInNetWorkError() = coroutinesRule.runBlockingTest {
+        //Given
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Error(ErrorEntity.NetworkError)
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
@@ -373,125 +302,14 @@ class LoginViewModelTest {
         //Verify
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.EmailError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInWrongPasswordError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_WRONG_PASSWORD, message = "Invalid message")
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.PasswordError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInWeekPasswordError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_WEAK_PASSWORD, message = "Invalid message")
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.PasswordError(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInGenericError() = runBlockingTest {
-        //Given
-        val error =
-            ErrorResponse(
-                code = -1,
-                message = "Invalid message"
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
             )
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.GenericError(
-            error.code,
-            error
-        )
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Error(error.message))) }
-
-        confirmVerifyMocks()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignInNetWorkError() = runBlockingTest {
-        //Given
-        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
-        val event = LoginEvent.MainButtonPress
-
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.NetworkError
-
-        //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
-
-        viewModel.postEvent(typeEvent)
-        viewModel.postEvent(event)
-
-        //Verify
-        coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signIn(typeEvent.user, typeEvent.password) }
+        }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
         coVerify { netWorkErrorObserver.onChanged(true) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
@@ -501,17 +319,14 @@ class LoginViewModelTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignUp() = runBlockingTest {
+    fun onMainButtonClickedAndModeIsSignUp() = coroutinesRule.runBlockingTest {
         //Given
-        val user = ApiUser("user@email.com", "id", "token")
+        val user = User("user@email.com", "id", "token")
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.Success(user)
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Success(user)
 
         viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         viewModel.postEvent(typeEvent)
@@ -521,34 +336,45 @@ class LoginViewModelTest {
         coVerifyInitialState()
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signUp(typeEvent.user, typeEvent.password) }
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Success)) }
+        coVerify {
+            signUpUseCase.invoke(
+                SigUpUseCase.SignUpParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
+            )
+        }
+        coVerify { navigatorObserver.onChanged(Event(true)) }
 
         confirmVerifyMocks()
     }
 
     @Test
     @ExperimentalCoroutinesApi
-    fun onMainButtonClickedAndModeIsSignUnNetWorkError() = runBlockingTest {
+    fun onMainButtonClickedAndModeIsSignUpNetWorkError() = coroutinesRule.runBlockingTest {
         //Given
         val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
         val event = LoginEvent.MainButtonPress
 
-        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.NetworkError
-
         //When
-        viewModel.screenState.observeForever(screenStateObserver)
-        viewModel.networkError.observeForever(netWorkErrorObserver)
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Error(ErrorEntity.NetworkError)
 
-        viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         viewModel.postEvent(typeEvent)
+        viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         viewModel.postEvent(event)
 
         //Verify
         coVerifyInitialState()
-        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
-        coVerify { loginRepository.signUp(typeEvent.user, typeEvent.password) }
+        coVerify {
+            signUpUseCase.invoke(
+                SigUpUseCase.SignUpParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
+            )
+        }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
         coVerify { netWorkErrorObserver.onChanged(true) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
 

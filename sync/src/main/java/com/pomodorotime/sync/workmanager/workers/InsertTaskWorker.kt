@@ -1,13 +1,13 @@
 package com.pomodorotime.sync.workmanager.workers
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.TaskDataModel
-import java.util.*
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.task.ITaskRepository
+import java.util.Date
 
 class InsertTaskWorker(
     context: Context,
@@ -18,18 +18,19 @@ class InsertTaskWorker(
     override suspend fun doWork(): Result {
 
         val task = dataToTaskModel(inputData)
-        return when (repository.insetTaskRemote(task)) {
-            is ResultWrapper.Success -> {
-                Result.success()
-            }
-            else -> {
-                Result.retry()
-            }
+
+        return try {
+            repository.insetTaskRemote(task)
+            Result.success()
+        } catch (ex: Exception) {
+            Log.e("InsertTaskWorker", ex.message ?: "")
+            Result.retry()
         }
+
     }
 
-    private fun dataToTaskModel(inputData: Data): TaskDataModel =
-        TaskDataModel(
+    private fun dataToTaskModel(inputData: Data): Task =
+        Task(
             inputData.getLong(TASK_ID_ARGS, -1L),
             inputData.getString(TASK_NAME_ARGS) ?: "",
             Date(),

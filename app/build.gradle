@@ -66,10 +66,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':core')
-    implementation project(':data')
     implementation project(':login')
     implementation project(':task')
     implementation project(':timer')
+    implementation project(':domain')
+    implementation project(':data')
     implementation project(':sync')
 
     implementation libraries.kotlin

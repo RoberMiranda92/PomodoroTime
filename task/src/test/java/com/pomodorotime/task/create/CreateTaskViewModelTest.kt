@@ -3,10 +3,11 @@ package com.pomodorotime.task.create
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.dataBase.TaskEntity
+import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.task.usecases.CreateTaskUseCase
 import com.pomodorotime.task.CoroutinesRule
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -31,18 +32,22 @@ class CreateTaskViewModelTest {
     val coroutinesRule = CoroutinesRule()
 
     @MockK
-    lateinit var repository: ITaskRepository
+    lateinit var createTaskUseCase: CreateTaskUseCase
 
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<CreateTaskScreenState>>
+
+    @RelaxedMockK
+    lateinit var createTaskErrorObserver: Observer<Event<SnackBarrError>>
 
     private lateinit var viewModel: CreateTaskViewModel
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        viewModel = CreateTaskViewModel(repository)
+        viewModel = CreateTaskViewModel(createTaskUseCase)
         viewModel.screenState.observeForever(screenStateObserver)
+        viewModel.createTaskError.observeForever(createTaskErrorObserver)
     }
 
     @After
@@ -51,24 +56,24 @@ class CreateTaskViewModelTest {
     }
 
     private fun verifyAll() {
-        confirmVerified(repository)
+        confirmVerified(createTaskUseCase)
         confirmVerified(screenStateObserver)
     }
 
     @Test
     fun createTaskEventSaveTaskSuccessTest() = coroutinesRule.runBlockingTest {
         //Given
-        viewModel.setTaskName(TaskEntity1.name)
-        viewModel.setPomodoroCounter(TaskEntity1.estimatedPomodoros)
+        viewModel.setTaskName(Task.name)
+        viewModel.setPomodoroCounter(Task.estimatedPomodoros)
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
+        coEvery { createTaskUseCase.invoke(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Initial())) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Loading)) }
-        coVerify { repository.insetTask(any()) }
+        coVerify { createTaskUseCase.invoke(any()) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Success)) }
         verifyAll()
     }
@@ -76,52 +81,56 @@ class CreateTaskViewModelTest {
     @Test
     fun createTaskEventSaveTaskErrorTest() = coroutinesRule.runBlockingTest {
         //Given
-        val error = ErrorResponse(message = "my exception")
-        viewModel.setTaskName(TaskEntity1.name)
-        viewModel.setPomodoroCounter(TaskEntity1.estimatedPomodoros)
+        val error = ErrorEntity.GenericError(-1, "my exception")
+
+        viewModel.setTaskName(Task.name)
+        viewModel.setPomodoroCounter(Task.estimatedPomodoros)
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.GenericError(null, error)
+        coEvery { createTaskUseCase.invoke(any()) } returns ResultWrapper.Error(error)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Initial())) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Loading)) }
-        coVerify { repository.insetTask(any()) }
-        coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Error(error.message))) }
+        coVerify { createTaskUseCase.invoke(any()) }
+        coVerify { createTaskErrorObserver.onChanged(Event(SnackBarrError(true,error.message))) }
         coVerify {
             screenStateObserver.onChanged(
                 Event(
                     CreateTaskScreenState.Initial(
-                        TaskEntity1.name,
-                        TaskEntity1.estimatedPomodoros
+                        Task.name,
+                        Task.estimatedPomodoros
                     )
                 )
             )
         }
+
         verifyAll()
     }
 
     @Test
     fun createTaskEventSaveTaskNetworkErrorTest() = coroutinesRule.runBlockingTest {
+        val error = ErrorEntity.NetworkError
+
         //Given
-        viewModel.setTaskName(TaskEntity1.name)
-        viewModel.setPomodoroCounter(TaskEntity1.estimatedPomodoros)
+        viewModel.setTaskName(Task.name)
+        viewModel.setPomodoroCounter(Task.estimatedPomodoros)
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.NetworkError
+        coEvery { createTaskUseCase.invoke(any()) } returns ResultWrapper.Error(error)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Initial())) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Loading)) }
-        coVerify { repository.insetTask(any()) }
+        coVerify { createTaskUseCase.invoke(any()) }
         coVerify {
             screenStateObserver.onChanged(
                 Event(
                     CreateTaskScreenState.Initial(
-                        TaskEntity1.name,
-                        TaskEntity1.estimatedPomodoros
+                        Task.name,
+                        Task.estimatedPomodoros
                     )
                 )
             )
@@ -135,7 +144,7 @@ class CreateTaskViewModelTest {
         viewModel.setTaskName("")
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
+        coEvery { createTaskUseCase.invoke(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(CreateTaskEvent.SaveTask)
 
         //Verify
@@ -148,11 +157,11 @@ class CreateTaskViewModelTest {
     fun createTaskEventEddiTaskEmptyNameTest() = coroutinesRule.runBlockingTest {
 
         //When
-        coEvery { repository.insetTask(any()) } returns ResultWrapper.Success(1L)
+        coEvery { createTaskUseCase.invoke(any()) } returns ResultWrapper.Success(1L)
         viewModel.postEvent(
             CreateTaskEvent.EditingTask(
-                TaskEntity1.name,
-                TaskEntity1.estimatedPomodoros
+                Task.name,
+                Task.estimatedPomodoros
             )
         )
         viewModel.postEvent(CreateTaskEvent.SaveTask)
@@ -160,13 +169,13 @@ class CreateTaskViewModelTest {
         //Verify
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Initial())) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Loading)) }
-        coVerify { repository.insetTask(any()) }
+        coVerify { createTaskUseCase.invoke(any()) }
         coVerify { screenStateObserver.onChanged(Event(CreateTaskScreenState.Success)) }
         verifyAll()
     }
 
     companion object {
-        private val TaskEntity1 = TaskEntity(
+        private val Task = Task(
             name = "Task1",
             creationDate = Date(),
             donePomodoros = 0,

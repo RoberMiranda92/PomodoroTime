@@ -39,9 +39,17 @@ class TaskListFragment :
     }
 
     override fun observeViewModelChanges() {
-        viewModel.navigationToCreateTask.observeEvent(viewLifecycleOwner){
-            if(it){
+        viewModel.navigationToCreateTask.observeEvent(viewLifecycleOwner) {
+            if (it) {
                 navigator.navigateOnToCreateTask()
+            }
+        }
+
+        viewModel.taskListError.observeEvent(viewLifecycleOwner) {
+            if (it.show) {
+                hideLoading()
+                hideAddButton()
+                showSnackBarError(it.message, Snackbar.LENGTH_LONG)
             }
         }
     }
@@ -82,12 +90,6 @@ class TaskListFragment :
                 hideLoading()
                 hideAddButton()
                 hideEmptyState()
-            }
-
-            is TaskListScreenState.Error -> {
-                hideLoading()
-                hideAddButton()
-                showSnackBarError(state.error, Snackbar.LENGTH_LONG)
             }
         }
     }

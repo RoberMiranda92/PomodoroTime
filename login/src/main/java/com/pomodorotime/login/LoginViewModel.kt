@@ -1,23 +1,44 @@
 package com.pomodorotime.login
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.login.api.models.ApiUser
-import com.pomodorotime.data.login.repository.LoginRepository
+import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.login.usecases.SigInUseCase
+import com.pomodorotime.domain.login.usecases.SigUpUseCase
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.User
+
 
 class LoginViewModel constructor(
-    private val repository: LoginRepository,
+    private val signUpUseCase: SigUpUseCase,
+    private val sigInUseCase: SigInUseCase,
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<LoginEvent, LoginScreenState>(idlingResourceWrapper) {
 
-    private val _loginMode: MutableLiveData<@LoginMode Int> = MutableLiveData(LoginMode.SIGN_IN)
-    private val _emailLiveData: MutableLiveData<String> = MutableLiveData("")
-    private val _passwordLiveData: MutableLiveData<String> = MutableLiveData("")
-    private val _confirmPasswordLiveData: MutableLiveData<String> = MutableLiveData("")
+    private var loginMode: @LoginMode Int = LoginMode.SIGN_IN
+    private var email: String = ""
+    private var password: String = ""
+    private var confirmPassword = ""
+
+    private val _error: MutableLiveData<Event<SnackBarrError>> = MutableLiveData()
+    val error: LiveData<Event<SnackBarrError>>
+        get() = _error
+
+    private val _emailError: MutableLiveData<Event<String>> = MutableLiveData()
+    val emailError: LiveData<Event<String>>
+        get() = _emailError
+
+    private val _passwordError: MutableLiveData<Event<String>> = MutableLiveData()
+    val passwordError: LiveData<Event<String>>
+        get() = _passwordError
+
+    private val _navigationToDashboard: MutableLiveData<Event<Boolean>> = MutableLiveData()
+    val navigationToDashboard: LiveData<Event<Boolean>>
+        get() = _navigationToDashboard
 
     override fun initialState(): LoginScreenState = LoginScreenState.SignIn
 
@@ -39,32 +60,32 @@ class LoginViewModel constructor(
     }
 
     private fun onEmailSet(email: String) {
-        _emailLiveData.value = email
+        this.email = email
     }
 
     private fun onPasswordSet(password: String) {
-        _passwordLiveData.value = password
+        this.password = password
     }
 
     private fun onConfirmPasswordSet(confirmPassword: String) {
-        _confirmPasswordLiveData.value = confirmPassword
+        this.confirmPassword = confirmPassword
     }
 
     private fun startSign() {
-        when (_loginMode.value) {
+        when (loginMode) {
             LoginMode.SIGN_IN -> startSignIn()
             LoginMode.SIGN_UP -> startSignUp()
         }
     }
 
     private fun toggleMode() {
-        when (_loginMode.value) {
+        when (loginMode) {
             LoginMode.SIGN_IN -> {
-                _loginMode.value = LoginMode.SIGN_UP
+                loginMode = LoginMode.SIGN_UP
                 _screenState.value = Event(LoginScreenState.SignUp)
             }
             LoginMode.SIGN_UP -> {
-                _loginMode.value = LoginMode.SIGN_IN
+                loginMode = LoginMode.SIGN_IN
                 _screenState.value = Event(LoginScreenState.SignIn)
             }
         }
@@ -74,12 +95,13 @@ class LoginViewModel constructor(
         executeCoroutine {
             _screenState.value = Event(LoginScreenState.Loading)
 
-            val result = repository.signIn(_emailLiveData.value!!, _passwordLiveData.value!!)
+            val result: ResultWrapper<User> =
+                sigInUseCase.invoke(SigInUseCase.SignInParams(email, password))
 
             when (result) {
-                is ResultWrapper.Success<ApiUser> -> onSignInSuccess(result.value)
-                is ResultWrapper.GenericError -> onError(result.error)
-                is ResultWrapper.NetworkError -> onNetworkError()
+                is ResultWrapper.Success<User> -> onSignInSuccess(result.value)
+                is ResultWrapper.Error -> onError(result.error)
+//                is ResultWrapper.NetworkError -> onNetworkError()
             }
         }
     }
@@ -88,39 +110,38 @@ class LoginViewModel constructor(
         executeCoroutine {
             _screenState.value = Event(LoginScreenState.Loading)
 
-            val result = repository.signUp(_emailLiveData.value!!, _passwordLiveData.value!!)
+            val result: ResultWrapper<User> =
+                signUpUseCase.invoke(SigUpUseCase.SignUpParams(email, password))
 
             when (result) {
-                is ResultWrapper.Success<ApiUser> -> onSignInSuccess(result.value)
-                is ResultWrapper.GenericError -> onError(result.error)
-                is ResultWrapper.NetworkError -> onNetworkError()
+                is ResultWrapper.Success<User> -> onSignInSuccess(result.value)
+                is ResultWrapper.Error -> onError(result.error)
             }
         }
     }
 
-    private fun onSignInSuccess(user: ApiUser) {
-        _screenState.value = Event(LoginScreenState.Success)
+    private fun onSignInSuccess(user: User) {
+        _navigationToDashboard.value = Event(true)
     }
 
-    private fun onError(error: ErrorResponse) {
-        _screenState.value = when (error.code) {
-            LoginRepository.ERROR_INVALID_EMAIL -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_WRONG_PASSWORD -> Event(LoginScreenState.PasswordError(error.message))
-            LoginRepository.ERROR_OPERATION_NOT_ALLOWED -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_WEAK_PASSWORD -> Event(LoginScreenState.PasswordError(error.message))
-            LoginRepository.ERROR_EMAIL_ALREADY_IN_USE -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_INVALID_CREDENTIAL -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_USER_NOT_FOUND -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_USER_DISABLED -> Event(LoginScreenState.EmailError(error.message))
-            LoginRepository.ERROR_TOO_MANY_REQUESTS -> Event(LoginScreenState.EmailError(error.message))
-            else -> Event(LoginScreenState.Error(error.message))
+    private fun onError(error: ErrorEntity) {
+        when (error) {
+            is ErrorEntity.GenericError -> _error.value = Event(SnackBarrError(true, error.message))
+            is ErrorEntity.UserEmailError -> _emailError.value= Event(error.message)
+            is ErrorEntity.UserPasswordError -> _passwordError.value= Event(error.message)
+            is ErrorEntity.NetworkError -> onNetworkError()
         }
+        setMode()
     }
 
     override fun onNetworkError() {
         super.onNetworkError()
+        setMode()
 
-        _screenState.value = if (LoginMode.SIGN_IN == _loginMode.value) {
+    }
+
+    private fun setMode(){
+        _screenState.value = if (LoginMode.SIGN_IN == loginMode) {
             Event(LoginScreenState.SignIn)
         } else {
             Event(LoginScreenState.SignUp)

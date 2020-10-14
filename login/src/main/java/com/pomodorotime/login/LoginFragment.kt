@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.removeErrorOnTyping
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.login.databinding.FragmentLoginBinding
@@ -73,6 +74,25 @@ class LoginFragment :
     }
 
     override fun observeViewModelChanges() {
+        viewModel.emailError.observeEvent(viewLifecycleOwner) {
+            binding.tilEmail.error = it
+        }
+
+        viewModel.passwordError.observeEvent(viewLifecycleOwner) {
+            binding.tilPassword.error = it
+        }
+
+        viewModel.error.observeEvent(viewLifecycleOwner) {
+            if (it.show) {
+                showSnackBarError(it.message, Snackbar.LENGTH_SHORT)
+            }
+        }
+
+        viewModel.navigationToDashboard.observeEvent(viewLifecycleOwner) {
+            if (it) {
+                navigator.navigateOnLoginSuccess()
+            }
+        }
     }
 
     override fun onNewState(state: LoginScreenState) {
@@ -93,23 +113,6 @@ class LoginFragment :
             }
             is LoginScreenState.Loading -> {
                 showLoading()
-            }
-            is LoginScreenState.EmailError -> {
-                showData()
-                binding.tilEmail.error = state.error
-            }
-            is LoginScreenState.Error -> {
-                showData()
-                showSnackBarError(state.error, Snackbar.LENGTH_SHORT)
-            }
-            is LoginScreenState.PasswordError -> {
-                showData()
-
-                binding.tilPassword.error = state.error
-            }
-            is LoginScreenState.Success -> {
-                showData()
-                navigator.navigateOnLoginSuccess()
             }
         }
     }

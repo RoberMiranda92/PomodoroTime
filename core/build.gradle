@@ -112,4 +112,5 @@ dependencies {
 
     //Other
     implementation libraries.materialComponents
+    implementation libraries.gson
 }

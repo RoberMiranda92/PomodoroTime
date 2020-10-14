@@ -3,21 +3,25 @@ package com.pomodorotime.login
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.logger.PomodoroLogger
-import com.pomodorotime.data.ErrorResponse
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.login.api.models.ApiUser
-import com.pomodorotime.data.login.repository.LoginRepository
+import com.pomodorotime.domain.login.usecases.SigInUseCase
+import com.pomodorotime.domain.login.usecases.SigUpUseCase
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.User
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
 import org.hamcrest.Matchers.not
@@ -35,8 +39,11 @@ import org.koin.test.KoinTest
 @RunWith(AndroidJUnit4::class)
 class LoginFragmentTest : KoinTest {
 
-    @MockK
-    lateinit var loginRepository: LoginRepository
+    @RelaxedMockK
+    lateinit var signInUseCase: SigInUseCase
+
+    @RelaxedMockK
+    lateinit var signUpUseCase: SigUpUseCase
 
     @RelaxedMockK
     lateinit var navigator: LoginNavigator
@@ -48,9 +55,12 @@ class LoginFragmentTest : KoinTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         startKoin {
             modules(
-                module { viewModel { LoginViewModel(get(), idlingResourceWrapper) } },
+                module { viewModel { LoginViewModel(get(), get(), idlingResourceWrapper) } },
                 module { single { navigator } },
-                module { single { loginRepository } },
+                module {
+                    single { signInUseCase }
+                    single { signUpUseCase }
+                },
                 module { single { PomodoroLogger() } }
             )
         }
@@ -107,6 +117,7 @@ class LoginFragmentTest : KoinTest {
 
         //Loader
         onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))
+
         onView(withId(R.id.login_container)).check(matches(isDisplayed()))
     }
 
@@ -115,17 +126,17 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { loginRepository.signIn(any(), any()) } returns ResultWrapper.Success(
-            ApiUser(user, "id", "token")
-        )
+        coEvery { signInUseCase.invoke(any()) } returns
+                ResultWrapper.Success(User(user, "id", "token"))
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
 
         onView(withId(R.id.btn_login)).perform(click())
 
-        onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.login_container)).check(matches(isDisplayed()))
+        onView(withId(R.id.login_loader)).check(matches((isDisplayed())))
+
+        onView(withId(R.id.login_container)).check(matches(not(isDisplayed())))
         verify { navigator.navigateOnLoginSuccess() }
     }
 
@@ -134,9 +145,8 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.Success(
-            ApiUser(user, "id", "token")
-        )
+        coEvery { signUpUseCase.invoke(any()) } returns
+                ResultWrapper.Success(User(user, "id", "token"))
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -145,21 +155,18 @@ class LoginFragmentTest : KoinTest {
         onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
         onView(withId(R.id.btn_login)).perform(click())
 
-        onView(withId(R.id.login_loader)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.login_container)).check(matches(isDisplayed()))
+        onView(withId(R.id.login_loader)).check(matches(isDisplayed()))
+        onView(withId(R.id.login_container)).check(matches(not(isDisplayed())))
         verify { navigator.navigateOnLoginSuccess() }
     }
 
     @Test
     fun loginFragmentEmailError() {
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_INVALID_EMAIL, message = "Invalid message")
+        val error = ErrorEntity.UserEmailError("Invalid message")
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.GenericError(
-            error.code, error
-        )
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Error(error)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -176,14 +183,11 @@ class LoginFragmentTest : KoinTest {
 
     @Test
     fun loginFragmentPasswordError() {
-        val error =
-            ErrorResponse(code = LoginRepository.ERROR_WRONG_PASSWORD, message = "Invalid message")
+        val error = ErrorEntity.UserPasswordError("Invalid message")
         val user = "user@user.es"
         val password = "password"
 
-        coEvery { loginRepository.signUp(any(), any()) } returns ResultWrapper.GenericError(
-            error.code, error
-        )
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Error(error)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))

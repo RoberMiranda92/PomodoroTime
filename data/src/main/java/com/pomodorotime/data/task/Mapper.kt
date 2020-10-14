@@ -2,20 +2,9 @@ package com.pomodorotime.data.task
 
 import com.pomodorotime.data.task.api.models.ApiTask
 import com.pomodorotime.data.task.dataBase.TaskEntity
+import com.pomodorotime.domain.models.Task
 
-fun ApiTask.toDataModel() =
-    TaskDataModel(
-        id,
-        name,
-        creationDate,
-        donePomodoros,
-        estimatedPomodoros,
-        shortBreaks,
-        longBreaks,
-        completed
-    )
-
-fun TaskDataModel.toApiTaskModel() =
+fun Task.toApiTaskModel() =
     ApiTask(
         id,
         name,
@@ -27,8 +16,8 @@ fun TaskDataModel.toApiTaskModel() =
         completed
     )
 
-fun TaskEntity.toDataModel() =
-    TaskDataModel(
+fun Task.toDataModel() =
+    TaskEntity(
         id,
         name,
         creationDate,
@@ -39,8 +28,20 @@ fun TaskEntity.toDataModel() =
         completed
     )
 
-fun TaskDataModel.toEntityModel() =
-    TaskEntity(
+fun ApiTask.toDomainModel() =
+    Task(
+        id,
+        name,
+        creationDate,
+        donePomodoros,
+        estimatedPomodoros,
+        shortBreaks,
+        longBreaks,
+        completed
+    )
+
+fun TaskEntity.toDomainModel() =
+    Task(
         id,
         name,
         creationDate,

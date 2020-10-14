@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.pomodorotime.data.task.ITaskRepository
+import com.pomodorotime.domain.task.ITaskRepository
 import com.pomodorotime.sync.workmanager.workers.InsertTaskWorker
 
 class TaskWorkerFactory(
-    private val repository: ITaskRepository
+    private val repository: com.pomodorotime.domain.task.ITaskRepository
 ) : WorkerFactory() {
 
     override fun createWorker(

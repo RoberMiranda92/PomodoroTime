@@ -2,11 +2,10 @@ package com.pomodorotime.sync.workmanager
 
 import androidx.work.Configuration
 import androidx.work.DelegatingWorkerFactory
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.sync.workmanager.TaskWorkerFactory
+import com.pomodorotime.domain.task.ITaskRepository
 
 class WorkManagerConfiguration(
-    private val repository: ITaskRepository
+    private val repository: com.pomodorotime.domain.task.ITaskRepository
 ) : Configuration.Provider {
 
     override fun getWorkManagerConfiguration(): Configuration {

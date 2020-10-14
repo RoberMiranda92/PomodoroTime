@@ -6,13 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.getTimer
-import com.pomodorotime.data.POMODORO_DEFAULT_TIME
-import com.pomodorotime.data.POMODORO_LONG_BREAK_DEFAULT_TIME
-import com.pomodorotime.data.POMODORO_SMALL_BREAK_DEFAULT_TIME
-import com.pomodorotime.data.ResultWrapper
-import com.pomodorotime.data.task.ITaskRepository
-import com.pomodorotime.data.task.TaskDataModel
-import com.pomodorotime.data.task.TaskRepository
+import com.pomodorotime.domain.POMODORO_DEFAULT_TIME
+import com.pomodorotime.domain.POMODORO_LONG_BREAK_DEFAULT_TIME
+import com.pomodorotime.domain.POMODORO_SMALL_BREAK_DEFAULT_TIME
+import com.pomodorotime.domain.models.ErrorEntity
+import com.pomodorotime.domain.models.ResultWrapper
+import com.pomodorotime.domain.models.Task
+import com.pomodorotime.domain.timer.GetTaskByIdUseCase
 import com.pomodorotime.timer.models.PomodoroMode
 import com.pomodorotime.timer.models.TimeDetail
 import com.pomodorotime.timer.models.TimerEvents
@@ -29,8 +29,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 
 @ExperimentalCoroutinesApi
-class TimerViewModel(private val repository: ITaskRepository) :
-    BaseViewModel<TimerEvents, TimerScreenState>() {
+class TimerViewModel(
+    private val getTaskByIdUseCase: GetTaskByIdUseCase
+) : BaseViewModel<TimerEvents, TimerScreenState>() {
 
     private val _onBakPressedDialog: MutableLiveData<Event<Boolean>> = MutableLiveData()
     val onBakPressedDialog: LiveData<Event<Boolean>>
@@ -76,10 +77,11 @@ class TimerViewModel(private val repository: ITaskRepository) :
         )
     }
 
-    private fun loadData(id: Int) {
+    private fun loadData(id: Long) {
         executeCoroutine {
             _screenState.value = Event(TimerScreenState.Loading)
-            val result = repository.getTaskById(id)
+            val result: ResultWrapper<Task> =
+                getTaskByIdUseCase.invoke(GetTaskByIdUseCase.GetTaskByIdParams(id))
             when (result) {
                 is ResultWrapper.Success -> {
                     _detail = getTaskDetail(result.value).apply {
@@ -94,16 +96,19 @@ class TimerViewModel(private val repository: ITaskRepository) :
                         )
                     }
                 }
-                is ResultWrapper.NetworkError -> {
-                    onNetworkError()
+                is ResultWrapper.Error -> {
+                    when (val error = result.error) {
+                        is ErrorEntity.NetworkError -> onNetworkError()
+                        is ErrorEntity.GenericError -> {
+                            _screenState.value = Event(TimerScreenState.Error(error.message))
+                        }
+                    }
                 }
-                is ResultWrapper.GenericError ->
-                    _screenState.value = Event(TimerScreenState.Error(result.error.message))
             }
         }
     }
 
-    private fun getTaskDetail(task: TaskDataModel): TimeDetail {
+    private fun getTaskDetail(task: Task): TimeDetail {
         return TimeDetail(task.name, task.donePomodoros, task.estimatedPomodoros)
     }
 
@@ -150,7 +155,7 @@ class TimerViewModel(private val repository: ITaskRepository) :
         )
     }
 
-    //TODO MOVE USE CASE
+    //TODO MOVE USE CASE OR UTILS
     private fun calculateProgress(): Float {
         val maxTime = when (_mode) {
             PomodoroMode.POMODORO -> POMODORO_DEFAULT_TIME
