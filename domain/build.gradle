@@ -11,12 +11,14 @@ java {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation libraries.kotlin
+    implementation libraries.kotlinFull
     implementation libraries.kotlinCoroutines
 
     //Koin
     implementation libraries.koinCore
 
     //Test
+    testImplementation libraries.coroutines_text
     testImplementation libraries.jUnit
+    testImplementation libraries.mockkCore
 }

@@ -21,7 +21,7 @@ class CreateTaskUseCase(
             donePomodoros = parameters.donePomodoros,
             shortBreaks = calculateShortBreaks(parameters.estimatedPomodoros),
             longBreaks = calculateLongBreaks(parameters.estimatedPomodoros),
-            creationDate = Calendar.getInstance().time,
+            creationDate = parameters.creationDate,
             completed = false
         )
         return repository.insetTask(task)
