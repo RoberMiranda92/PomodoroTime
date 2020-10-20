@@ -14,6 +14,9 @@ coverage:
         branches:
           - master
           - develop
+          - feature/*
+          - bug/*
+          - release/*
         if_not_found: success
         if_ci_failed: error
         informational: false
