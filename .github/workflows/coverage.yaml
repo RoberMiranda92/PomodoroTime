@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'develop'
+      - 'feature/*'
 jobs:
   run:
     name: Coverage Report
