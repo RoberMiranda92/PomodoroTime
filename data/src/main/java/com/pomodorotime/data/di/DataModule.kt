@@ -3,6 +3,16 @@ package com.pomodorotime.data.di
 import com.pomodorotime.data.ErrorHandlerImpl
 import com.pomodorotime.data.login.repository.LoginRepository
 import com.pomodorotime.data.task.TaskRepository
+import com.pomodorotime.data.task.api.FirebaseTaskApi
+import com.pomodorotime.data.task.api.ITaskApi
+import com.pomodorotime.data.task.dataBase.IDataBase
+import com.pomodorotime.data.task.dataBase.TaskDataBase
+import com.pomodorotime.data.task.datasource.local.ITaskLocalDataSource
+import com.pomodorotime.data.task.datasource.local.TaskLocalDataSourceImpl
+import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
+import com.pomodorotime.data.task.datasource.remote.TaskRemoteDataSourceImp
+import com.pomodorotime.data.user.IUserLocalDataSource
+import com.pomodorotime.data.user.UserLocalDataSourceImp
 import com.pomodorotime.domain.IErrorHandler
 import com.pomodorotime.domain.login.ILoginRepository
 import com.pomodorotime.domain.task.ITaskRepository
@@ -12,8 +22,17 @@ val dataModule = module {
 
     single<ILoginRepository> { LoginRepository.getNewInstance() }
 
-    single<ITaskRepository> { TaskRepository.getNewInstance(get()) }
+    single<ITaskRepository> { TaskRepository(get(), get()) }
 
-    single<IErrorHandler> { ErrorHandlerImpl.getNewInstance() }
+    single<IErrorHandler> { ErrorHandlerImpl() }
 
+    single<ITaskRemoteDataSource> { TaskRemoteDataSourceImp(get()) }
+
+    single<ITaskLocalDataSource> { TaskLocalDataSourceImpl(get()) }
+
+    single<IUserLocalDataSource> { UserLocalDataSourceImp }
+
+    single<IDataBase> { TaskDataBase.getInstance(get()).taskDao() }
+
+    single<ITaskApi> { FirebaseTaskApi() }
 }

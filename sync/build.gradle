@@ -31,11 +31,19 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }
+
+    testOptions {
+        animationsDisabled true
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(':domain')
+    implementation project(':data')
 
     implementation libraries.kotlin
     implementation libraries.kotlinCoroutines
@@ -45,8 +53,17 @@ dependencies {
 
     //Koin
     implementation libraries.koinCore
-    implementation libraries.koinScope
-    implementation libraries.koinViewModel
+    implementation libraries.koinWorkManager
     implementation libraries.koinExt
     androidTestImplementation libraries.testKoinCore
+
+    //Instrumented Test
+    androidTestImplementation test.andoridXTestCore
+    androidTestImplementation test.andoridXArchTest
+    androidTestImplementation test.androidXTestRunner
+    androidTestImplementation test.androidXTestRules
+    androidTestImplementation test.androidXTestMonitor
+    androidTestImplementation test.androidXTestJunit
+    androidTestImplementation test.mockkAndroid
+    androidTestImplementation test.androidxWorkManagerTest
 }

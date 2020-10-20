@@ -54,10 +54,4 @@ open class ErrorHandlerImpl : IErrorHandler {
             else -> ErrorEntity.GenericError(message = throwable.message ?: "")
         }
     }
-
-    companion object {
-        fun getNewInstance(): IErrorHandler {
-            return ErrorHandlerImpl()
-        }
-    }
 }

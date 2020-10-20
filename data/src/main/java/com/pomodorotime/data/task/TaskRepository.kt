@@ -1,9 +1,8 @@
 package com.pomodorotime.data.task
 
-import android.content.Context
-import com.pomodorotime.data.task.datasource.local.TaskLocalDataSource
-import com.pomodorotime.data.task.datasource.remote.TaskRemoteDataSource
-import com.pomodorotime.data.user.UserLocalDataSource
+import com.pomodorotime.data.sync.ISyncManager
+import com.pomodorotime.data.sync.SyncTypes
+import com.pomodorotime.data.task.datasource.local.ITaskLocalDataSource
 import com.pomodorotime.domain.models.Task
 import com.pomodorotime.domain.task.ITaskRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,10 +10,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 
 @ExperimentalCoroutinesApi
-class TaskRepository private constructor(
-    private val localDataSource: TaskLocalDataSource,
-    private val remoteDataSource: TaskRemoteDataSource,
-    private val userLocalDataSource: UserLocalDataSource
+class TaskRepository constructor(
+    private val localDataSource: ITaskLocalDataSource,
+    private val synchronizer: ISyncManager
 ) : ITaskRepository {
 
     override fun getAllTasks(): Flow<List<Task>> {
@@ -22,33 +20,20 @@ class TaskRepository private constructor(
     }
 
     override suspend fun insetTask(task: Task): Long {
-        return localDataSource.insetTask(task.toDataModel())
+        val result = localDataSource.insetTask(task.toDataModel())
+        task.id = result
+        synchronizer.performSyncInsertion(task.toApiTaskModel())
+        return result
     }
 
     override suspend fun getTaskById(id: Long): Task {
         return localDataSource.getTaskById(id).toDomainModel()
     }
 
-    override suspend fun deleteTasks(idList: List<Long>) =
+    override suspend fun deleteTasks(idList: List<Long>) {
         localDataSource.deleteTasks(idList)
+        idList.forEach { synchronizer.performSyncDeletion(it) }
 
-    override suspend fun insetTaskRemote(task: Task) {
-        val userId: String = userLocalDataSource.getUserId()
-        return remoteDataSource.insetTask(
-            userId,
-            task.toApiTaskModel()
-        )
-    }
-
-    companion object {
-
-        fun getNewInstance(context: Context): TaskRepository {
-            return TaskRepository(
-                TaskLocalDataSource.getNewInstance(context),
-                TaskRemoteDataSource.getNewInstance(),
-                UserLocalDataSource
-            )
-        }
     }
 
 }

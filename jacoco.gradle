@@ -3,14 +3,14 @@
 // https://medium.com/swlh/measuring-unit-test-coverage-in-multi-module-android-projects-using-jacoco-part-2-352ef949ecfb
 
 def coveredProject = subprojects
-
+apply from: 'dependencies.gradle'
 apply plugin: 'jacoco'
 
 configure(coveredProject) { prj ->
     apply plugin: 'jacoco'
 
     jacoco {
-        toolVersion = "0.8.6"
+        toolVersion = versions.jacoco_version
     }
 
     def isAndroid = prj.name != "domain"
@@ -22,7 +22,7 @@ configure(coveredProject) { prj ->
 
             reports {
                 csv.enabled = true
-                xml.enabled = false
+                xml.enabled = true
                 html.enabled = true
             }
 
@@ -65,7 +65,7 @@ configure(coveredProject) { prj ->
 
             reports {
                 csv.enabled = true
-                xml.enabled = false
+                xml.enabled = true
                 html.enabled = true
             }
 
@@ -80,7 +80,7 @@ configure(coveredProject) { prj ->
             ])
 
             doLast() {
-                print "file://${reports.html.destination}/index.html"
+                println "file://${reports.html.destination}/index.html"
             }
         }
     }
@@ -105,9 +105,6 @@ task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
 
     final source = files(projects.jacocoReport.sourceDirectories)
     final execution = files(projects.jacocoReport.executionData)
-
-    println("Source $source")
-    println("Execution $execution")
 
     additionalSourceDirs.setFrom source
     sourceDirectories.setFrom source
@@ -136,6 +133,6 @@ task jacocoFullReport(type: JacocoReport, group: 'Coverage reports') {
     }
 
     doLast() {
-        print "file://${reports.html.destination}/index.html"
+        println "file://${reports.html.destination}/index.html"
     }
 }

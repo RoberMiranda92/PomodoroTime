@@ -13,11 +13,10 @@ abstract class BaseMultiSelectorAdapter<M : ListItem, VH : BaseViewHolder<M>>(
     private val selectedItems: SparseBooleanArray = SparseBooleanArray()
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-
         if (isViewHolderSelectable(holder.itemViewType)) {
             holder.itemView.setOnLongClickListener {
                 if (!hasSelectedItems()) {
-                    toogleItemSelection(position)
+                    toogleItemSelection(holder.adapterPosition)
                     onItemSelector.onLongPress(selectedItems.size())
                     true
                 } else {
@@ -26,15 +25,15 @@ abstract class BaseMultiSelectorAdapter<M : ListItem, VH : BaseViewHolder<M>>(
             }
             holder.itemView.setOnClickListener {
                 if (hasSelectedItems()) {
-                    toogleItemSelection(position)
+                    toogleItemSelection(holder.adapterPosition)
                     onItemSelector.onItemSelectedClick(selectedItems.size())
                 } else {
-                    onItemSelector.onItemClick(getItem(position))
+                    onItemSelector.onItemClick(getItem(holder.adapterPosition))
                 }
             }
         }
 
-        holder.bind(getItem(position))
+        holder.bind(getItem(holder.adapterPosition))
     }
 
     fun setDataWithSection(counterList: MutableList<M>, selectedItems: SparseBooleanArray) {

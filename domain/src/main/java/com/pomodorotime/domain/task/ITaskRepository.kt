@@ -13,5 +13,4 @@ interface ITaskRepository {
 
     suspend fun deleteTasks(idList: List<Long>)
 
-    suspend fun insetTaskRemote(task: Task)
 }

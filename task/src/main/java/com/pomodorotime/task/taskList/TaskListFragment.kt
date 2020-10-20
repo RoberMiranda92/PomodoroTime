@@ -72,7 +72,7 @@ class TaskListFragment :
                 hideLoading()
                 hideList()
                 hideAddButton()
-                this.taskListAdapter.submitList(emptyList())
+                this.taskListAdapter.submitList(mutableListOf())
                 showEmptyState()
             }
 
@@ -82,7 +82,7 @@ class TaskListFragment :
                 showAddButton()
                 hideEmptyState()
                 finishActionMode()
-                this.taskListAdapter.submitList(state.taskList)
+                this.taskListAdapter.submitList(state.taskList.toMutableList())
                 showAddButton()
             }
 

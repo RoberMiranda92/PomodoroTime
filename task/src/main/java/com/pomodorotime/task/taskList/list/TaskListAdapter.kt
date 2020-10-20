@@ -12,7 +12,6 @@ class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :
         DIFF_CALLBACK
     ) {
 
-
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
         holder.onSelected(isItemSelected(position))
@@ -38,10 +37,10 @@ class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :
             DiffUtil.ItemCallback<TaskListItem>() {
 
             override fun areItemsTheSame(oldTask: TaskListItem, newTask: TaskListItem) =
-                oldTask.name == oldTask.name && oldTask.creationDate == oldTask.creationDate
+                oldTask.id == newTask.id
 
             override fun areContentsTheSame(oldTask: TaskListItem, newTask: TaskListItem) =
-                oldTask == oldTask
+                oldTask == newTask
         }
 
     }

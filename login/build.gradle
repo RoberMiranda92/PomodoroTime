@@ -88,7 +88,6 @@ dependencies {
 
     //Instrumented Test
     androidTestImplementation test.andoridXTestCore
-    androidTestImplementation test.androidXTestCoreKTX
     androidTestImplementation test.andoridXArchTest
     androidTestImplementation test.androidXTestRunner
     androidTestImplementation test.androidXTestRules

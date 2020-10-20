@@ -1,9 +1,11 @@
 package com.pomodorotime.sync.di
 
-import com.pomodorotime.domain.models.Task
-import com.pomodorotime.sync.SyncTypes
+import com.pomodorotime.data.sync.SyncTypes
+import com.pomodorotime.data.task.api.models.ApiTask
 
 interface Synchronizer {
 
-    fun performSync(task: Task, type: SyncTypes)
+    fun performSync(task: ApiTask, type: SyncTypes)
+
+    fun performSync(taskId: Long, type: SyncTypes)
 }

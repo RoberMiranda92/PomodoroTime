@@ -1,4 +1,4 @@
-package com.pomodorotime.sync
+package com.pomodorotime.data.sync
 
 enum class SyncTypes {
     INSERT,

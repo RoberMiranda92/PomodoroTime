@@ -3,13 +3,13 @@ package com.pomodorotime.data.login.repository
 import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.login.datasource.LoginRemoteDataSource
 import com.pomodorotime.data.login.toDomainModel
-import com.pomodorotime.data.user.UserLocalDataSource
+import com.pomodorotime.data.user.UserLocalDataSourceImp
 import com.pomodorotime.domain.login.ILoginRepository
 import com.pomodorotime.domain.models.User
 
 class LoginRepository(
     private val remoteDataSource: LoginRemoteDataSource,
-    private val userLocalDataSource: UserLocalDataSource
+    private val userLocalDataSource: UserLocalDataSourceImp
 ) : ILoginRepository {
 
     override suspend fun signIn(email: String, password: String): User {
@@ -32,7 +32,7 @@ class LoginRepository(
         fun getNewInstance(): LoginRepository {
             return LoginRepository(
                 LoginRemoteDataSource.getNewInstance(),
-                UserLocalDataSource
+                UserLocalDataSourceImp
             )
         }
     }

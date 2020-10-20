@@ -20,7 +20,6 @@ class TaskViewHolder(private val binding: RowTaskViewBinding) :
     }
 
     fun onSelected(selected: Boolean) {
-
         with(binding.container) {
             background = ContextCompat.getDrawable(
                 context,

@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.pomodorotime.domain.task.ITaskRepository
+import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
+import com.pomodorotime.data.user.IUserLocalDataSource
+import com.pomodorotime.sync.workmanager.workers.DeleteTaskWorker
 import com.pomodorotime.sync.workmanager.workers.InsertTaskWorker
 
 class TaskWorkerFactory(
-    private val repository: com.pomodorotime.domain.task.ITaskRepository
+    private val userDataSource: IUserLocalDataSource,
+    private val dataSource: ITaskRemoteDataSource
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -19,7 +22,11 @@ class TaskWorkerFactory(
         return when (workerClassName) {
             InsertTaskWorker::class.java.name -> InsertTaskWorker(
                 appContext,
-                workerParameters, repository
+                workerParameters, userDataSource, dataSource
+            )
+            DeleteTaskWorker::class.java.name -> DeleteTaskWorker(
+                appContext,
+                workerParameters, userDataSource, dataSource
             )
             else ->
                 null

@@ -24,7 +24,7 @@ class TaskViewModel(
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<TaskListEvent, TaskListScreenState>(idlingResourceWrapper) {
 
-    private val _taskList: MutableLiveData<List<TaskListItem>> = MutableLiveData(emptyList())
+    private var _taskList: List<TaskListItem> = emptyList()
 
     private val _taskListError: MutableLiveData<Event<SnackBarrError>> = MutableLiveData()
     val taskListError: LiveData<Event<SnackBarrError>>
@@ -38,7 +38,7 @@ class TaskViewModel(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun setList(task: List<TaskListItem>) {
-        _taskList.value = task
+        _taskList = task
     }
 
     override fun postEvent(event: TaskListEvent) {
@@ -51,7 +51,7 @@ class TaskViewModel(
             }
             is TaskListEvent.DeleteTaskElementsPressed -> deleteElements(event.list)
             is TaskListEvent.EditTaskListFinished -> {
-                _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList.value!!))
+                _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList))
             }
         }
     }
@@ -98,12 +98,11 @@ class TaskViewModel(
 
             val result =
                 deleteTaskUseCase.invoke(DeleteTaskUseCase.DeleteTaskUseCaseParams(tasks.map { it.id }))
-            val list = _taskList.value!!
-
             when (result) {
                 is ResultWrapper.Success<Unit> -> {
-                    list.filterNot { tasks.contains(it) }.also {
-                        _taskList.value = it
+                    //Not necessary due to flow :D, list is update automatically
+                    _taskList.filterNot { tasks.contains(it) }.also {
+                        _taskList = it
                         _screenState.value = if (it.isEmpty()) {
                             Event(TaskListScreenState.EmptyState)
                         } else {
@@ -115,13 +114,12 @@ class TaskViewModel(
                     when (val error = result.error) {
                         is ErrorEntity.NetworkError -> {
                             onNetworkError()
-                            _screenState.value = Event(TaskListScreenState.DataLoaded(list))
                         }
                         is ErrorEntity.GenericError -> {
                             _taskListError.value = Event(SnackBarrError(true, error.message))
                         }
                     }
-                    _screenState.value = Event(TaskListScreenState.DataLoaded(_taskList.value!!))
+                    _screenState.value = Event(TaskListScreenState.DataLoaded(tasks))
                 }
             }
         }

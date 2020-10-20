@@ -5,14 +5,16 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pomodorotime.domain.models.Task
-import com.pomodorotime.domain.task.ITaskRepository
+import com.pomodorotime.data.task.api.models.ApiTask
+import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
+import com.pomodorotime.data.user.IUserLocalDataSource
 import java.util.Date
 
 class InsertTaskWorker(
     context: Context,
     params: WorkerParameters,
-    private val repository: ITaskRepository
+    private val userDataSource: IUserLocalDataSource,
+    private val taskDataSource: ITaskRemoteDataSource
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -20,7 +22,7 @@ class InsertTaskWorker(
         val task = dataToTaskModel(inputData)
 
         return try {
-            repository.insetTaskRemote(task)
+            taskDataSource.insetTask(userDataSource.getUserId(), task)
             Result.success()
         } catch (ex: Exception) {
             Log.e("InsertTaskWorker", ex.message ?: "")
@@ -29,11 +31,11 @@ class InsertTaskWorker(
 
     }
 
-    private fun dataToTaskModel(inputData: Data): Task =
-        Task(
+    private fun dataToTaskModel(inputData: Data): ApiTask =
+        ApiTask(
             inputData.getLong(TASK_ID_ARGS, -1L),
             inputData.getString(TASK_NAME_ARGS) ?: "",
-            Date(),
+            Date(inputData.getLong(TASK_CREATION_DATE_ARGS, -1L)),
             inputData.getInt(TASK_DONE_POMODOROS_ARGS, -1),
             inputData.getInt(TASK_ESTIMATED_POMODOROS_ARGS, -1),
             inputData.getInt(TASK_SHORT_BREAKS_ARGS, -1),
@@ -42,8 +44,8 @@ class InsertTaskWorker(
         )
 
     companion object {
-        const val TASK_ID_ARGS = "task.id..args"
-        const val TASK_NAME_ARGS = "task.name..args"
+        const val TASK_ID_ARGS = "task.id.args"
+        const val TASK_NAME_ARGS = "task.name.args"
         const val TASK_CREATION_DATE_ARGS = "task.creation.args"
         const val TASK_DONE_POMODOROS_ARGS = "task.done_pomodoros.args"
         const val TASK_ESTIMATED_POMODOROS_ARGS = "task.estimated_pomodoros.args"
