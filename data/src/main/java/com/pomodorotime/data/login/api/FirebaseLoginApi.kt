@@ -4,9 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.pomodorotime.data.login.api.models.ApiUser
 import kotlinx.coroutines.tasks.await
 
-class FirebaseLoginApi : ILoginApi {
-
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+class FirebaseLoginApi(private val firebaseAuth: FirebaseAuth) : ILoginApi {
 
     override suspend fun signIn(email: String, password: String): ApiUser {
 

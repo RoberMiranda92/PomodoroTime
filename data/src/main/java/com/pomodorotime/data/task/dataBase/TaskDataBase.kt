@@ -2,7 +2,7 @@ package com.pomodorotime.data.task.dataBase
 
 import android.content.Context
 import androidx.room.*
-import java.util.*
+import java.util.Date
 
 @Database(entities = [TaskEntity::class], version = 2)
 @TypeConverters(Converters::class)

@@ -33,7 +33,5 @@ class TaskRepository constructor(
     override suspend fun deleteTasks(idList: List<Long>) {
         localDataSource.deleteTasks(idList)
         idList.forEach { synchronizer.performSyncDeletion(it) }
-
     }
-
 }

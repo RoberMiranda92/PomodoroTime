@@ -7,12 +7,10 @@ import com.pomodorotime.data.TASK_MAIN_URL
 import com.pomodorotime.data.task.api.models.ApiTask
 import kotlinx.coroutines.tasks.await
 
-class FirebaseTaskApi : ITaskApi {
-
-    private var database: DatabaseReference = Firebase.database.reference
+class FirebaseTaskApi(private val database: DatabaseReference) : ITaskApi {
 
     override suspend fun getAllTask() {
-        TODO("Not yet implemented")
+
     }
 
     override suspend fun insetTask(userId: String, task: ApiTask) {
@@ -24,13 +22,16 @@ class FirebaseTaskApi : ITaskApi {
     }
 
     override suspend fun updateTask(userId: String, task: ApiTask) {
-//        database.child(TASK_MAIN_URL)
-//            .child(userId)
-//            .child(task.id.toString())
-//            .updateChildren(task).await()
+        database.child(TASK_MAIN_URL)
+            .child(userId)
+            .child(task.id.toString())
+            .setValue(task).await()
     }
 
     override suspend fun deleteTask(userId: String, id: Long) {
-        database.child(TASK_MAIN_URL).child(userId).child(id.toString()).removeValue()
+        database.child(TASK_MAIN_URL)
+            .child(userId)
+            .child(id.toString())
+            .removeValue().await()
     }
 }

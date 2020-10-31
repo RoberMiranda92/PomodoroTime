@@ -1,8 +1,6 @@
 package com.pomodorotime.data.task.datasource.local
 
-import android.content.Context
 import com.pomodorotime.data.task.dataBase.IDataBase
-import com.pomodorotime.data.task.dataBase.TaskDataBase
 import com.pomodorotime.data.task.dataBase.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -22,10 +20,4 @@ class TaskLocalDataSourceImpl(private val taskDataBase: IDataBase):ITaskLocalDat
 
     override suspend fun deleteTasks(idList: List<Long>) = taskDataBase.deleteTaskList(idList)
 
-    companion object {
-
-        fun getNewInstance(context: Context): TaskLocalDataSourceImpl {
-            return TaskLocalDataSourceImpl(TaskDataBase.getInstance(context).taskDao())
-        }
-    }
 }

@@ -10,7 +10,7 @@ ext.versions = [
         buildTools                         : '30.0.1',
 
         // Gradle Versions
-        androidGradlePlugin                : '4.1.0',
+        androidGradlePlugin                : '4.0.0',
 
         //kotlin
         kotlinVersion                      : '1.4.10',

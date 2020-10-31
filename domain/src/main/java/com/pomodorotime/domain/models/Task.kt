@@ -1,6 +1,6 @@
 package com.pomodorotime.domain.models
 
-import java.util.*
+import java.util.Date
 
 data class Task(
     var id: Long? = null,

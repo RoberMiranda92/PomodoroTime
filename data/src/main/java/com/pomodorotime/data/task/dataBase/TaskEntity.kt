@@ -3,13 +3,13 @@ package com.pomodorotime.data.task.dataBase
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import java.util.Date
 
 @Entity(tableName = "tasks")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Long? = null,
+    var id: Long? = null,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "creationDate")

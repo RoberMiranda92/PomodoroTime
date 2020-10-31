@@ -19,7 +19,7 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.util.*
+import java.util.Date
 
 class GetAllTaskUseCaseTest {
 

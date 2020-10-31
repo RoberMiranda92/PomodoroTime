@@ -1,7 +1,7 @@
 package com.pomodorotime.task.tasklist.list
 
 import com.pomodorotime.core.ListItem
-import java.util.*
+import java.util.Date
 
 data class TaskListItem(
     val id: Long,

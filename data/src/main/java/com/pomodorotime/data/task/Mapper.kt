@@ -6,7 +6,7 @@ import com.pomodorotime.domain.models.Task
 
 fun Task.toApiTaskModel() =
     ApiTask(
-        id,
+        id ?: -1,
         name,
         creationDate,
         donePomodoros,

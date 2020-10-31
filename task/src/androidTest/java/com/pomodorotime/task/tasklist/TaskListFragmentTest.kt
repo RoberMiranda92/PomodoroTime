@@ -38,7 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
-import java.util.*
+import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.hamcrest.Matchers.allOf
@@ -310,20 +310,12 @@ class TaskListFragmentTest : KoinTest {
                 )
             ).check(matches(isDisplayed()))
             onView(
-                allOf(
-                    withResourceName("action_mode_close_button"),
-                    withContentDescription("Done"),
-                    withParent(withResourceName("action_mode_bar"))
-                )
+                withResourceName("action_mode_close_button")
             ).check(matches(isDisplayed()))
         }
 
         onView(
-            allOf(
-                withResourceName("action_mode_close_button"),
-                withContentDescription("Done"),
-                withParent(withResourceName("action_mode_bar"))
-            )
+            withResourceName("action_mode_close_button")
         ).perform(click())
 
         onView(
@@ -377,11 +369,7 @@ class TaskListFragmentTest : KoinTest {
                 )
             ).check(matches(isDisplayed()))
             onView(
-                allOf(
-                    withResourceName("action_mode_close_button"),
-                    withContentDescription("Done"),
-                    withParent(withResourceName("action_mode_bar"))
-                )
+                withResourceName("action_mode_close_button")
             ).check(matches(isDisplayed()))
         }
 
@@ -405,11 +393,7 @@ class TaskListFragmentTest : KoinTest {
                     )
                 ).check(matches(isDisplayed()))
                 onView(
-                    allOf(
-                        withResourceName("action_mode_close_button"),
-                        withContentDescription("Done"),
-                        withParent(withResourceName("action_mode_bar"))
-                    )
+                    withResourceName("action_mode_close_button")
                 ).check(matches(isDisplayed()))
             } else {
                 onView(
@@ -466,11 +450,7 @@ class TaskListFragmentTest : KoinTest {
                 )
             ).check(matches(isDisplayed()))
             onView(
-                allOf(
-                    withResourceName("action_mode_close_button"),
-                    withContentDescription("Done"),
-                    withParent(withResourceName("action_mode_bar"))
-                )
+                withResourceName("action_mode_close_button")
             ).check(matches(isDisplayed()))
         }
 

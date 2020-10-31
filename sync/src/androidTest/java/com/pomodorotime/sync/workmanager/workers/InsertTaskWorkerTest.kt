@@ -23,7 +23,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
+import java.util.Date
 
 //More info in https://dev.to/ayevbeosa/writing-tests-workmanager-edition-3aa
 @RunWith(AndroidJUnit4::class)

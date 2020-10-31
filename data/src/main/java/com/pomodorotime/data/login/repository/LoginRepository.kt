@@ -1,15 +1,15 @@
 package com.pomodorotime.data.login.repository
 
 import com.pomodorotime.data.login.api.models.ApiUser
-import com.pomodorotime.data.login.datasource.LoginRemoteDataSource
+import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
 import com.pomodorotime.data.login.toDomainModel
-import com.pomodorotime.data.user.UserLocalDataSourceImp
+import com.pomodorotime.data.user.IUserLocalDataSource
 import com.pomodorotime.domain.login.ILoginRepository
 import com.pomodorotime.domain.models.User
 
 class LoginRepository(
-    private val remoteDataSource: LoginRemoteDataSource,
-    private val userLocalDataSource: UserLocalDataSourceImp
+    private val remoteDataSource: ILoginRemoteDataSource,
+    private val userLocalDataSource: IUserLocalDataSource
 ) : ILoginRepository {
 
     override suspend fun signIn(email: String, password: String): User {
@@ -25,15 +25,6 @@ class LoginRepository(
     }
 
     private fun saveUser(value: ApiUser) {
-        userLocalDataSource.user = value
-    }
-
-    companion object {
-        fun getNewInstance(): LoginRepository {
-            return LoginRepository(
-                LoginRemoteDataSource.getNewInstance(),
-                UserLocalDataSourceImp
-            )
-        }
+        userLocalDataSource.setUser(value)
     }
 }

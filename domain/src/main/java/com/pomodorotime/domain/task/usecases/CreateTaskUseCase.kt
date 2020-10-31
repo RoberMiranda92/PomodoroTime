@@ -4,7 +4,7 @@ import com.pomodorotime.domain.IErrorHandler
 import com.pomodorotime.domain.SuspendableUseCase
 import com.pomodorotime.domain.models.Task
 import com.pomodorotime.domain.task.ITaskRepository
-import java.util.*
+import java.util.Date
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 

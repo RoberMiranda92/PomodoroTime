@@ -12,6 +12,7 @@ android {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     buildTypes {
@@ -21,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles
+            testCoverageEnabled true
             // getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -34,7 +36,6 @@ android {
     }
 
     testOptions {
-
         animationsDisabled true
         unitTests {
             includeAndroidResources = true
@@ -50,6 +51,8 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
         exclude("META-INF/*.kotlin_module")
     }
 }
@@ -94,11 +97,11 @@ dependencies {
     implementation libraries.androidXSwipeToRefresh
 
     //Unit Test
-    testImplementation test.coroutines_text
     testImplementation test.andoridXArchTest
     testImplementation test.jUnit
     testImplementation test.roboelectric
     testImplementation test.mockk
+    testImplementation test.coroutines_text
 
     //Instrumented Test
     androidTestImplementation test.andoridXTestCore
@@ -111,17 +114,12 @@ dependencies {
     androidTestImplementation test.androidXEspressoContrib
     androidTestImplementation test.mockkAndroid
 
+    androidTestImplementation test.coroutines_text
+
     //Koin
     implementation libraries.koinCore
     implementation libraries.koinScope
     implementation libraries.koinViewModel
     implementation libraries.koinExt
     androidTestImplementation libraries.testKoinCore
-
-    // Navigation
-    implementation libraries.androidXNavigationFragment
-    implementation libraries.androidXNavigationUi
-
-    //Other
-    implementation libraries.materialComponents
 }

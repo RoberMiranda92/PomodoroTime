@@ -8,16 +8,6 @@ import retrofit2.HttpException
 
 open class ErrorHandlerImpl : IErrorHandler {
 
-//    private fun convertErrorBody(throwable: HttpException): ErrorResponse {
-//        return try {
-//            val string = throwable.response()?.errorBody()?.string()
-//            return Gson().fromJson(string, ErrorResponse::class.java)
-//
-//        } catch (exception: Exception) {
-//            ErrorResponse(message = throwable.message ?: "")
-//        }
-//    }
-
     override fun getError(throwable: Throwable): ErrorEntity {
         return when (throwable) {
             is IOException -> ErrorEntity.NetworkError

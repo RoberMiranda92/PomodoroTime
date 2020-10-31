@@ -44,15 +44,29 @@ configure(coveredProject) { prj ->
             ]
 
             final kotlinTree = fileTree(dir: "${prj.buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
-            final javacTree = fileTree(dir: "${prj.buildDir}/intermediates/javac/debug", excludes: fileFilter)
+            final javacTree = fileTree(dir: "${prj.buildDir}/intermediates/javac/debug/classes", excludes: fileFilter)
             final mainSrc = "${prj.projectDir}/src/main/java"
 
             sourceDirectories.setFrom files([mainSrc])
             classDirectories.setFrom files([kotlinTree, javacTree])
-            executionData.setFrom fileTree(dir: prj.buildDir, includes: [
-                    'jacoco/testDebugUnitTest.exec',
+            executionData.setFrom fileTree(dir: "${prj.buildDir}", includes: [
+                    'jacoco/*.exec',
                     'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
             ])
+
+            doFirst {
+                new File("${prj.buildDir}/intermediates/javac/debug/classes/").eachFileRecurse { file ->
+                    if (file.name.contains('$$')) {
+                        file.renameTo(file.path.replace('$$', '$'))
+                    }
+                }
+
+                new File("${prj.buildDir}/intermediates/javac/debug/classes").eachFileRecurse { file ->
+                    if (file.name.contains('$$')) {
+                        file.renameTo(file.path.replace('$$', '$'))
+                    }
+                }
+            }
 
             doLast() {
                 print "file://${reports.html.destination}/index.html"
@@ -76,7 +90,7 @@ configure(coveredProject) { prj ->
             sourceDirectories.setFrom files([mainSrc])
             classDirectories.setFrom files([kotlinTree])
             executionData.setFrom fileTree(dir: prj.buildDir, includes: [
-                    'jacoco/test.exec'
+                    'jacoco/*.exec'
             ])
 
             doLast() {

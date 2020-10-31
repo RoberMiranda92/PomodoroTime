@@ -1,6 +1,13 @@
 package com.pomodorotime.data.di
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.pomodorotime.data.ErrorHandlerImpl
+import com.pomodorotime.data.login.api.FirebaseLoginApi
+import com.pomodorotime.data.login.api.ILoginApi
+import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
+import com.pomodorotime.data.login.datasource.LoginRemoteDataSourceImpl
 import com.pomodorotime.data.login.repository.LoginRepository
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.data.task.api.FirebaseTaskApi
@@ -20,7 +27,7 @@ import org.koin.dsl.module
 
 val dataModule = module {
 
-    single<ILoginRepository> { LoginRepository.getNewInstance() }
+    single<ILoginRepository> { LoginRepository(get(), get()) }
 
     single<ITaskRepository> { TaskRepository(get(), get()) }
 
@@ -32,7 +39,11 @@ val dataModule = module {
 
     single<IUserLocalDataSource> { UserLocalDataSourceImp }
 
+    single<ILoginRemoteDataSource> { LoginRemoteDataSourceImpl(get()) }
+
     single<IDataBase> { TaskDataBase.getInstance(get()).taskDao() }
 
-    single<ITaskApi> { FirebaseTaskApi() }
+    single<ITaskApi> { FirebaseTaskApi(Firebase.database.reference) }
+
+    single<ILoginApi> { FirebaseLoginApi(FirebaseAuth.getInstance()) }
 }
