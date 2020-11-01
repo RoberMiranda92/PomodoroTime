@@ -86,6 +86,48 @@ class FirebaseLoginApiTest {
     }
 
     @Test
+    fun `on sign in with email and password is success but data is null`() = coroutinesRule.runBlockingTest {
+        //Given
+        val email = "email@email.com"
+        val password = "1234567"
+        val empty = ""
+
+        //When
+        coEvery {
+            firebaseAuth.signInWithEmailAndPassword(any(), any())
+        } returns taskAuthResult
+
+        coEvery {
+            firebaseAuth.getAccessToken(any())
+        } returns taskTokenResult
+
+        coEvery { taskAuthResult.isComplete } returns true
+        coEvery { taskAuthResult.exception } returns null
+        coEvery { taskAuthResult.isCanceled } returns false
+        coEvery { taskAuthResult.result } returns authResult
+
+        coEvery { taskTokenResult.isComplete } returns true
+        coEvery { taskTokenResult.exception } returns null
+        coEvery { taskTokenResult.isCanceled } returns false
+        coEvery { taskTokenResult.result } returns tokenResult
+
+        coEvery { authResult.user?.email } returns null
+        coEvery { authResult.user?.uid } returns null
+        coEvery { tokenResult.token } returns null
+
+        val result = api.signIn(email, password)
+
+        //Verify
+        assert(result.email == empty)
+        assert(result.token == empty)
+        assert(result.id == empty)
+        coVerify { firebaseAuth.signInWithEmailAndPassword(email, password) }
+        coVerify { firebaseAuth.getAccessToken(true) }
+
+        confirmVerified(firebaseAuth)
+    }
+
+    @Test
     fun `on sign up with email and password is success`() = coroutinesRule.runBlockingTest {
         //Given
         val email = "email@email.com"
@@ -122,6 +164,48 @@ class FirebaseLoginApiTest {
         assert(result.email == email)
         assert(result.token == token)
         assert(result.id == uid)
+        coVerify { firebaseAuth.createUserWithEmailAndPassword(email, password) }
+        coVerify { firebaseAuth.getAccessToken(true) }
+
+        confirmVerified(firebaseAuth)
+    }
+
+    @Test
+    fun `on sign up with email and password is success but data is null`() = coroutinesRule.runBlockingTest {
+        //Given
+        val email = "email@email.com"
+        val password = "1234567"
+        val empty = ""
+
+        //When
+        coEvery {
+            firebaseAuth.createUserWithEmailAndPassword(any(), any())
+        } returns taskAuthResult
+
+        coEvery {
+            firebaseAuth.getAccessToken(any())
+        } returns taskTokenResult
+
+        coEvery { taskAuthResult.isComplete } returns true
+        coEvery { taskAuthResult.exception } returns null
+        coEvery { taskAuthResult.isCanceled } returns false
+        coEvery { taskAuthResult.result } returns authResult
+
+        coEvery { taskTokenResult.isComplete } returns true
+        coEvery { taskTokenResult.exception } returns null
+        coEvery { taskTokenResult.isCanceled } returns false
+        coEvery { taskTokenResult.result } returns tokenResult
+
+        coEvery { authResult.user?.email } returns null
+        coEvery { authResult.user?.uid } returns null
+        coEvery { tokenResult.token } returns null
+
+        val result = api.signUp(email, password)
+
+        //Verify
+        assert(result.email == empty)
+        assert(result.token == empty)
+        assert(result.id == empty)
         coVerify { firebaseAuth.createUserWithEmailAndPassword(email, password) }
         coVerify { firebaseAuth.getAccessToken(true) }
 

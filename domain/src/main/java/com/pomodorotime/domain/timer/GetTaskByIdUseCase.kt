@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 
 class GetTaskByIdUseCase(
     private val repository: ITaskRepository,
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    coroutineDispatcher: CoroutineDispatcher,
     errorHandler: IErrorHandler
 ) : SuspendableUseCase<GetTaskByIdUseCase.GetTaskByIdParams, Task>(
     coroutineDispatcher,

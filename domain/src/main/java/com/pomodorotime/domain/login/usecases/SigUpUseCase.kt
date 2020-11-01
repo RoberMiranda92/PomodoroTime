@@ -5,12 +5,11 @@ import com.pomodorotime.domain.SuspendableUseCase
 import com.pomodorotime.domain.login.ILoginRepository
 import com.pomodorotime.domain.models.User
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 
 class SigUpUseCase(
     private val repository: ILoginRepository,
-    errorHandler: IErrorHandler,
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+    coroutineDispatcher: CoroutineDispatcher,
+    errorHandler: IErrorHandler
 ) : SuspendableUseCase<SigUpUseCase.SignUpParams, User>(coroutineDispatcher, errorHandler) {
 
     data class SignUpParams(val email: String, val password: String)

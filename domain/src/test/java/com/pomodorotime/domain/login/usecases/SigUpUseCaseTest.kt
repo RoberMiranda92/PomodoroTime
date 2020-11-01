@@ -35,8 +35,8 @@ class SigUpUseCaseTest {
 
         useCase = SigUpUseCase(
             repository,
-            errorHandler,
-            coroutinesRule.testCoroutineDispatcher
+            coroutinesRule.testCoroutineDispatcher,
+            errorHandler
         )
     }
 

@@ -11,7 +11,6 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +36,7 @@ class FirebaseTaskApiTest {
     }
 
     @Test
-    fun `insert task is Ok`() = runBlockingTest {
+    fun `insert task is Ok`() = coroutinesRule.runBlockingTest {
         //Given
         val userId = "userID"
         val task = Task1
@@ -56,12 +55,13 @@ class FirebaseTaskApiTest {
         verify { firebaseDatabase.child(userId) }
         verify { firebaseDatabase.child(task.id.toString()) }
         verify { firebaseDatabase.setValue(task) }
+        verify { firebaseDatabase.setValue(task) }
 
         confirmVerified(firebaseDatabase)
     }
 
     @Test
-    fun `update task is Ok`() = runBlockingTest {
+    fun `update task is Ok`() = coroutinesRule.runBlockingTest {
         //Given
         val userId = "userID"
         val task = Task1
@@ -85,7 +85,7 @@ class FirebaseTaskApiTest {
     }
 
     @Test
-    fun `delete task is Ok`() = runBlockingTest {
+    fun `delete task is Ok`() = coroutinesRule.runBlockingTest {
         //Given
         val userId = "userID"
         val taskId = Task1.id
@@ -107,7 +107,6 @@ class FirebaseTaskApiTest {
 
         confirmVerified(firebaseDatabase)
     }
-
 
     companion object {
         private val Task1 = ApiTask(

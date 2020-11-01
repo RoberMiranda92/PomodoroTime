@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 
 class DeleteTaskUseCase(
     private val repository: ITaskRepository,
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    coroutineDispatcher: CoroutineDispatcher,
     errorHandler: IErrorHandler
 ) : SuspendableUseCase<DeleteTaskUseCase.DeleteTaskUseCaseParams, Unit>(coroutineDispatcher, errorHandler) {
 

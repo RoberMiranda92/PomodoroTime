@@ -6,16 +6,20 @@ import com.pomodorotime.domain.task.usecases.CreateTaskUseCase
 import com.pomodorotime.domain.task.usecases.DeleteTaskUseCase
 import com.pomodorotime.domain.task.usecases.GetAllTaskUseCase
 import com.pomodorotime.domain.timer.GetTaskByIdUseCase
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
 
 val domainModule = module {
 
-    factory { SigUpUseCase(get(), errorHandler = get()) }
-    factory { SigInUseCase(get(), errorHandler = get()) }
+    factory { SigUpUseCase(get(), get(), get()) }
+    factory { SigInUseCase(get(), get(), get()) }
 
-    factory { GetAllTaskUseCase(get(), errorHandler = get()) }
-    factory { CreateTaskUseCase(get(), errorHandler = get()) }
-    factory { DeleteTaskUseCase(get(), errorHandler = get()) }
+    factory { GetAllTaskUseCase(get(), get(), get()) }
+    factory { CreateTaskUseCase(get(), get(), get()) }
+    factory { DeleteTaskUseCase(get(), get(), get()) }
 
-    factory { GetTaskByIdUseCase(get(), errorHandler = get()) }
+    factory { GetTaskByIdUseCase(get(), get(), get()) }
+
+    single<CoroutineDispatcher> { Dispatchers.IO }
 }

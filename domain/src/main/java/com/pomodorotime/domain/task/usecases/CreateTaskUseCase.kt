@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 
 class CreateTaskUseCase(
     private val repository: ITaskRepository,
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    coroutineDispatcher: CoroutineDispatcher,
     errorHandler: IErrorHandler
 ) : SuspendableUseCase<CreateTaskUseCase.CreateTaskParams, Long>(coroutineDispatcher, errorHandler) {
 
