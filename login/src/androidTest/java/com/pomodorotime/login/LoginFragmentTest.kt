@@ -3,13 +3,9 @@ package com.pomodorotime.login
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
@@ -122,7 +118,7 @@ class LoginFragmentTest : KoinTest {
     }
 
     @Test
-    fun loginFragmentSignInSuccess() {
+    fun loginFragmentSignInSuccessWithSave() {
         val user = "user@user.es"
         val password = "password"
 
@@ -134,14 +130,23 @@ class LoginFragmentTest : KoinTest {
 
         onView(withId(R.id.btn_login)).perform(click())
 
-        onView(withId(R.id.login_loader)).check(matches((isDisplayed())))
+        onView(withId(com.google.android.material.R.id.alertTitle))
+            .check(matches(withText(R.string.login_dialog_title)))
+        onView(withId(android.R.id.message))
+            .check(matches(withText(R.string.login_dialog_message)))
+        onView(withId(android.R.id.button1))
+            .check(matches(withText(R.string.login_dialog_possitive)))
+        onView(withId(android.R.id.button2))
+            .check(matches(withText(R.string.login_dialog_negative)))
 
-        onView(withId(R.id.login_container)).check(matches(not(isDisplayed())))
+        onView(withId(android.R.id.button1))
+            .perform(click())
+
         verify { navigator.navigateOnLoginSuccess() }
     }
 
     @Test
-    fun loginFragmentSignUpSuccess() {
+    fun loginFragmentSignUpSuccessWithSave() {
         val user = "user@user.es"
         val password = "password"
 
@@ -155,8 +160,76 @@ class LoginFragmentTest : KoinTest {
         onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
         onView(withId(R.id.btn_login)).perform(click())
 
-        onView(withId(R.id.login_loader)).check(matches(isDisplayed()))
-        onView(withId(R.id.login_container)).check(matches(not(isDisplayed())))
+        onView(withId(com.google.android.material.R.id.alertTitle))
+            .check(matches(withText(R.string.login_dialog_title)))
+        onView(withId(android.R.id.message))
+            .check(matches(withText(R.string.login_dialog_message)))
+        onView(withId(android.R.id.button1))
+            .check(matches(withText(R.string.login_dialog_possitive)))
+        onView(withId(android.R.id.button2))
+            .check(matches(withText(R.string.login_dialog_negative)))
+
+        onView(withId(android.R.id.button1))
+            .perform(click())
+
+        verify { navigator.navigateOnLoginSuccess() }
+    }
+
+    @Test
+    fun loginFragmentSignInSuccessWithOutSave() {
+        val user = "user@user.es"
+        val password = "password"
+
+        coEvery { signInUseCase.invoke(any()) } returns
+                ResultWrapper.Success(User(user, "id", "token"))
+
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
+
+        onView(withId(R.id.btn_login)).perform(click())
+
+        onView(withId(com.google.android.material.R.id.alertTitle))
+            .check(matches(withText(R.string.login_dialog_title)))
+        onView(withId(android.R.id.message))
+            .check(matches(withText(R.string.login_dialog_message)))
+        onView(withId(android.R.id.button1))
+            .check(matches(withText(R.string.login_dialog_possitive)))
+        onView(withId(android.R.id.button2))
+            .check(matches(withText(R.string.login_dialog_negative)))
+
+        onView(withId(android.R.id.button2))
+            .perform(click())
+
+        verify { navigator.navigateOnLoginSuccess() }
+    }
+
+    @Test
+    fun loginFragmentSignUpSuccessWithOutSave() {
+        val user = "user@user.es"
+        val password = "password"
+
+        coEvery { signUpUseCase.invoke(any()) } returns
+                ResultWrapper.Success(User(user, "id", "token"))
+
+        onView(withId(R.id.tx_email)).perform(replaceText(user))
+        onView(withId(R.id.tx_password)).perform(replaceText(password))
+        onView(withId(R.id.btn_secondary)).perform(click())
+
+        onView(withId(R.id.tx_confirm_password)).perform(replaceText(password))
+        onView(withId(R.id.btn_login)).perform(click())
+
+        onView(withId(com.google.android.material.R.id.alertTitle))
+            .check(matches(withText(R.string.login_dialog_title)))
+        onView(withId(android.R.id.message))
+            .check(matches(withText(R.string.login_dialog_message)))
+        onView(withId(android.R.id.button1))
+            .check(matches(withText(R.string.login_dialog_possitive)))
+        onView(withId(android.R.id.button2))
+            .check(matches(withText(R.string.login_dialog_negative)))
+
+        onView(withId(android.R.id.button2))
+            .perform(click())
+
         verify { navigator.navigateOnLoginSuccess() }
     }
 

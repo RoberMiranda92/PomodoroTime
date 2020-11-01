@@ -7,4 +7,9 @@
     <string name="login_confirm_password_hint">Confirm Password</string>
     <string name="login_password_hint">Password</string>
     <string name="login_email_hint">Email</string>
+    <string name="login_dialog_title">Remember user</string>
+    <string name="login_dialog_message">¿Do you want yo remember your user and password?</string>
+    <string name="login_dialog_possitive">Yes</string>
+    <string name="login_dialog_negative">No</string>
+
 </resources>

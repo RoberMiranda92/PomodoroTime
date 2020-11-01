@@ -36,6 +36,10 @@ class LoginViewModel constructor(
     val passwordError: LiveData<Event<String>>
         get() = _passwordError
 
+    private val _saveTokenDialog: MutableLiveData<Event<Boolean>> = MutableLiveData()
+    val saveTokenDialog: LiveData<Event<Boolean>>
+        get() = _saveTokenDialog
+
     private val _navigationToDashboard: MutableLiveData<Event<Boolean>> = MutableLiveData()
     val navigationToDashboard: LiveData<Event<Boolean>>
         get() = _navigationToDashboard
@@ -56,6 +60,15 @@ class LoginViewModel constructor(
             is LoginEvent.SecondaryButtonPress -> {
                 toggleMode()
             }
+
+            is LoginEvent.OnUserPositiveClickPress -> {
+                _navigationToDashboard.value = Event(true)
+            }
+
+            is LoginEvent.OnNegativePositiveClickPress -> {
+                _navigationToDashboard.value = Event(true)
+            }
+
         }
     }
 
@@ -101,7 +114,6 @@ class LoginViewModel constructor(
             when (result) {
                 is ResultWrapper.Success<User> -> onSignInSuccess(result.value)
                 is ResultWrapper.Error -> onError(result.error)
-//                is ResultWrapper.NetworkError -> onNetworkError()
             }
         }
     }
@@ -121,14 +133,15 @@ class LoginViewModel constructor(
     }
 
     private fun onSignInSuccess(user: User) {
-        _navigationToDashboard.value = Event(true)
+        _saveTokenDialog.value = Event(true)
+        setMode()
     }
 
     private fun onError(error: ErrorEntity) {
         when (error) {
             is ErrorEntity.GenericError -> _error.value = Event(SnackBarrError(true, error.message))
-            is ErrorEntity.UserEmailError -> _emailError.value= Event(error.message)
-            is ErrorEntity.UserPasswordError -> _passwordError.value= Event(error.message)
+            is ErrorEntity.UserEmailError -> _emailError.value = Event(error.message)
+            is ErrorEntity.UserPasswordError -> _passwordError.value = Event(error.message)
             is ErrorEntity.NetworkError -> onNetworkError()
         }
         setMode()
@@ -137,10 +150,9 @@ class LoginViewModel constructor(
     override fun onNetworkError() {
         super.onNetworkError()
         setMode()
-
     }
 
-    private fun setMode(){
+    private fun setMode() {
         _screenState.value = if (LoginMode.SIGN_IN == loginMode) {
             Event(LoginScreenState.SignIn)
         } else {

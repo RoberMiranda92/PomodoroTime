@@ -7,10 +7,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.snackbar.Snackbar
-import com.pomodorotime.core.BaseFragment
-import com.pomodorotime.core.observeEvent
-import com.pomodorotime.core.removeErrorOnTyping
-import com.pomodorotime.core.showSnackBarError
+import com.pomodorotime.core.*
 import com.pomodorotime.login.databinding.FragmentLoginBinding
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -88,6 +85,18 @@ class LoginFragment :
             }
         }
 
+        viewModel.saveTokenDialog.observeEvent(viewLifecycleOwner) {
+            if (it) {
+                showDialog(getString(R.string.login_dialog_title),
+                    getString(R.string.login_dialog_message),
+                    getString(R.string.login_dialog_possitive),
+                    getString(R.string.login_dialog_negative),
+                    { viewModel.postEvent(LoginEvent.OnUserPositiveClickPress) },
+                    { viewModel.postEvent(LoginEvent.OnNegativePositiveClickPress) }
+                )
+            }
+        }
+
         viewModel.navigationToDashboard.observeEvent(viewLifecycleOwner) {
             if (it) {
                 navigator.navigateOnLoginSuccess()
@@ -99,21 +108,34 @@ class LoginFragment :
         when (state) {
             is LoginScreenState.SignIn -> {
                 showData()
-                binding.tilConfirmPassword.isGone = true
-                binding.btnLogin.text = resources.getString(R.string.login_sign_in)
-                binding.btnSecondary.text =
-                    resources.getString(R.string.login_create_an_account)
+                configureSignIn()
             }
 
             is LoginScreenState.SignUp -> {
                 showData()
-                binding.tilConfirmPassword.isVisible = true
-                binding.btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
-                binding.btnLogin.text = resources.getString(R.string.login_sign_up)
+                configureSignUp()
             }
             is LoginScreenState.Loading -> {
                 showLoading()
+                hideKeyboard()
             }
+        }
+    }
+
+    private fun configureSignIn() {
+        with(binding) {
+            tilConfirmPassword.isGone = true
+            btnLogin.text = resources.getString(R.string.login_sign_in)
+            btnSecondary.text =
+                resources.getString(R.string.login_create_an_account)
+        }
+    }
+
+    private fun configureSignUp() {
+        with(binding) {
+            tilConfirmPassword.isVisible = true
+            btnSecondary.text = resources.getString(R.string.login_sign_in_instead)
+            btnLogin.text = resources.getString(R.string.login_sign_up)
         }
     }
 

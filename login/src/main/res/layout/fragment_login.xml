@@ -2,8 +2,8 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     style="@style/LoginBackground"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.pomodorotime.login.LoginFragment">
 
@@ -48,6 +48,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password_hint"
+                app:endIconCheckable="true"
+                app:endIconMode="password_toggle"
                 app:layout_constraintBottom_toTopOf="@+id/til_confirm_password"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +58,8 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tx_password"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -104,9 +107,9 @@
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/login_loader"
+            style="@style/LoaderTheme"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            style="@style/LoaderTheme"
             android:layout_gravity="center"
             tools:visibility="visible" />
 

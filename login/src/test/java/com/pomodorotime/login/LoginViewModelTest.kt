@@ -9,13 +9,9 @@ import com.pomodorotime.domain.login.usecases.SigUpUseCase
 import com.pomodorotime.domain.models.ErrorEntity
 import com.pomodorotime.domain.models.ResultWrapper
 import com.pomodorotime.domain.models.User
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.confirmVerified
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -55,6 +51,9 @@ class LoginViewModelTest {
     @RelaxedMockK
     lateinit var netWorkErrorObserver: Observer<Boolean>
 
+    @RelaxedMockK
+    lateinit var showTokenDialogObserver: Observer<Event<Boolean>>
+
     private lateinit var viewModel: LoginViewModel
 
     @Before
@@ -64,6 +63,7 @@ class LoginViewModelTest {
 
         viewModel.screenState.observeForever(screenStateObserver)
         viewModel.networkError.observeForever(netWorkErrorObserver)
+        viewModel.saveTokenDialog.observeForever(showTokenDialogObserver)
         viewModel.navigationToDashboard.observeForever(navigatorObserver)
         viewModel.emailError.observeForever(emailErrorObserver)
         viewModel.passwordError.observeForever(passwordErrorObserver)
@@ -78,6 +78,7 @@ class LoginViewModelTest {
         viewModel.emailError.removeObserver(emailErrorObserver)
         viewModel.passwordError.removeObserver(passwordErrorObserver)
         viewModel.error.removeObserver(errorObserver)
+        viewModel.saveTokenDialog.removeObserver(showTokenDialogObserver)
     }
 
     private fun verifyInitialState() {
@@ -117,7 +118,6 @@ class LoginViewModelTest {
         val loginScreenState = LoginScreenState.SignUp
 
         //When
-
         viewModel.postEvent(event)
 
         //Verify
@@ -176,6 +176,7 @@ class LoginViewModelTest {
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
+        viewModel.postEvent(LoginEvent.OnUserPositiveClickPress)
 
         //Verify
         coVerifyInitialState()
@@ -188,6 +189,40 @@ class LoginViewModelTest {
                 )
             )
         }
+        coVerify { showTokenDialogObserver.onChanged(Event(true)) }
+        coVerify { navigatorObserver.onChanged(Event(true)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignInNegativeButton() = runBlockingTest {
+        //Given
+        val user = User("user@email.com", "id", "token")
+        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "")
+        val event = LoginEvent.MainButtonPress
+
+        //When
+        coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Success(user)
+
+        viewModel.postEvent(typeEvent)
+        viewModel.postEvent(event)
+        viewModel.postEvent(LoginEvent.OnNegativePositiveClickPress)
+
+        //Verify
+        coVerifyInitialState()
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
+        coVerify {
+            signInUseCase.invoke(
+                SigInUseCase.SignInParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
+            )
+        }
+        coVerify { showTokenDialogObserver.onChanged(Event(true)) }
         coVerify { navigatorObserver.onChanged(Event(true)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
 
@@ -331,6 +366,7 @@ class LoginViewModelTest {
         viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
+        viewModel.postEvent(LoginEvent.OnUserPositiveClickPress)
 
         //Verify
         coVerifyInitialState()
@@ -344,6 +380,41 @@ class LoginViewModelTest {
                 )
             )
         }
+        coVerify { showTokenDialogObserver.onChanged(Event(true)) }
+        coVerify { navigatorObserver.onChanged(Event(true)) }
+
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignUpNegativeDialog() = coroutinesRule.runBlockingTest {
+        //Given
+        val user = User("user@email.com", "id", "token")
+        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
+        val event = LoginEvent.MainButtonPress
+
+        //When
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Success(user)
+
+        viewModel.postEvent(LoginEvent.SecondaryButtonPress)
+        viewModel.postEvent(typeEvent)
+        viewModel.postEvent(event)
+        viewModel.postEvent(LoginEvent.OnNegativePositiveClickPress)
+
+        //Verify
+        coVerifyInitialState()
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
+        coVerify {
+            signUpUseCase.invoke(
+                SigUpUseCase.SignUpParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
+            )
+        }
+        coVerify { showTokenDialogObserver.onChanged(Event(true)) }
         coVerify { navigatorObserver.onChanged(Event(true)) }
 
         confirmVerifyMocks()
