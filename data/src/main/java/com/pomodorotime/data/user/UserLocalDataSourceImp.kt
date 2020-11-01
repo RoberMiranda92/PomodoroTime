@@ -17,4 +17,8 @@ object UserLocalDataSourceImp : IUserLocalDataSource {
     override fun clear() {
         this.user = null
     }
+
+    override fun saveToken(token: String) {
+
+    }
 }

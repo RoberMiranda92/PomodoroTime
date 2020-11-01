@@ -5,12 +5,8 @@ import com.pomodorotime.data.login.api.models.ApiUser
 import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
 import com.pomodorotime.data.user.IUserLocalDataSource
 import com.pomodorotime.domain.login.ILoginRepository
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.confirmVerified
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.slot
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -36,45 +32,53 @@ class LoginRepositoryTest {
     }
 
     @Test
-    fun `verify singUp and save user is ok`() = coroutinesRule.runBlockingTest {
+    fun `verify singUp is ok`() = coroutinesRule.runBlockingTest {
         //Given
         val email = "email@email.com"
         val password = "password"
         val apiUser = ApiUser(email = email, id = "id", token = "token")
-        val captureData = slot<ApiUser>()
 
         //When
         coEvery { loginRemoteDataSource.signUp(any(), any()) } returns apiUser
-        coEvery { userDataSource.setUser(capture(captureData)) } returns Unit
 
         repository.signUp(email, password)
 
         //Verify
-        assertEquals(apiUser, captureData.captured)
         coVerify { loginRemoteDataSource.signUp(email, password) }
-        coVerify { userDataSource.setUser(captureData.captured) }
         confirmVerified(loginRemoteDataSource)
         confirmVerified(userDataSource)
     }
 
     @Test
-    fun `verify singIn and save user is ok`() = coroutinesRule.runBlockingTest {
+    fun `verify singIn is ok`() = coroutinesRule.runBlockingTest {
         //Given
         val email = "email@email.com"
         val password = "password"
         val apiUser = ApiUser(email = email, id = "id", token = "token")
-        val captureData = slot<ApiUser>()
 
         //When
         coEvery { loginRemoteDataSource.signIn(any(), any()) } returns apiUser
-        coEvery { userDataSource.setUser(capture(captureData)) } returns Unit
 
         repository.signIn(email, password)
 
         //Verify
-        assertEquals(apiUser, captureData.captured)
         coVerify { loginRemoteDataSource.signIn(email, password) }
-        coVerify { userDataSource.setUser(captureData.captured) }
+        confirmVerified(loginRemoteDataSource)
+        confirmVerified(userDataSource)
+    }
+
+    @Test
+    fun `save user token is ok`() = coroutinesRule.runBlockingTest {
+        //Given
+        val token = "token"
+
+        //When
+        coEvery { userDataSource.saveToken(any()) } returns Unit
+
+        repository.saveUserToken(token)
+
+        //Verify
+        coVerify { userDataSource.saveToken(token) }
         confirmVerified(loginRemoteDataSource)
         confirmVerified(userDataSource)
     }

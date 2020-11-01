@@ -9,7 +9,7 @@
     <string name="login_email_hint">Email</string>
     <string name="login_dialog_title">Remember user</string>
     <string name="login_dialog_message">¿Do you want yo remember your user and password?</string>
-    <string name="login_dialog_possitive">Yes</string>
-    <string name="login_dialog_negative">No</string>
+    <string name="login_dialog_possitive">Save</string>
+    <string name="login_dialog_negative">Cancel</string>
 
 </resources>

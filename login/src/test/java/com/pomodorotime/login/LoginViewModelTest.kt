@@ -150,7 +150,6 @@ class LoginViewModelTest {
         val event = LoginEvent.SecondaryButtonPress
 
         //When
-
         viewModel.postEvent(event)
         viewModel.postEvent(event)
         viewModel.postEvent(event)
@@ -451,5 +450,4 @@ class LoginViewModelTest {
 
         confirmVerifyMocks()
     }
-
 }
