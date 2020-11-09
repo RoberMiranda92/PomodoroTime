@@ -41,7 +41,7 @@ abstract class BaseViewModel<in Event, State>(
         job.invokeOnCompletion { idlingResourceWrapper?.decrement() }
     }
 
-    protected fun subscribeFlow(flow: Flow<Any>) {
+    protected fun<T> subscribeFlow(flow: Flow<T>) {
         flow.onStart {
             idlingResourceWrapper?.increment()
         }.onCompletion {

@@ -9,6 +9,9 @@ import com.pomodorotime.data.login.api.ILoginApi
 import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
 import com.pomodorotime.data.login.datasource.LoginRemoteDataSourceImpl
 import com.pomodorotime.data.login.repository.LoginRepository
+import com.pomodorotime.data.preferences.EncryptedSharedPreferencesImpl
+import com.pomodorotime.data.preferences.ISharedPreferences
+import com.pomodorotime.data.preferences.SharedPreferencesImpl
 import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.data.task.api.FirebaseTaskApi
@@ -24,6 +27,7 @@ import com.pomodorotime.data.user.UserLocalDataSourceImp
 import com.pomodorotime.domain.IErrorHandler
 import com.pomodorotime.domain.login.ILoginRepository
 import com.pomodorotime.domain.task.ITaskRepository
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -40,9 +44,13 @@ val dataModule = module {
 
     single<ITaskLocalDataSource> { TaskLocalDataSourceImpl(get()) }
 
-    single<IUserLocalDataSource> { UserLocalDataSourceImp }
-
     single<ILoginRemoteDataSource> { LoginRemoteDataSourceImpl(get()) }
+
+    single<IUserLocalDataSource> { UserLocalDataSourceImp(get(named("encrypted"))) }
+
+    single<ISharedPreferences>(named("encrypted")) { EncryptedSharedPreferencesImpl(get()) }
+
+    single<ISharedPreferences>((named("normal"))) { SharedPreferencesImpl(get()) }
 
     single<IDataBase> { TaskDataBase.getInstance(get()).taskDao() }
 

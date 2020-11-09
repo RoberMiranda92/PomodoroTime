@@ -1,8 +1,11 @@
 package com.pomodorotime.data.user
 
 import com.pomodorotime.data.login.api.models.ApiUser
+import com.pomodorotime.data.preferences.ISharedPreferences
 
-object UserLocalDataSourceImp : IUserLocalDataSource {
+class UserLocalDataSourceImp(
+    private val sharedPreferences: ISharedPreferences
+) : IUserLocalDataSource {
 
     private var user: ApiUser? = null
 
@@ -18,7 +21,15 @@ object UserLocalDataSourceImp : IUserLocalDataSource {
         this.user = null
     }
 
-    override fun saveToken(token: String) {
+    override suspend fun saveToken(token: String) {
+        sharedPreferences.putString(USER_TOKEN, token)
+    }
 
+    override suspend fun getToken(): String {
+        return sharedPreferences.getString(USER_TOKEN)
+    }
+
+    companion object {
+        const val USER_TOKEN = "pref.user.token"
     }
 }

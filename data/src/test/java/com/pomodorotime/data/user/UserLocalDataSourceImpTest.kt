@@ -1,18 +1,25 @@
 package com.pomodorotime.data.user
 
 import com.pomodorotime.data.login.api.models.ApiUser
+import com.pomodorotime.data.preferences.ISharedPreferences
+import io.mockk.MockKAnnotations
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mock
 
 class UserLocalDataSourceImpTest {
+
+    @Mock
+    lateinit var sharedPreferences: ISharedPreferences
 
     lateinit var localDataSource: IUserLocalDataSource
 
     @Before
     fun setUp() {
-        localDataSource = UserLocalDataSourceImp
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        localDataSource = UserLocalDataSourceImp(sharedPreferences)
     }
 
     @After

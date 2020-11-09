@@ -24,4 +24,8 @@ class LoginRepository(
     override suspend fun saveUserToken(token: String) {
         userLocalDataSource.saveToken(token)
     }
+
+    override suspend fun getUserToken(): String {
+        return userLocalDataSource.getToken()
+    }
 }

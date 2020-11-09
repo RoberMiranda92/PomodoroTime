@@ -12,5 +12,7 @@ interface IUserLocalDataSource {
 
     fun clear()
 
-    fun saveToken(token: String)
+    suspend fun saveToken(token: String)
+
+    suspend fun getToken(): String
 }

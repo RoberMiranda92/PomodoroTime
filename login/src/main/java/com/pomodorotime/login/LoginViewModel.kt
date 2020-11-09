@@ -6,16 +6,19 @@ import com.pomodorotime.core.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.login.usecases.IsUserLoggedUseCase
+import com.pomodorotime.domain.login.usecases.SaveUserTokenUseCase
 import com.pomodorotime.domain.login.usecases.SigInUseCase
 import com.pomodorotime.domain.login.usecases.SigUpUseCase
 import com.pomodorotime.domain.models.ErrorEntity
 import com.pomodorotime.domain.models.ResultWrapper
 import com.pomodorotime.domain.models.User
 
-
 class LoginViewModel constructor(
     private val signUpUseCase: SigUpUseCase,
     private val sigInUseCase: SigInUseCase,
+    private val isUserLoggedUseCase: IsUserLoggedUseCase,
+    private val saveUserTokenUseCase: SaveUserTokenUseCase,
     idlingResourceWrapper: IdlingResourcesSync? = null
 ) : BaseViewModel<LoginEvent, LoginScreenState>(idlingResourceWrapper) {
 
@@ -23,6 +26,7 @@ class LoginViewModel constructor(
     private var email: String = ""
     private var password: String = ""
     private var confirmPassword = ""
+    private var userToken = ""
 
     private val _error: MutableLiveData<Event<SnackBarrError>> = MutableLiveData()
     val error: LiveData<Event<SnackBarrError>>
@@ -49,6 +53,20 @@ class LoginViewModel constructor(
     override fun postEvent(event: LoginEvent) {
         super.postEvent(event)
         when (event) {
+            is LoginEvent.LoginInit -> {
+                executeCoroutine {
+                    when (val result =
+                        isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams)) {
+                        is ResultWrapper.Success -> {
+                            _navigationToDashboard.value = Event(result.value)
+                        }
+                        else -> {
+                            //TODO
+                        }
+                    }
+                }
+            }
+
             is LoginEvent.LoginTyping -> {
                 onEmailSet(event.user)
                 onPasswordSet(event.password)
@@ -59,16 +77,15 @@ class LoginViewModel constructor(
             }
             is LoginEvent.SecondaryButtonPress -> {
                 toggleMode()
-            }
 
+            }
             is LoginEvent.OnUserPositiveClickPress -> {
-                _navigationToDashboard.value = Event(true)
+                saveToken()
             }
 
             is LoginEvent.OnNegativePositiveClickPress -> {
                 _navigationToDashboard.value = Event(true)
             }
-
         }
     }
 
@@ -104,6 +121,14 @@ class LoginViewModel constructor(
         }
     }
 
+    private fun setMode() {
+        _screenState.value = if (LoginMode.SIGN_IN == loginMode) {
+            Event(LoginScreenState.SignIn)
+        } else {
+            Event(LoginScreenState.SignUp)
+        }
+    }
+
     private fun startSignIn() {
         executeCoroutine {
             _screenState.value = Event(LoginScreenState.Loading)
@@ -134,6 +159,7 @@ class LoginViewModel constructor(
 
     private fun onSignInSuccess(user: User) {
         _saveTokenDialog.value = Event(true)
+        userToken = user.token
         setMode()
     }
 
@@ -152,11 +178,26 @@ class LoginViewModel constructor(
         setMode()
     }
 
-    private fun setMode() {
-        _screenState.value = if (LoginMode.SIGN_IN == loginMode) {
-            Event(LoginScreenState.SignIn)
-        } else {
-            Event(LoginScreenState.SignUp)
+
+    private fun saveToken() {
+        executeCoroutine {
+            _screenState.value = Event(LoginScreenState.Loading)
+
+            val result: ResultWrapper<Unit> =
+                saveUserTokenUseCase.invoke(SaveUserTokenUseCase.SaveUserTokenParams(userToken))
+
+            when (result) {
+                is ResultWrapper.Success<Unit> -> _navigationToDashboard.value = Event(true)
+                is ResultWrapper.Error -> onError(result.error)
+            }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        email = ""
+        password = ""
+        confirmPassword = ""
+        userToken = ""
     }
 }

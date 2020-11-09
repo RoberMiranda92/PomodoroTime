@@ -54,10 +54,14 @@ class TaskListFragment :
         }
     }
 
+    override fun initEvent() {
+        viewModel.postEvent(TaskListEvent.Load)
+    }
+
     override fun onNewState(state: TaskListScreenState) {
         when (state) {
             is TaskListScreenState.Initial -> {
-                viewModel.postEvent(TaskListEvent.Load)
+
             }
 
             is TaskListScreenState.Loading -> {

@@ -26,7 +26,6 @@ class LoginFragment :
     }
 
     override fun initViews() {
-
         binding.txEmail.addTextChangedListener(onTextChanged = { text, _, _, _ ->
             viewModel.postEvent(
                 LoginEvent.LoginTyping(
@@ -68,6 +67,10 @@ class LoginFragment :
         binding.btnSecondary.setOnClickListener {
             viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         }
+    }
+
+    override fun initEvent() {
+        viewModel.postEvent(LoginEvent.LoginInit)
     }
 
     override fun observeViewModelChanges() {

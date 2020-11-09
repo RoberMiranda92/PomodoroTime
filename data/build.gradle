@@ -81,6 +81,8 @@ dependencies {
     implementation libraries.firebaseAuth
     implementation libraries.firebaseDataBase
 
+    implementation libraries.securityCrypto
+
     implementation libraries.gson
     implementation libraries.kotlinCoroutinesPlayServices
 

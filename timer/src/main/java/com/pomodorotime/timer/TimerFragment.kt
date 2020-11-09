@@ -32,6 +32,10 @@ class TimerFragment :
         }
     }
 
+    override fun initEvent() {
+        viewModel.postEvent(TimerEvents.LoadData(args.taskId))
+    }
+
     private fun setUpPlayButton(@TimerStatus mode: Int) {
         binding.playButton.setImageDrawable(
             ContextCompat.getDrawable(
@@ -76,7 +80,6 @@ class TimerFragment :
     override fun onNewState(state: TimerScreenState) {
         when (state) {
             is TimerScreenState.Initial -> {
-                viewModel.postEvent(TimerEvents.LoadData(args.taskId))
             }
 
             is TimerScreenState.DataLoaded -> {
@@ -88,6 +91,8 @@ class TimerFragment :
             is TimerScreenState.Loading -> {
 
             }
+            is TimerScreenState.Error -> TODO()
+            TimerScreenState.CounterStart -> TODO()
         }
     }
 

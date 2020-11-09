@@ -10,4 +10,6 @@ interface ILoginRepository {
     suspend fun signUp(email: String, password: String): User
 
     suspend fun saveUserToken(token: String)
+
+    suspend fun getUserToken(): String
 }

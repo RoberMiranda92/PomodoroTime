@@ -4,6 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.SnackBarrError
+import com.pomodorotime.domain.login.usecases.IsUserLoggedUseCase
+import com.pomodorotime.domain.login.usecases.SaveUserTokenUseCase
 import com.pomodorotime.domain.login.usecases.SigInUseCase
 import com.pomodorotime.domain.login.usecases.SigUpUseCase
 import com.pomodorotime.domain.models.ErrorEntity
@@ -33,6 +35,12 @@ class LoginViewModelTest {
     @MockK
     lateinit var signInUseCase: SigInUseCase
 
+    @MockK
+    lateinit var isUserLoggedUseCase: IsUserLoggedUseCase
+
+    @MockK
+    lateinit var saveUserTokenUseCase: SaveUserTokenUseCase
+
     @RelaxedMockK
     lateinit var screenStateObserver: Observer<Event<LoginScreenState>>
 
@@ -59,7 +67,8 @@ class LoginViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        viewModel = LoginViewModel(signUpUseCase, signInUseCase)
+        viewModel =
+            LoginViewModel(signUpUseCase, signInUseCase, isUserLoggedUseCase, saveUserTokenUseCase)
 
         viewModel.screenState.observeForever(screenStateObserver)
         viewModel.networkError.observeForever(netWorkErrorObserver)
@@ -100,7 +109,46 @@ class LoginViewModelTest {
         confirmVerified(errorObserver)
         confirmVerified(signUpUseCase)
         confirmVerified(signInUseCase)
+        confirmVerified(isUserLoggedUseCase)
+        confirmVerified(saveUserTokenUseCase)
     }
+
+    @Test
+    fun onInitEventAndTokenIsSaved() {
+        //Given
+        val event = LoginEvent.LoginInit
+
+        //When
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(true)
+
+        viewModel.postEvent(event)
+
+        //Verify
+        verifyInitialState()
+        verify { navigatorObserver.onChanged(Event(true)) }
+        coVerify { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) }
+        confirmVerifyMocks()
+    }
+
+    @Test
+    fun onInitEventAndTokenIsEmpty() {
+        //Given
+        val event = LoginEvent.LoginInit
+
+        //When
+        coEvery { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) } returns
+                ResultWrapper.Success(false)
+
+        viewModel.postEvent(event)
+
+        //Verify
+        verifyInitialState()
+        verify { navigatorObserver.onChanged(Event(false)) }
+        coVerify { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) }
+        confirmVerifyMocks()
+    }
+
 
     @Test
     fun onUserIsTypingUserEvent() {
@@ -109,6 +157,10 @@ class LoginViewModelTest {
 
         //When
         viewModel.postEvent(event)
+
+        //Verify
+        verifyInitialState()
+        confirmVerifyMocks()
     }
 
     @Test
@@ -123,7 +175,6 @@ class LoginViewModelTest {
         //Verify
         verifyInitialState()
         verify { screenStateObserver.onChanged(Event(loginScreenState)) }
-
         confirmVerifyMocks()
     }
 
@@ -134,7 +185,8 @@ class LoginViewModelTest {
         val loginScreenState = LoginScreenState.SignUp
 
         //When
-
+        coEvery { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) } returns
+                ResultWrapper.Success(false)
         viewModel.postEvent(event)
 
         //Verify
@@ -171,7 +223,10 @@ class LoginViewModelTest {
         val event = LoginEvent.MainButtonPress
 
         //When
+        coEvery { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) } returns
+                ResultWrapper.Success(false)
         coEvery { signInUseCase.invoke(any()) } returns ResultWrapper.Success(user)
+        coEvery { saveUserTokenUseCase.invoke(any()) } returns ResultWrapper.Success(Unit)
 
         viewModel.postEvent(typeEvent)
         viewModel.postEvent(event)
@@ -191,6 +246,7 @@ class LoginViewModelTest {
         coVerify { showTokenDialogObserver.onChanged(Event(true)) }
         coVerify { navigatorObserver.onChanged(Event(true)) }
         coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignIn)) }
+        coVerify { saveUserTokenUseCase.invoke(SaveUserTokenUseCase.SaveUserTokenParams("token")) }
 
         confirmVerifyMocks()
     }
@@ -360,7 +416,10 @@ class LoginViewModelTest {
         val event = LoginEvent.MainButtonPress
 
         //When
+        coEvery { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) } returns
+                ResultWrapper.Success(false)
         coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Success(user)
+        coEvery { saveUserTokenUseCase.invoke(any()) } returns ResultWrapper.Success(Unit)
 
         viewModel.postEvent(LoginEvent.SecondaryButtonPress)
         viewModel.postEvent(typeEvent)
@@ -381,7 +440,47 @@ class LoginViewModelTest {
         }
         coVerify { showTokenDialogObserver.onChanged(Event(true)) }
         coVerify { navigatorObserver.onChanged(Event(true)) }
+        coVerify { saveUserTokenUseCase.invoke(SaveUserTokenUseCase.SaveUserTokenParams("token")) }
 
+        confirmVerifyMocks()
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun onMainButtonClickedAndModeIsSignUpAndSaveIsError() = coroutinesRule.runBlockingTest {
+        //Given
+        val user = User("user@email.com", "id", "token")
+        val typeEvent = LoginEvent.LoginTyping("user@email.com", "password", "password")
+        val event = LoginEvent.MainButtonPress
+        val error = Exception("Error")
+
+        //When
+        coEvery { isUserLoggedUseCase.invoke(IsUserLoggedUseCase.IsUserLoggedParams) } returns
+                ResultWrapper.Success(false)
+        coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Success(user)
+        coEvery { saveUserTokenUseCase.invoke(any()) } returns
+                ResultWrapper.Error(ErrorEntity.GenericError(message = error.message ?: ""))
+
+        viewModel.postEvent(LoginEvent.SecondaryButtonPress)
+        viewModel.postEvent(typeEvent)
+        viewModel.postEvent(event)
+        viewModel.postEvent(LoginEvent.OnUserPositiveClickPress)
+
+        //Verify
+        coVerifyInitialState()
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.SignUp)) }
+        coVerify { screenStateObserver.onChanged(Event(LoginScreenState.Loading)) }
+        coVerify {
+            signUpUseCase.invoke(
+                SigUpUseCase.SignUpParams(
+                    typeEvent.user,
+                    typeEvent.password
+                )
+            )
+        }
+        coVerify { showTokenDialogObserver.onChanged(Event(true)) }
+        coVerify { saveUserTokenUseCase.invoke(SaveUserTokenUseCase.SaveUserTokenParams("token")) }
+        coVerify { errorObserver.onChanged(Event(SnackBarrError(true, error.message ?: ""))) }
         confirmVerifyMocks()
     }
 

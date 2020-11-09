@@ -6,7 +6,7 @@ ext.versions = [
         // Android Versions
         compileSdk                         : 30,
         targetSdk                          : 30,
-        minSdk                             : 21,
+        minSdk                             : 23,
         buildTools                         : '30.0.1',
 
         // Gradle Versions
@@ -35,9 +35,10 @@ ext.versions = [
         //Koin
         koin_version                       : "2.2.0-rc-2",
 
-        // Dependency Versions
+        //Other
         materialComponents                 : '1.2.0',
         timber                             : "4.7.1",
+        securityCryptoVersion              : "1.0.0-rc03",
 
         // Testing dependencies
         jacoco_version                     : "0.8.6",
@@ -103,6 +104,8 @@ ext.libraries = [
         //Other
         gson                        : "com.google.code.gson:gson:2.8.6",
         materialComponents          : "com.google.android.material:material:$versions.materialComponents",
+
+        securityCrypto              : "androidx.security:security-crypto:$versions.securityCryptoVersion",
 
         timber                      : "com.jakewharton.timber:timber:$versions.timber",
 

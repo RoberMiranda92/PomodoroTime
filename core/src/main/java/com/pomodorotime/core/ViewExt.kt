@@ -22,6 +22,14 @@ fun Fragment.hideKeyboard() {
     }
 }
 
+fun Fragment.showKeyboard() {
+    view?.let { _view ->
+        val imm: InputMethodManager? =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm?.hideSoftInputFromWindow(_view.windowToken, 0)
+    }
+}
+
 fun Fragment.showSnackBar(
     message: String,
     duration: Int,
@@ -61,8 +69,4 @@ fun Fragment.showDialog(
         negativeClickAction?.invoke()
     }
     builder.show()
-}
-
-private fun showBackDialog() {
-
 }

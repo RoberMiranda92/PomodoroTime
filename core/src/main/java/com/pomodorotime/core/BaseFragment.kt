@@ -37,6 +37,7 @@ abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T
         observeViewModelChanges()
         observeBaseViewModelChanges()
         initViews()
+        initEvent()
     }
 
     private fun observeBaseViewModelChanges() {
@@ -55,6 +56,8 @@ abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T
     abstract fun createBinding(inflater: LayoutInflater): T
 
     abstract fun initViews()
+
+    abstract fun initEvent()
 
     abstract fun observeViewModelChanges()
 

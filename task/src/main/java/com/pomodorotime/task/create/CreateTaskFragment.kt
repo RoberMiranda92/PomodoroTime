@@ -34,6 +34,9 @@ class CreateTaskFragment :
         configureCounter()
     }
 
+    override fun initEvent() {
+    }
+
     override fun observeViewModelChanges() {
         viewModel.createTaskError.observeEvent(viewLifecycleOwner) {
             if (it.show) {
