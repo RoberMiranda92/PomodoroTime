@@ -9,6 +9,7 @@ import com.pomodorotime.data.login.api.ILoginApi
 import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
 import com.pomodorotime.data.login.datasource.LoginRemoteDataSourceImpl
 import com.pomodorotime.data.login.repository.LoginRepository
+import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.data.task.api.FirebaseTaskApi
 import com.pomodorotime.data.task.api.ITaskApi
@@ -32,6 +33,8 @@ val dataModule = module {
     single<ITaskRepository> { TaskRepository(get(), get()) }
 
     single<IErrorHandler> { ErrorHandlerImpl() }
+
+    single<ISyncErrorHandler> { ErrorHandlerImpl() }
 
     single<ITaskRemoteDataSource> { TaskRemoteDataSourceImp(get()) }
 

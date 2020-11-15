@@ -2,6 +2,7 @@ package com.pomodorotime.sync.workmanager
 
 import android.content.Context
 import androidx.work.*
+import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.sync.SyncTypes
 import com.pomodorotime.data.task.api.models.ApiTask
 import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
@@ -11,11 +12,13 @@ import com.pomodorotime.sync.workmanager.workers.DeleteTaskWorker
 import com.pomodorotime.sync.workmanager.workers.InsertTaskWorker
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.logging.ErrorManager
 
 class WorkManagerSynchronizer(
     context: Context,
     userLocalDataSource: IUserLocalDataSource,
-    taskRemoteDataSource: ITaskRemoteDataSource
+    taskRemoteDataSource: ITaskRemoteDataSource,
+    errorHandler: ISyncErrorHandler
 ) : Synchronizer {
 
     private var workManager: WorkManager
@@ -25,7 +28,8 @@ class WorkManagerSynchronizer(
             context,
             WorkManagerConfiguration(
                 userLocalDataSource,
-                taskRemoteDataSource
+                taskRemoteDataSource,
+                errorHandler
             ).workManagerConfiguration
         )
         workManager = WorkManager.getInstance(context)

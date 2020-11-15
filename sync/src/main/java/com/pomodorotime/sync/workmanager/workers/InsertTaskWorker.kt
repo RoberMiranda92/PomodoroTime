@@ -5,16 +5,18 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.task.api.models.ApiTask
 import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
 import com.pomodorotime.data.user.IUserLocalDataSource
-import java.util.Date
+import java.util.*
 
 class InsertTaskWorker(
     context: Context,
     params: WorkerParameters,
     private val userDataSource: IUserLocalDataSource,
-    private val taskDataSource: ITaskRemoteDataSource
+    private val taskDataSource: ITaskRemoteDataSource,
+    private val errorHandler: ISyncErrorHandler
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -25,7 +27,7 @@ class InsertTaskWorker(
             taskDataSource.insetTask(userDataSource.getUserId(), task)
             Result.success()
         } catch (ex: Exception) {
-            Log.e("InsertTaskWorker", ex.message ?: "")
+            Log.e("InsertTaskWorker", errorHandler.getSyncError(ex).toString())
             Result.retry()
         }
 

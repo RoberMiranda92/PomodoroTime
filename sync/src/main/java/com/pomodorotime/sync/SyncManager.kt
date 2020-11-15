@@ -1,6 +1,7 @@
 package com.pomodorotime.sync
 
 import android.content.Context
+import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.sync.ISyncManager
 import com.pomodorotime.data.sync.SyncTypes
 import com.pomodorotime.data.task.api.models.ApiTask
@@ -12,11 +13,12 @@ import com.pomodorotime.sync.workmanager.WorkManagerSynchronizer
 class SyncManager(
     context: Context,
     userLocalDataSourceImpl: IUserLocalDataSource,
-    taskRemoteDataSource: ITaskRemoteDataSource
+    taskRemoteDataSource: ITaskRemoteDataSource,
+    errorHandler: ISyncErrorHandler
 ) : ISyncManager {
 
     private var synchronizer: Synchronizer =
-        WorkManagerSynchronizer(context, userLocalDataSourceImpl, taskRemoteDataSource)
+        WorkManagerSynchronizer(context, userLocalDataSourceImpl, taskRemoteDataSource, errorHandler)
 
     override fun performSyncInsertion(task: ApiTask) {
         synchronizer.performSync(task, SyncTypes.INSERT)

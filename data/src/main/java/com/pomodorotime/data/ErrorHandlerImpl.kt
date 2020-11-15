@@ -1,12 +1,16 @@
 package com.pomodorotime.data
 
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseException
+import com.pomodorotime.data.sync.ISyncErrorHandler
+import com.pomodorotime.data.sync.SyncError
 import com.pomodorotime.domain.IErrorHandler
 import com.pomodorotime.domain.models.ErrorEntity
 import okio.IOException
 import retrofit2.HttpException
 
-open class ErrorHandlerImpl : IErrorHandler {
+class ErrorHandlerImpl : IErrorHandler, ISyncErrorHandler {
 
     override fun getError(throwable: Throwable): ErrorEntity {
         return when (throwable) {
@@ -21,6 +25,19 @@ open class ErrorHandlerImpl : IErrorHandler {
             }
             else -> {
                 ErrorEntity.GenericError(
+                    null,
+                    throwable.message ?: ""
+                )
+            }
+        }
+    }
+
+    override fun getSyncError(throwable: Throwable): SyncError {
+        return when (throwable) {
+            is IOException -> SyncError.NetworkError
+            is DatabaseException -> dataBaseErrorCodeMapper(throwable)
+            else -> {
+                SyncError.GenericError(
                     null,
                     throwable.message ?: ""
                 )
@@ -43,5 +60,9 @@ open class ErrorHandlerImpl : IErrorHandler {
             "ERROR_TOO_MANY_REQUESTS" -> ErrorEntity.GenericError(message = throwable.message ?: "")
             else -> ErrorEntity.GenericError(message = throwable.message ?: "")
         }
+    }
+
+    private fun dataBaseErrorCodeMapper(throwable: DatabaseException): SyncError {
+        return SyncError.NetworkError
     }
 }
