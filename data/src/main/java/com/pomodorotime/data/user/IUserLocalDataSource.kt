@@ -6,8 +6,6 @@ interface IUserLocalDataSource {
 
     fun setUser(user: ApiUser)
 
-    fun getUserId(): String
-
     fun getEmail(): String
 
     fun clear()

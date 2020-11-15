@@ -29,7 +29,7 @@ class UserLocalDataSourceImpTest {
 
     @Test
     fun `on null ApiUser`() {
-        assertEquals("", localDataSource.getUserId())
+        assertEquals("", localDataSource.getToken())
         assertEquals("", localDataSource.getEmail())
     }
 
@@ -37,7 +37,7 @@ class UserLocalDataSourceImpTest {
     fun `on non null ApiUser`() {
         localDataSource.setUser(ApiUser)
 
-        assertEquals(ApiUser.id, localDataSource.getUserId())
+        assertEquals(ApiUser.id, localDataSource.getToken())
         assertEquals(ApiUser.email, localDataSource.getEmail())
     }
 

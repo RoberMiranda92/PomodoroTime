@@ -77,14 +77,14 @@ class InsertTaskWorkerTest {
         val worker: ListenableWorker = buildWorker(buildData())
 
         //When
-        coEvery { userDataSource.getUserId() } returns userId
+        coEvery { userDataSource.getToken() } returns userId
         coEvery { taskDataSource.insetTask(any(), any()) } returns Unit
 
         val result = worker.startWork()
 
         //Verify
         assertThat(result.await(), `is`(ListenableWorker.Result.success()))
-        coVerify { userDataSource.getUserId() }
+        coVerify { userDataSource.getToken() }
         coVerify { taskDataSource.insetTask(userId, Task1) }
 
         confirmVerified(userDataSource)
@@ -99,14 +99,14 @@ class InsertTaskWorkerTest {
         val worker: ListenableWorker = buildWorker(buildData())
 
         //When
-        coEvery { userDataSource.getUserId() } returns userId
+        coEvery { userDataSource.getToken() } returns userId
         coEvery { taskDataSource.insetTask(any(), any()) } throws (Exception("My Error"))
 
         val result = worker.startWork()
 
         //Verify
         assertThat(result.await(), `is`(ListenableWorker.Result.retry()))
-        coVerify { userDataSource.getUserId() }
+        coVerify { userDataSource.getToken() }
         coVerify { taskDataSource.insetTask(userId, Task1) }
 
         confirmVerified(userDataSource)

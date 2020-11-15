@@ -28,4 +28,8 @@ class SyncManager(
         synchronizer.performSync(taskId, SyncTypes.DELETE)
     }
 
+    override fun clear() {
+        synchronizer.clear()
+    }
+
 }

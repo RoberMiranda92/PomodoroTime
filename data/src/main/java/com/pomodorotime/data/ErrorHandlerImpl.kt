@@ -63,6 +63,29 @@ class ErrorHandlerImpl : IErrorHandler, ISyncErrorHandler {
     }
 
     private fun dataBaseErrorCodeMapper(throwable: DatabaseException): SyncError {
+        val error = DatabaseError.fromException(throwable)
+        when (error.code) {
+            DatabaseError.DATA_STALE,
+            DatabaseError.OPERATION_FAILED,
+            DatabaseError.WRITE_CANCELED,
+            DatabaseError.UNKNOWN_ERROR,
+            DatabaseError.MAX_RETRIES,
+            DatabaseError.OVERRIDDEN_BY_SET,
+            DatabaseError.UNAVAILABLE -> {
+                SyncError.DataBaseError(error.code, throwable.message ?: "")
+            }
+
+            DatabaseError.PERMISSION_DENIED,
+            DatabaseError.EXPIRED_TOKEN,
+            DatabaseError.INVALID_TOKEN,
+            DatabaseError.USER_CODE_EXCEPTION -> {
+                SyncError.InvalidUser(error.code, throwable.message ?: "")
+            }
+
+            DatabaseError.NETWORK_ERROR -> {
+                SyncError.NetworkError
+            }
+        }
         return SyncError.NetworkError
     }
 }

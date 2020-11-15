@@ -81,6 +81,10 @@ class WorkManagerSynchronizer(
         workManager.enqueue(requestBuilder.build())
     }
 
+    override fun clear() {
+        workManager.pruneWork()
+    }
+
     private fun buildData(task: ApiTask): Data {
 
         val data = Data.Builder()

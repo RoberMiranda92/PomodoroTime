@@ -8,4 +8,6 @@ interface Synchronizer {
     fun performSync(task: ApiTask, type: SyncTypes)
 
     fun performSync(taskId: Long, type: SyncTypes)
+
+    fun clear()
 }

@@ -13,8 +13,6 @@ class UserLocalDataSourceImp(
         this.user = user
     }
 
-    override fun getUserId() = user?.id ?: ""
-
     override fun getEmail() = user?.email ?: ""
 
     override fun clear() {

@@ -8,4 +8,5 @@ interface ISyncManager {
 
     fun performSyncDeletion(taskId: Long)
 
+    fun clear()
 }

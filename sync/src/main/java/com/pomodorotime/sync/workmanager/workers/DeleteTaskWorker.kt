@@ -1,11 +1,11 @@
 package com.pomodorotime.sync.workmanager.workers
 
 import android.content.Context
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.pomodorotime.data.sync.ISyncErrorHandler
+import com.pomodorotime.data.sync.SyncError
 import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
 import com.pomodorotime.data.user.IUserLocalDataSource
 
@@ -22,11 +22,26 @@ class DeleteTaskWorker(
         val taskId = dataToTaskId(inputData)
 
         return try {
-            taskDataSource.deleteTask(userDataSource.getUserId(), taskId)
+            taskDataSource.deleteTask(userDataSource.getToken(), taskId)
             Result.success()
         } catch (ex: Exception) {
-            Log.e("InsertTaskWorker", errorHandler.getSyncError(ex).toString())
-            Result.retry()
+            when (val error = errorHandler.getSyncError(ex)) {
+                is SyncError.DataBaseError -> {
+                    Result.retry()
+                }
+                is SyncError.InvalidUser -> {
+                    //TODO PERFORM LOGOUT
+                    Result.retry()
+                }
+
+                is SyncError.NetworkError -> {
+                    Result.retry()
+                }
+
+                is SyncError.GenericError -> {
+                    Result.retry()
+                }
+            }
         }
 
     }
