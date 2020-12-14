@@ -63,6 +63,18 @@ class EncryptedSharedPreferencesImpl(context: Context) : ISharedPreferences {
         return sharedPreferences.getFloat(key, -1F)
     }
 
+    override fun removeKey(key: String) {
+        sharedPreferences.edit(true) {
+            remove(key)
+        }
+    }
+
+    override fun clearAll() {
+        sharedPreferences.edit(true){
+            clear()
+        }
+    }
+
     companion object {
         const val ENCRYPTED_SHARED_PREFERENCES_NAME = ".pomodoro_preferences_enc"
     }

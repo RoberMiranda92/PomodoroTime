@@ -3,7 +3,7 @@ package com.pomodorotime.task.tasklist.list
 import android.text.format.DateFormat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.pomodorotime.core.BaseViewHolder
+import com.pomodorotime.core.bases.BaseViewHolder
 import com.pomodorotime.task.R
 import com.pomodorotime.task.databinding.RowTaskViewBinding
 

@@ -7,8 +7,8 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.pomodorotime.core.BaseFragment
-import com.pomodorotime.core.BaseMultiSelectorAdapter
+import com.pomodorotime.core.bases.BaseFragment
+import com.pomodorotime.core.bases.BaseMultiSelectorAdapter
 import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.showSnackBarError
 import com.pomodorotime.task.R

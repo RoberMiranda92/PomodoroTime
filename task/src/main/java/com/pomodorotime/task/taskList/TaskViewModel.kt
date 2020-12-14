@@ -3,7 +3,7 @@ package com.pomodorotime.task.tasklist
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.pomodorotime.core.BaseViewModel
+import com.pomodorotime.core.bases.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.SnackBarrError

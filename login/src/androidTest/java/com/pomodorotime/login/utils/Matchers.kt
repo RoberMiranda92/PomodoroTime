@@ -1,4 +1,4 @@
-package com.pomodorotime.login
+package com.pomodorotime.login.utils
 
 import android.view.View
 import androidx.annotation.StringRes

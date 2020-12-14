@@ -1,4 +1,4 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.bases
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import com.pomodorotime.core.logger.PomodoroLogger
+import com.pomodorotime.core.showSnackBarError
 import org.koin.android.ext.android.inject
 
 abstract class BaseFragment<in Event, State, VM : BaseViewModel<Event, State>, T : ViewBinding> :

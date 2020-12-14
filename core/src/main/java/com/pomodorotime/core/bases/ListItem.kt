@@ -1,4 +1,4 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.bases
 
 interface ListItem {
     fun getType(): Int

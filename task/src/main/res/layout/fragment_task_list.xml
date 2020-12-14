@@ -61,7 +61,7 @@
             tools:visibility="visible" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.pomodorotime.core.StatusView
+    <com.pomodorotime.core.components.StatusView
         android:id="@+id/status_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

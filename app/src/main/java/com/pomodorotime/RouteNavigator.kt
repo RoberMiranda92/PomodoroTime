@@ -24,6 +24,10 @@ class RouteNavigator : LoginNavigator, TaskNavigator, TimeNavigator {
         navController?.navigate(actionTaskListFragmentToTimer(id, name))
     }
 
+    fun navigateToLogin(){
+        navController?.navigate(R.id.login_nav_graph)
+    }
+
     fun bind(navController: NavController) {
         this.navController = navController
     }

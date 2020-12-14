@@ -17,4 +17,8 @@ interface ISharedPreferences {
     fun getInt(key: String): Int
 
     fun getFloat(key: String): Float
+
+    fun removeKey(key: String)
+
+    fun clearAll()
 }

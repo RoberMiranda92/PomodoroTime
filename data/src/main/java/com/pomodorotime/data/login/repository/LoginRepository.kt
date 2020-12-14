@@ -1,5 +1,6 @@
 package com.pomodorotime.data.login.repository
 
+import com.pomodorotime.core.session.ISessionManager
 import com.pomodorotime.data.login.datasource.ILoginRemoteDataSource
 import com.pomodorotime.data.login.toDomainModel
 import com.pomodorotime.data.user.IUserLocalDataSource
@@ -8,16 +9,19 @@ import com.pomodorotime.domain.models.User
 
 class LoginRepository(
     private val remoteDataSource: ILoginRemoteDataSource,
-    private val userLocalDataSource: IUserLocalDataSource
+    private val userLocalDataSource: IUserLocalDataSource,
+    private val sessionManager: ISessionManager
 ) : ILoginRepository {
 
     override suspend fun signIn(email: String, password: String): User {
         val result = remoteDataSource.signIn(email, password)
+        sessionManager.onLogin()
         return result.toDomainModel()
     }
 
     override suspend fun signUp(email: String, password: String): User {
         val result = remoteDataSource.signUp(email, password)
+        sessionManager.onLogin()
         return result.toDomainModel()
     }
 

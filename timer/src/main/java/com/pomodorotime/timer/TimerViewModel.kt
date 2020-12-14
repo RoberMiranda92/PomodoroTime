@@ -3,7 +3,7 @@ package com.pomodorotime.timer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.pomodorotime.core.BaseViewModel
+import com.pomodorotime.core.bases.BaseViewModel
 import com.pomodorotime.core.Event
 import com.pomodorotime.core.getTimer
 import com.pomodorotime.domain.POMODORO_DEFAULT_TIME

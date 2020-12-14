@@ -11,11 +11,15 @@ import androidx.test.filters.LargeTest
 import com.pomodorotime.core.IdlingResourceWrapper
 import com.pomodorotime.core.IdlingResourcesSync
 import com.pomodorotime.core.logger.PomodoroLogger
+import com.pomodorotime.domain.login.usecases.IsUserLoggedUseCase
+import com.pomodorotime.domain.login.usecases.SaveUserTokenUseCase
 import com.pomodorotime.domain.login.usecases.SigInUseCase
 import com.pomodorotime.domain.login.usecases.SigUpUseCase
 import com.pomodorotime.domain.models.ErrorEntity
 import com.pomodorotime.domain.models.ResultWrapper
 import com.pomodorotime.domain.models.User
+import com.pomodorotime.login.utils.withTextInputError
+import com.pomodorotime.login.utils.withTextInputLayoutHint
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.RelaxedMockK
@@ -42,6 +46,12 @@ class LoginFragmentTest : KoinTest {
     lateinit var signUpUseCase: SigUpUseCase
 
     @RelaxedMockK
+    lateinit var isUserLoggedUseCase: IsUserLoggedUseCase
+
+    @RelaxedMockK
+    lateinit var saveApiToken: SaveUserTokenUseCase
+
+    @RelaxedMockK
     lateinit var navigator: LoginNavigator
 
     private val idlingResourceWrapper: IdlingResourcesSync = IdlingResourceWrapper
@@ -51,17 +61,28 @@ class LoginFragmentTest : KoinTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         startKoin {
             modules(
-                module { viewModel { LoginViewModel(get(), get(), idlingResourceWrapper) } },
+                module {
+                    viewModel {
+                        LoginViewModel(
+                            get(),
+                            get(),
+                            get(),
+                            get(),
+                            idlingResourceWrapper
+                        )
+                    }
+                },
                 module { single { navigator } },
                 module {
                     single { signInUseCase }
                     single { signUpUseCase }
+                    single { saveApiToken }
+                    single { isUserLoggedUseCase }
                 },
                 module { single { PomodoroLogger() } }
             )
         }
         IdlingRegistry.getInstance().register(idlingResourceWrapper.getIdlingResource())
-        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
     }
 
     @After
@@ -72,6 +93,13 @@ class LoginFragmentTest : KoinTest {
 
     @Test
     fun loginFragmentInitOk() {
+
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
+
+
         //TexInputFields
         onView(withId(R.id.til_email)).check(matches(isDisplayed()))
         onView(withId(R.id.til_email)).check(matches(withTextInputLayoutHint(R.string.login_email_hint)))
@@ -94,6 +122,12 @@ class LoginFragmentTest : KoinTest {
 
     @Test
     fun loginFragmentToggleModeOK() {
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
+
+
         onView(withId(R.id.btn_secondary)).perform(click())
 
         //TexInputFields
@@ -122,8 +156,14 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
+
+        coEvery { saveApiToken.invoke(any()) } returns ResultWrapper.Success(Unit)
         coEvery { signInUseCase.invoke(any()) } returns
                 ResultWrapper.Success(User(user, "id", "token"))
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -150,8 +190,13 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
+        coEvery { saveApiToken.invoke(any()) } returns ResultWrapper.Success(Unit)
         coEvery { signUpUseCase.invoke(any()) } returns
                 ResultWrapper.Success(User(user, "id", "token"))
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -180,8 +225,12 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
         coEvery { signInUseCase.invoke(any()) } returns
                 ResultWrapper.Success(User(user, "id", "token"))
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -208,8 +257,12 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
         coEvery { signUpUseCase.invoke(any()) } returns
                 ResultWrapper.Success(User(user, "id", "token"))
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -239,7 +292,12 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
         coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Error(error)
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
+
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))
@@ -260,7 +318,12 @@ class LoginFragmentTest : KoinTest {
         val user = "user@user.es"
         val password = "password"
 
+        coEvery { isUserLoggedUseCase.invoke(any()) } returns
+                ResultWrapper.Success(false)
         coEvery { signUpUseCase.invoke(any()) } returns ResultWrapper.Error(error)
+
+        launchFragmentInContainer<LoginFragment>(null, R.style.AppTheme)
+
 
         onView(withId(R.id.tx_email)).perform(replaceText(user))
         onView(withId(R.id.tx_password)).perform(replaceText(password))

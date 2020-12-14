@@ -7,13 +7,16 @@ import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.await
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.pomodorotime.core.session.ISessionManager
+import com.pomodorotime.data.sync.ISyncErrorHandler
+import com.pomodorotime.data.sync.SyncError
 import com.pomodorotime.data.task.api.models.ApiTask
 import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
 import com.pomodorotime.data.user.IUserLocalDataSource
 import com.pomodorotime.sync.workmanager.TaskWorkerFactory
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +26,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Date
+import java.util.*
 
 //More info in https://dev.to/ayevbeosa/writing-tests-workmanager-edition-3aa
 @RunWith(AndroidJUnit4::class)
@@ -37,13 +40,19 @@ class InsertTaskWorkerTest {
     @MockK
     lateinit var taskDataSource: ITaskRemoteDataSource
 
+    @MockK
+    lateinit var errorHandler: ISyncErrorHandler
+
+    @MockK
+    lateinit var syncManager: ISessionManager
+
     private lateinit var factory: TaskWorkerFactory
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         context = ApplicationProvider.getApplicationContext()
-        factory = TaskWorkerFactory(userDataSource, taskDataSource)
+        factory = TaskWorkerFactory(userDataSource, taskDataSource, errorHandler, syncManager)
     }
 
     private fun buildWorker(data: Data): ListenableWorker {
@@ -84,33 +93,130 @@ class InsertTaskWorkerTest {
 
         //Verify
         assertThat(result.await(), `is`(ListenableWorker.Result.success()))
-        coVerify { userDataSource.getToken() }
-        coVerify { taskDataSource.insetTask(userId, Task1) }
+        coVerifyOrder {
+            userDataSource.getToken()
+            taskDataSource.insetTask(userId, Task1)
+        }
 
-        confirmVerified(userDataSource)
-        confirmVerified(taskDataSource)
+        confirmVerified(userDataSource, taskDataSource, errorHandler, syncManager)
     }
 
     @Test
     @ExperimentalCoroutinesApi
-    fun testInsertTaskWorkerError() = runBlocking {
+    fun testInsertTaskWorkerSyncErrorInvalidUser() = runBlocking {
 
         //Given
+        val exception = Exception("My Error") // We need to use this error to avoid
+        val error = SyncError.InvalidUser(-1, exception.message ?: "")
         val worker: ListenableWorker = buildWorker(buildData())
 
         //When
         coEvery { userDataSource.getToken() } returns userId
-        coEvery { taskDataSource.insetTask(any(), any()) } throws (Exception("My Error"))
+        coEvery { taskDataSource.insetTask(any(), any()) } throws exception
+        coEvery { errorHandler.getSyncError(any()) } returns error
 
         val result = worker.startWork()
 
         //Verify
         assertThat(result.await(), `is`(ListenableWorker.Result.retry()))
-        coVerify { userDataSource.getToken() }
-        coVerify { taskDataSource.insetTask(userId, Task1) }
+        coVerifyOrder {
+            userDataSource.getToken()
+            taskDataSource.insetTask(userId, Task1)
+            errorHandler.getSyncError(any())
+            syncManager.onLogout()
+            userDataSource.clearToken()
+        }
 
-        confirmVerified(userDataSource)
-        confirmVerified(taskDataSource)
+        confirmVerified(userDataSource, taskDataSource, errorHandler, syncManager)
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun testInsertTaskWorkerSyncErrorDataBaseError() = runBlocking {
+
+        //Given
+        val exception = Exception("My Error") // We need to use this error to avoid
+        val error = SyncError.DataBaseError(-1, exception.message ?: "")
+        val worker: ListenableWorker = buildWorker(buildData())
+
+        //When
+        coEvery { userDataSource.getToken() } returns userId
+        coEvery { taskDataSource.insetTask(any(), any()) } throws exception
+        coEvery { errorHandler.getSyncError(any()) } returns error
+
+        val result = worker.startWork()
+
+        //Verify
+        assertThat(result.await(), `is`(ListenableWorker.Result.retry()))
+        coVerifyOrder {
+            userDataSource.getToken()
+            taskDataSource.insetTask(userId, Task1)
+            errorHandler.getSyncError(any())
+            syncManager.onLogout()
+            userDataSource.clearToken()
+        }
+
+        confirmVerified(userDataSource, taskDataSource, errorHandler, syncManager)
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun testInsertTaskWorkerSyncErrorNetWorkError() = runBlocking {
+
+        //Given
+        val exception = Exception("My Error") // We need to use this error to avoid
+        val error = SyncError.NetworkError
+        val worker: ListenableWorker = buildWorker(buildData())
+
+        //When
+        coEvery { userDataSource.getToken() } returns userId
+        coEvery { taskDataSource.insetTask(any(), any()) } throws exception
+        coEvery { errorHandler.getSyncError(any()) } returns error
+
+        val result = worker.startWork()
+
+        //Verify
+        assertThat(result.await(), `is`(ListenableWorker.Result.retry()))
+        coVerifyOrder {
+            userDataSource.getToken()
+            taskDataSource.insetTask(userId, Task1)
+            errorHandler.getSyncError(any())
+            syncManager.onLogout()
+            userDataSource.clearToken()
+        }
+
+        confirmVerified(userDataSource, taskDataSource, errorHandler, syncManager)
+
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun testInsertTaskWorkerErrorGenericError() = runBlocking {
+
+        //Given
+        val exception = Exception("My Error") // We need to use this error to avoid
+        val error = SyncError.GenericError(-1, exception.message ?: "")
+        val worker: ListenableWorker = buildWorker(buildData())
+
+        //When
+        coEvery { userDataSource.getToken() } returns InsertTaskWorkerTest.userId
+        coEvery { taskDataSource.insetTask(any(), any()) } throws exception
+        coEvery { errorHandler.getSyncError(any()) } returns error
+
+        val result = worker.startWork()
+
+        //Verify
+        assertThat(result.await(), `is`(ListenableWorker.Result.retry()))
+        coVerifyOrder {
+            userDataSource.getToken()
+            taskDataSource.insetTask(userId, Task1)
+            errorHandler.getSyncError(any())
+            syncManager.onLogout()
+            userDataSource.clearToken()
+        }
+
+        confirmVerified(userDataSource, taskDataSource, errorHandler, syncManager)
+
     }
 
     companion object {

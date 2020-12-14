@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pomodorotime.core.session.ISessionManager
 import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.sync.SyncError
 import com.pomodorotime.data.task.datasource.remote.ITaskRemoteDataSource
@@ -14,23 +15,25 @@ class DeleteTaskWorker(
     params: WorkerParameters,
     private val userDataSource: IUserLocalDataSource,
     private val taskDataSource: ITaskRemoteDataSource,
-    private val errorHandler: ISyncErrorHandler
+    private val errorHandler: ISyncErrorHandler,
+    private val sessionManager: ISessionManager
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
 
         val taskId = dataToTaskId(inputData)
 
-        return try {
+        try {
             taskDataSource.deleteTask(userDataSource.getToken(), taskId)
-            Result.success()
+            return Result.success()
         } catch (ex: Exception) {
-            when (val error = errorHandler.getSyncError(ex)) {
+            return when (errorHandler.getSyncError(ex)) {
                 is SyncError.DataBaseError -> {
                     Result.retry()
                 }
                 is SyncError.InvalidUser -> {
-                    //TODO PERFORM LOGOUT
+                    sessionManager.onLogout()
+                    userDataSource.clearToken()
                     Result.retry()
                 }
 

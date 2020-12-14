@@ -3,7 +3,7 @@ package com.pomodorotime.task.tasklist.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import com.pomodorotime.core.BaseMultiSelectorAdapter
+import com.pomodorotime.core.bases.BaseMultiSelectorAdapter
 import com.pomodorotime.task.databinding.RowTaskViewBinding
 
 class TaskListAdapter(onItemSelector: OnItemClick<TaskListItem>) :

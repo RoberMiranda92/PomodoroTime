@@ -1,10 +1,11 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.components
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.core.view.isVisible
+import com.pomodorotime.core.R
 import com.pomodorotime.core.databinding.ViewStatusBinding
 
 class StatusView(

@@ -1,6 +1,6 @@
 package com.pomodorotime.task.tasklist.list
 
-import com.pomodorotime.core.ListItem
+import com.pomodorotime.core.bases.ListItem
 import java.util.Date
 
 data class TaskListItem(

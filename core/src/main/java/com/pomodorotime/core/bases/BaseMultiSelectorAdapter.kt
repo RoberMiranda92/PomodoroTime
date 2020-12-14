@@ -1,4 +1,4 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.bases
 
 import android.util.SparseBooleanArray
 import androidx.core.util.isNotEmpty

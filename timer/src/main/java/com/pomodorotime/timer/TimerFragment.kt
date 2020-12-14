@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.bases.BaseFragment
 import com.pomodorotime.core.observeEvent
 import com.pomodorotime.timer.databinding.FragmentTimeBinding
 import com.pomodorotime.timer.models.PomodoroMode

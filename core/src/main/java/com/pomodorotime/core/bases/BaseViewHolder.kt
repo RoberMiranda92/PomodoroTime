@@ -1,4 +1,4 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.bases
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding

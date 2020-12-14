@@ -74,7 +74,6 @@ class ErrorHandlerImpl : IErrorHandler, ISyncErrorHandler {
             DatabaseError.UNAVAILABLE -> {
                 SyncError.DataBaseError(error.code, throwable.message ?: "")
             }
-
             DatabaseError.PERMISSION_DENIED,
             DatabaseError.EXPIRED_TOKEN,
             DatabaseError.INVALID_TOKEN,

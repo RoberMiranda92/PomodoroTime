@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.pomodorotime.core.BaseFragment
+import com.pomodorotime.core.bases.BaseFragment
 import com.pomodorotime.core.observeEvent
 import com.pomodorotime.core.removeErrorOnTyping
 import com.pomodorotime.core.showSnackBar

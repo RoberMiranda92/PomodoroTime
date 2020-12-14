@@ -3,6 +3,7 @@ package com.pomodorotime.data.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.pomodorotime.core.session.ISessionManager
 import com.pomodorotime.data.ErrorHandlerImpl
 import com.pomodorotime.data.login.api.FirebaseLoginApi
 import com.pomodorotime.data.login.api.ILoginApi
@@ -12,6 +13,7 @@ import com.pomodorotime.data.login.repository.LoginRepository
 import com.pomodorotime.data.preferences.EncryptedSharedPreferencesImpl
 import com.pomodorotime.data.preferences.ISharedPreferences
 import com.pomodorotime.data.preferences.SharedPreferencesImpl
+import com.pomodorotime.data.session.SessionManager
 import com.pomodorotime.data.sync.ISyncErrorHandler
 import com.pomodorotime.data.task.TaskRepository
 import com.pomodorotime.data.task.api.FirebaseTaskApi
@@ -32,7 +34,7 @@ import org.koin.dsl.module
 
 val dataModule = module {
 
-    single<ILoginRepository> { LoginRepository(get(), get()) }
+    single<ILoginRepository> { LoginRepository(get(), get(), get()) }
 
     single<ITaskRepository> { TaskRepository(get(), get()) }
 
@@ -57,4 +59,7 @@ val dataModule = module {
     single<ITaskApi> { FirebaseTaskApi(Firebase.database.reference) }
 
     single<ILoginApi> { FirebaseLoginApi(FirebaseAuth.getInstance()) }
+
+    single<ISessionManager> { SessionManager(get()) }
+
 }

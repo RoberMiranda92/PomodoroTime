@@ -1,10 +1,12 @@
-package com.pomodorotime.core
+package com.pomodorotime.core.bases
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pomodorotime.core.Event
+import com.pomodorotime.core.IdlingResourcesSync
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
