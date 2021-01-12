@@ -12,7 +12,6 @@ import retrofit2.HttpException
 
 class ErrorHandlerImpl : IErrorHandler, ISyncErrorHandler {
 
-
     
     override fun getError(throwable: Throwable): ErrorEntity {
         return when (throwable) {
