@@ -6,5 +6,4 @@ sealed class ErrorEntity {
     data class UserPasswordError(val message: String) : ErrorEntity()
 
     object NetworkError : ErrorEntity()
-    
 }
